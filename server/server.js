@@ -13,7 +13,20 @@ if (!process.env.MONGO_URI) {
   );
   process.exit(1);
 }
+if (!process.env.API_KEY) {
+  console.error(
+    "Missing API_KEY environment variable. Generate one with: openssl rand -hex 24",
+  );
+  process.exit(1);
+}
 
+function requireApiKey(req, res, next) {
+  const key = req.headers["x-api-key"];
+  if (key !== process.env.API_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+}
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB Atlas"))
@@ -65,7 +78,7 @@ app.get("/api/members", async (req, res) => {
 });
 
 // POST: Add a new member (using Score model)
-app.post("/api/members", async (req, res) => {
+app.post("/api/members", requireApiKey, async (req, res) => {
   try {
     const newEntry = new Score(req.body);
     await newEntry.save();
@@ -99,7 +112,7 @@ app.post("/api/members", async (req, res) => {
 //   }
 // });
 // DELETE: Remove by username
-app.delete("/api/members/:name", async (req, res) => {
+app.delete("/api/members/:name", requireApiKey, async (req, res) => {
   try {
     await Score.deleteOne({ username: req.params.name });
     res.sendStatus(204);
@@ -109,7 +122,7 @@ app.delete("/api/members/:name", async (req, res) => {
 });
 
 // PUT: Update score by username
-app.put("/api/members/:name", async (req, res) => {
+app.put("/api/members/:name", requireApiKey, async (req, res) => {
   try {
     // We now use req.body.score to match the model field name
     const updated = await Score.findOneAndUpdate(
