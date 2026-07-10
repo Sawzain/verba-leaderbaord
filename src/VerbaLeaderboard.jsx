@@ -8,32 +8,17 @@ const CREAM = "#EEE8D5";
 const CREAM_DARK = "#d9d1b8";
 const WHITE = "#FAF7F0";
 const LOGO_SRC = "/logo.jpg";
-const initialMembers = [
-  { name: "Amara", points: 4 },
-  { name: "Linh", points: 3 },
-  { name: "Soren", points: 3 },
-  { name: "Priya", points: 2 },
-  { name: "Felix", points: 1 },
-];
+
 
 const medals = ["🥇", "🥈", "🥉"];
 
-function getRank(index, sorted, member) {
-  const pts = member.points;
-  const rank = sorted.findIndex((m) => m.points === pts);
-  return rank;
-}
+
 
 export default function VerbaLeaderboard() {
-  // 1. Replace your existing 'const [members, setMembers] = useState(initialMembers);'
-  // with this logic:
+
   const [members, setMembers] = useState([]);
 
-  // // 2. Add this useEffect block right below the state declarations:
-  // useEffect(() => {
-  //   localStorage.setItem("verba-members", JSON.stringify(members));
-  // }, [members]);
-  // Add this inside VerbaLeaderboard component
+
   useEffect(() => {
     fetch("http://localhost:5000/api/members")
       .then((res) => res.json())
@@ -55,15 +40,7 @@ export default function VerbaLeaderboard() {
     .filter((m) => m && m.name)
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
 
-  // const addMember = () => {
-  //   if (!newName.trim()) return;
-  //   setMembers((prev) => [
-  //     ...prev,
-  //     { name: newName.trim(), points: Number(newPoints) },
-  //   ]);
-  //   setNewName("");
-  //   setNewPoints(0);
-  // };
+
   const addMember = async () => {
     if (!newName.trim()) return;
     const response = await fetch("http://localhost:5000/api/members", {
@@ -87,9 +64,7 @@ export default function VerbaLeaderboard() {
     setNewPoints(0);
   };
 
-  // const removeMember = (name) => {
-  //   setMembers((prev) => prev.filter((m) => m.name !== name));
-  // };
+
 
   const removeMember = async (name) => {
     try {
@@ -125,14 +100,7 @@ export default function VerbaLeaderboard() {
     setEditPoints(member.points);
   };
 
-  // const saveEdit = (name) => {
-  //   setMembers((prev) =>
-  //     prev.map((m) =>
-  //       m.name === name ? { ...m, points: Number(editPoints) } : m,
-  //     ),
-  //   );
-  //   setEditingIndex(null);
-  // };
+  
 
   const saveEdit = async (name) => {
     try {
