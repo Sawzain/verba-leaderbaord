@@ -37,7 +37,11 @@ export default function VerbaLeaderboard() {
   useEffect(() => {
     fetch("http://localhost:5000/api/members")
       .then((res) => res.json())
-.then((data) => setMembers(data.map(m => ({ name: m.username, points: m.score, _id: m._id }))))
+      .then((data) =>
+        setMembers(
+          data.map((m) => ({ name: m.username, points: m.score, _id: m._id })),
+        ),
+      )
       .catch((err) => console.error("Error fetching:", err));
   }, []);
 
@@ -47,13 +51,9 @@ export default function VerbaLeaderboard() {
   const [editPoints, setEditPoints] = useState(0);
   const [tab, setTab] = useState("board");
 
-  // const sorted = [...members].sort((a, b) => b.points - a.points);
-  const sorted = [...members].sort((a, b) => {
-    if (b.points !== a.points) {
-      return b.points - a.points;
-    }
-  const sorted = [...members].filter(m => m && m.name).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
-  });
+  const sorted = [...members]
+    .filter((m) => m && m.name)
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
 
   // const addMember = () => {
   //   if (!newName.trim()) return;
@@ -69,16 +69,23 @@ export default function VerbaLeaderboard() {
     const response = await fetch("http://localhost:5000/api/members", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: newName.trim(), score: Number(newPoints) }),
+      body: JSON.stringify({
+        username: newName.trim(),
+        score: Number(newPoints),
+      }),
     });
     const savedMember = await response.json();
-    setMembers((prev) => [...prev, { name: savedMember.username, points: savedMember.score, _id: savedMember._id }]);
+    setMembers((prev) => [
+      ...prev,
+      {
+        name: savedMember.username,
+        points: savedMember.score,
+        _id: savedMember._id,
+      },
+    ]);
     setNewName("");
     setNewPoints(0);
   };
-
-
-
 
   // const removeMember = (name) => {
   //   setMembers((prev) => prev.filter((m) => m.name !== name));
@@ -279,11 +286,11 @@ export default function VerbaLeaderboard() {
               </div>
             )}
             {sorted.map((member, i) => {
-              const isTop3 = i < 3;
               const isTied = i > 0 && sorted[i - 1].points === member.points;
               const displayRank = isTied
                 ? sorted.findIndex((m) => m.points === member.points) + 1
                 : i + 1;
+              const isTop3 = displayRank <= 3;
 
               return (
                 <div
@@ -418,9 +425,12 @@ export default function VerbaLeaderboard() {
                     textAlign: "center",
                   }}
                 />
-                <button onClick={addMember} onMouseEnter={e => e.currentTarget.style.opacity="0.8"} onMouseLeave={e => e.currentTarget.style.opacity="1"} style={{
+                <button
+                  onClick={addMember}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                  style={{
                     background: "#6B7A3A",
-
 
                     color: CREAM,
                     border: "none",
@@ -587,7 +597,14 @@ export default function VerbaLeaderboard() {
                       +
                     </button>
 
-                    <button onClick={() => removeMember(member.username)} onMouseEnter={e => e.currentTarget.style.color="#222"} onMouseLeave={e => e.currentTarget.style.color="#333"}
+                    <button
+                      onClick={() => removeMember(member.username)}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = "#222")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = "#333")
+                      }
                       style={{
                         background: "transparent",
                         border: "none",
