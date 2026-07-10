@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -6,11 +7,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Replace with your MongoDB Atlas connection string
+if (!process.env.MONGO_URI) {
+  console.error(
+    "Missing MONGO_URI environment variable. Copy .env.example to .env and fill in your connection string.",
+  );
+  process.exit(1);
+}
+
 mongoose
-  .connect(
-    "mongodb+srv://verba_admin:VerbaLeaderBoard@verbacluster.fykxznn.mongodb.net/?appName=VerbaCluster",
-  )
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("Could not connect to MongoDB", err));
 const Score = require("./Score"); // Ensure you have imported your model here
@@ -123,4 +128,5 @@ app.put("/api/members/:name", async (req, res) => {
   }
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
