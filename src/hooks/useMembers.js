@@ -49,9 +49,9 @@ export default function useMembers(adminKey) {
     setNewPoints(0);
   };
 
-  const removeMember = async (name) => {
+  const removeMember = async (id) => {
     try {
-      const response = await fetch(`${API_BASE}/${name}`, {
+      const response = await fetch(`${API_BASE}/${id}`, {
         method: "DELETE",
         headers: { "x-api-key": adminKey },
       });
@@ -62,7 +62,7 @@ export default function useMembers(adminKey) {
       }
 
       if (response.ok) {
-        setMembers(members.filter((m) => m.username !== name));
+        setMembers((prev) => prev.filter((m) => m._id !== id));
       } else {
         console.error("Failed to delete member on server");
       }
@@ -71,25 +71,25 @@ export default function useMembers(adminKey) {
     }
   };
 
-  const adjustPoints = (name, delta) => {
+  const adjustPoints = (id, delta) => {
     setMembers((prev) =>
       prev.map((m) =>
-        m.name === name ? { ...m, points: Math.max(0, m.points + delta) } : m,
+        m._id === id ? { ...m, points: Math.max(0, m.points + delta) } : m,
       ),
     );
   };
 
   const startEdit = (member) => {
-    setEditingIndex(member.name);
+    setEditingIndex(member._id);
     setEditPoints(member.points);
   };
 
-  const saveEdit = async (name) => {
+  const saveEdit = async (id) => {
     try {
-      const response = await fetch(`${API_BASE}/${name}`, {
+      const response = await fetch(`${API_BASE}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "x-api-key": adminKey },
-        body: JSON.stringify({ points: Number(editPoints) }),
+        body: JSON.stringify({ score: Number(editPoints) }),
       });
 
       if (response.status === 401) {
@@ -100,7 +100,7 @@ export default function useMembers(adminKey) {
       if (response.ok) {
         setMembers((prev) =>
           prev.map((m) =>
-            m.name === name ? { ...m, points: Number(editPoints) } : m,
+            m._id === id ? { ...m, points: Number(editPoints) } : m,
           ),
         );
         setEditingIndex(null);

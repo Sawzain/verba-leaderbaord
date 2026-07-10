@@ -152,9 +152,9 @@ export default function ManageView({
 
       {members.map((member) => (
         <MemberRow
-          key={member.name}
+          key={member._id}
           member={member}
-          isEditing={editingIndex === member.name}
+          isEditing={editingIndex === member._id}
           editPoints={editPoints}
           setEditPoints={setEditPoints}
           onStartEdit={startEdit}

@@ -49,7 +49,7 @@ export default function LeaderboardView({ sorted, memberCount }) {
 
         return (
           <div
-            key={member.name}
+            key={member._id}
             style={{
               display: "flex",
               alignItems: "center",

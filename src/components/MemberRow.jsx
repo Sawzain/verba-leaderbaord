@@ -50,7 +50,7 @@ export default function MemberRow({
             }}
           />
           <button
-            onClick={() => onSaveEdit(member.name)}
+            onClick={() => onSaveEdit(member._id)}
             style={{
               background: "#6B7A3A",
               color: CREAM,
@@ -79,7 +79,7 @@ export default function MemberRow({
       ) : (
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <button
-            onClick={() => onAdjustPoints(member.name, -1)}
+            onClick={() => onAdjustPoints(member._id, -1)}
             style={{
               width: 28,
               height: 28,
@@ -114,7 +114,7 @@ export default function MemberRow({
             {member.points} pt
           </div>
           <button
-            onClick={() => onAdjustPoints(member.name, 1)}
+            onClick={() => onAdjustPoints(member._id, 1)}
             style={{
               width: 28,
               height: 28,
@@ -133,7 +133,7 @@ export default function MemberRow({
           </button>
 
           <button
-            onClick={() => onRemove(member.username)}
+            onClick={() => onRemove(member._id)}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#222")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#333")}
             style={{
