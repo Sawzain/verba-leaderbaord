@@ -1,6 +1,15 @@
+import { useMemo, useState } from "react";
 import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK, medals } from "../theme";
 
-export default function LeaderboardView({ sorted, memberCount }) {
+export default function LeaderboardView({ sorted, memberCount, loading }) {
+  const [search, setSearch] = useState("");
+
+  const visible = useMemo(() => {
+    if (!search.trim()) return sorted;
+    const q = search.trim().toLowerCase();
+    return sorted.filter((m) => m.name.toLowerCase().includes(q));
+  }, [sorted, search]);
+
   return (
     <div>
       <div
@@ -28,7 +37,42 @@ export default function LeaderboardView({ sorted, memberCount }) {
         </span>
       </div>
 
-      {sorted.length === 0 && (
+      {memberCount > 5 && (
+        <div style={{ padding: "12px 24px 0" }}>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search readers…"
+            style={{
+              width: "100%",
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: `1.5px solid ${CREAM_DARK}`,
+              fontSize: 14,
+              fontFamily: "'Georgia', serif",
+              outline: "none",
+              background: "#fff",
+              color: "#2d2d2d",
+              boxSizing: "border-box",
+            }}
+          />
+        </div>
+      )}
+
+      {loading && (
+        <div
+          style={{
+            padding: 40,
+            textAlign: "center",
+            color: "#aaa",
+            fontStyle: "italic",
+          }}
+        >
+          Loading leaderboard…
+        </div>
+      )}
+
+      {!loading && sorted.length === 0 && (
         <div
           style={{
             padding: 40,
@@ -40,12 +84,26 @@ export default function LeaderboardView({ sorted, memberCount }) {
           No members yet. Add some in Manage!
         </div>
       )}
-      {sorted.map((member, i) => {
-        const isTied = i > 0 && sorted[i - 1].points === member.points;
-        const displayRank = isTied
-          ? sorted.findIndex((m) => m.points === member.points) + 1
-          : i + 1;
+
+      {!loading && sorted.length > 0 && visible.length === 0 && (
+        <div
+          style={{
+            padding: 40,
+            textAlign: "center",
+            color: "#aaa",
+            fontStyle: "italic",
+          }}
+        >
+          No readers match "{search}".
+        </div>
+      )}
+
+      {visible.map((member) => {
+        // Rank always reflects the member's true position on the full
+        // (unfiltered) leaderboard, even while a search is narrowing the view.
+        const displayRank = sorted.findIndex((m) => m.points === member.points) + 1;
         const isTop3 = displayRank <= 3;
+        const isFirstPlace = displayRank === 1;
 
         return (
           <div
@@ -55,7 +113,7 @@ export default function LeaderboardView({ sorted, memberCount }) {
               alignItems: "center",
               padding: "16px 24px",
               borderBottom: `1px solid ${CREAM}`,
-              background: i === 0 ? `${CREAM}55` : "transparent",
+              background: isFirstPlace ? `${CREAM}55` : "transparent",
               transition: "background 0.2s",
             }}
           >
@@ -78,7 +136,7 @@ export default function LeaderboardView({ sorted, memberCount }) {
                   fontSize: 17,
                   color: "#2d2d2d",
                   fontFamily: "'Georgia', serif",
-                  fontWeight: i === 0 ? "bold" : "normal",
+                  fontWeight: isFirstPlace ? "bold" : "normal",
                 }}
               >
                 {member.name}

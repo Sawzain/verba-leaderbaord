@@ -9,10 +9,17 @@ import { CREAM, CREAM_DARK } from "./theme";
 
 export default function VerbaLeaderboard() {
   const [tab, setTab] = useState("board");
-  const { adminKey, saveAdminKey } = useAdminKey();
+  const { adminKey, status: adminStatus, isUnlocked, unlock, lock } = useAdminKey();
   const {
     members,
     sorted,
+    filteredMembers,
+    search,
+    setSearch,
+    loading,
+    error,
+    setError,
+    savingId,
     newName,
     setNewName,
     newPoints,
@@ -54,13 +61,23 @@ export default function VerbaLeaderboard() {
         }}
       >
         {tab === "board" && (
-          <LeaderboardView sorted={sorted} memberCount={members.length} />
+          <LeaderboardView sorted={sorted} memberCount={members.length} loading={loading} />
         )}
         {tab === "manage" && (
           <ManageView
             adminKey={adminKey}
-            saveAdminKey={saveAdminKey}
+            adminStatus={adminStatus}
+            isUnlocked={isUnlocked}
+            unlockAdmin={unlock}
+            lockAdmin={lock}
             members={members}
+            filteredMembers={filteredMembers}
+            search={search}
+            setSearch={setSearch}
+            loading={loading}
+            error={error}
+            setError={setError}
+            savingId={savingId}
             newName={newName}
             setNewName={setNewName}
             newPoints={newPoints}

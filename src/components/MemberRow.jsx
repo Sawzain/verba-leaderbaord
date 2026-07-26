@@ -3,6 +3,7 @@ import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
 export default function MemberRow({
   member,
   isEditing,
+  isSaving,
   editPoints,
   setEditPoints,
   onStartEdit,
@@ -19,6 +20,8 @@ export default function MemberRow({
         padding: "12px 0",
         borderBottom: `1px solid ${CREAM}`,
         gap: 10,
+        opacity: isSaving ? 0.6 : 1,
+        transition: "opacity 0.15s",
       }}
     >
       <div
@@ -80,13 +83,14 @@ export default function MemberRow({
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <button
             onClick={() => onAdjustPoints(member._id, -1)}
+            disabled={isSaving}
             style={{
               width: 28,
               height: 28,
               borderRadius: "50%",
               border: `1.5px solid ${CREAM_DARK}`,
               background: "white",
-              cursor: "pointer",
+              cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               color: OLIVE_DARK,
               display: "flex",
@@ -115,13 +119,14 @@ export default function MemberRow({
           </div>
           <button
             onClick={() => onAdjustPoints(member._id, 1)}
+            disabled={isSaving}
             style={{
               width: 28,
               height: 28,
               borderRadius: "50%",
               border: `1.5px solid ${CREAM_DARK}`,
               background: "white",
-              cursor: "pointer",
+              cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               color: OLIVE_DARK,
               display: "flex",
@@ -133,14 +138,15 @@ export default function MemberRow({
           </button>
 
           <button
-            onClick={() => onRemove(member._id)}
+            onClick={onRemove}
+            disabled={isSaving}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#222")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#333")}
             style={{
               background: "transparent",
               border: "none",
               color: "#333",
-              cursor: "pointer",
+              cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               marginLeft: 4,
             }}

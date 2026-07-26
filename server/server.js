@@ -27,45 +27,20 @@ function requireApiKey(req, res, next) {
   }
   next();
 }
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("Could not connect to MongoDB", err));
-const Score = require("./Score"); // Ensure you have imported your model here
 
-app.get("/api/leaderboard", async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 20;
-  const skip = (page - 1) * limit;
+const Score = require("./Score");
 
-  try {
-    const [scores, total] = await Promise.all([
-      Score.find().sort({ score: -1 }).skip(skip).limit(limit),
-      Score.countDocuments(),
-    ]);
-
-    res.json({
-      scores,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch scores" });
-  }
+// GET: Verify an admin key without doing anything mutating.
+// The frontend uses this to show a clear "unlocked" state instead of
+// only finding out the key is wrong after a failed add/edit/delete.
+app.get("/api/admin/verify", requireApiKey, (req, res) => {
+  res.json({ ok: true });
 });
-
-// Define a simple Schema for your members
-const MemberSchema = new mongoose.Schema({
-  name: String,
-  points: Number,
-});
-// const Member = mongoose.model("Member", MemberSchema);
-// app.get("/", (req, res) => {
-//   res.send("Leaderboard Server is up and running!");
-// });
-// GET: Fetch all members (Using Score model)
-// ... (Your existing imports and DB connection)
 
 // GET: Fetch all members (using Score model)
 app.get("/api/members", async (req, res) => {
@@ -79,8 +54,15 @@ app.get("/api/members", async (req, res) => {
 
 // POST: Add a new member (using Score model)
 app.post("/api/members", requireApiKey, async (req, res) => {
+  const username = (req.body.username || "").trim();
+  const score = Number(req.body.score) || 0;
+
+  if (!username) {
+    return res.status(400).json({ error: "Name is required" });
+  }
+
   try {
-    const newEntry = new Score(req.body);
+    const newEntry = new Score({ username, score });
     await newEntry.save();
     res.json(newEntry);
   } catch (err) {
@@ -88,48 +70,29 @@ app.post("/api/members", requireApiKey, async (req, res) => {
   }
 });
 
-// // DELETE: Remove by name
-// app.delete("/api/members/:name", async (req, res) => {
-//   try {
-//     await Score.deleteOne({ username: req.params.name }); // Match your Schema field
-//     res.sendStatus(204);
-//   } catch (err) {
-//     res.status(500).json({ error: "Failed to delete" });
-//   }
-// });
-
-// // PUT: Update points/score by name
-// app.put("/api/members/:name", async (req, res) => {
-//   try {
-//     const updated = await Score.findOneAndUpdate(
-//       { username: req.params.name }, // Match your Schema field
-//       { score: req.body.points },
-//       { new: true },
-//     );
-//     res.json(updated);
-//   } catch (err) {
-//     res.status(500).json({ error: "Failed to update" });
-//   }
-// });
-// DELETE: Remove by username
-app.delete("/api/members/:name", requireApiKey, async (req, res) => {
+// DELETE: Remove by id
+app.delete("/api/members/:id", requireApiKey, async (req, res) => {
   try {
-    await Score.deleteOne({ username: req.params.name });
+    const deleted = await Score.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Member not found" });
+    }
     res.sendStatus(204);
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete" });
+    res.status(400).json({ error: "Invalid member id" });
   }
 });
 
-// PUT: Update score by username
-app.put("/api/members/:name", requireApiKey, async (req, res) => {
+// PUT: Update score (and optionally name) by id
+app.put("/api/members/:id", requireApiKey, async (req, res) => {
   try {
-    // We now use req.body.score to match the model field name
-    const updated = await Score.findOneAndUpdate(
-      { username: req.params.name },
-      { score: req.body.score },
-      { new: true },
-    );
+    const update = {};
+    if (req.body.score !== undefined) update.score = req.body.score;
+    if (req.body.username !== undefined) update.username = req.body.username;
+
+    const updated = await Score.findByIdAndUpdate(req.params.id, update, {
+      new: true,
+    });
 
     if (!updated) {
       return res.status(404).json({ error: "Member not found" });
@@ -137,7 +100,7 @@ app.put("/api/members/:name", requireApiKey, async (req, res) => {
 
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: "Failed to update" });
+    res.status(400).json({ error: "Invalid member id" });
   }
 });
 
