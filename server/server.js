@@ -4,7 +4,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+const allowedOrigin = process.env.FRONTEND_ORIGIN;
+app.use(cors(allowedOrigin ? { origin: allowedOrigin } : {}));
 app.use(express.json());
 
 if (!process.env.MONGO_URI) {
