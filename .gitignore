@@ -45,3 +45,7 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 
+
+# Uploaded book covers — keep the folder, not the files
+server/uploads/*
+!server/uploads/.gitkeep

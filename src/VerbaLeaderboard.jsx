@@ -3,13 +3,18 @@ import Header from "./components/Header";
 import TabSwitcher from "./components/TabSwitcher";
 import LeaderboardView from "./components/LeaderboardView";
 import ManageView from "./components/ManageView";
+import BooksView from "./components/BooksView";
 import useMembers from "./hooks/useMembers";
 import useAdminKey from "./hooks/useAdminKey";
+import useBooks from "./hooks/useBooks";
+import useAuth from "./hooks/useAuth";
 import { CREAM, CREAM_DARK } from "./theme";
 
 export default function VerbaLeaderboard() {
   const [tab, setTab] = useState("board");
   const { adminKey, status: adminStatus, isUnlocked, unlock, lock } = useAdminKey();
+  const booksState = useBooks();
+  const auth = useAuth();
   const {
     members,
     sorted,
@@ -62,6 +67,20 @@ export default function VerbaLeaderboard() {
       >
         {tab === "board" && (
           <LeaderboardView sorted={sorted} memberCount={members.length} loading={loading} />
+        )}
+        {tab === "books" && (
+          <BooksView
+            books={booksState.books}
+            loading={booksState.loading}
+            error={booksState.error}
+            isAdminUnlocked={isUnlocked}
+            adminKey={adminKey}
+            addBook={booksState.addBook}
+            removeBook={booksState.removeBook}
+            fetchBook={booksState.fetchBook}
+            addReview={booksState.addReview}
+            auth={auth}
+          />
         )}
         {tab === "manage" && (
           <ManageView

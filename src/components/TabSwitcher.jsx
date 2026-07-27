@@ -12,12 +12,12 @@ export default function TabSwitcher({ tab, setTab }) {
         borderRadius: 12,
       }}
     >
-      {["board", "manage"].map((t) => (
+      {["board", "books", "manage"].map((t) => (
         <button
           key={t}
           onClick={() => setTab(t)}
           style={{
-            padding: "8px 24px",
+            padding: "8px 16px",
             borderRadius: 8,
             border: "none",
             cursor: "pointer",
@@ -31,7 +31,7 @@ export default function TabSwitcher({ tab, setTab }) {
             transition: "all 0.2s",
           }}
         >
-          {t === "board" ? "Leaderboard" : "Manage"}
+          {t === "board" ? "Leaderboard" : t === "books" ? "Books" : "Manage"}
         </button>
       ))}
     </div>
