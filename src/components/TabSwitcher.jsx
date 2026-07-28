@@ -31,7 +31,7 @@ export default function TabSwitcher({ tab, setTab }) {
             transition: "all 0.2s",
           }}
         >
-          {t === "board" ? "Leaderboard" : t === "books" ? "Books" : "Manage"}
+          {t === "board" ? "Leaderboard" : t === "books" ? "Book Review" : "Manage"}
         </button>
       ))}
     </div>

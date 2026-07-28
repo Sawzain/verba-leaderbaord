@@ -21,6 +21,8 @@ export default function BookDetail({
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [removingId, setRemovingId] = useState(null);
 
+  const [showAuthForm, setShowAuthForm] = useState(false);
+
   const [editingReviewId, setEditingReviewId] = useState(null);
   const [editRating, setEditRating] = useState(0);
   const [editText, setEditText] = useState("");
@@ -176,15 +178,52 @@ export default function BookDetail({
           Write a review
         </div>
 
-        {!auth.isLoggedIn && (
-          <AuthPanel
-            authError={auth.authError}
-            setAuthError={auth.setAuthError}
-            authBusy={auth.authBusy}
-            onRegister={auth.register}
-            onLogin={auth.login}
-            discordLoginUrl={auth.discordLoginUrl}
-          />
+        {!auth.isLoggedIn && !showAuthForm && (
+          <button
+            onClick={() => setShowAuthForm(true)}
+            style={{
+              background: "none",
+              border: `1px dashed ${CREAM_DARK}`,
+              borderRadius: 10,
+              padding: "10px 14px",
+              fontSize: 13,
+              color: OLIVE_DARK,
+              cursor: "pointer",
+              fontFamily: "'Georgia', serif",
+              width: "100%",
+              textAlign: "left",
+            }}
+          >
+            Log in to write a review →
+          </button>
+        )}
+
+        {!auth.isLoggedIn && showAuthForm && (
+          <div>
+            <AuthPanel
+              authError={auth.authError}
+              setAuthError={auth.setAuthError}
+              authBusy={auth.authBusy}
+              onRegister={auth.register}
+              onLogin={auth.login}
+              discordLoginUrl={auth.discordLoginUrl}
+            />
+            <button
+              onClick={() => setShowAuthForm(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: OLIVE_DARK,
+                fontSize: 12,
+                textDecoration: "underline",
+                cursor: "pointer",
+                padding: 0,
+                marginTop: 8,
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         )}
 
         {auth.isLoggedIn && myReview && !justSubmitted && editingReviewId !== myReview.id && (
