@@ -3,6 +3,7 @@ import { OLIVE, OLIVE_DARK, CREAM_DARK } from "../theme";
 import BookCard from "./BookCard";
 import AddBookForm from "./AddBookForm";
 import BookDetail from "./BookDetail";
+import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 export default function BooksView({
   books,
@@ -21,6 +22,7 @@ export default function BooksView({
   const [selectedBook, setSelectedBook] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+  const showSlowHint = useSlowLoadHint(loading);
 
   const openBook = async (id) => {
     setSelectedId(id);
@@ -122,6 +124,12 @@ export default function BooksView({
       {loading && (
         <div style={{ padding: 20, textAlign: "center", color: "#aaa", fontStyle: "italic" }}>
           Loading books…
+          {showSlowHint && (
+            <div style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
+              The server may be waking up from being idle — this can take up
+              to a minute on the free tier.
+            </div>
+          )}
         </div>
       )}
 

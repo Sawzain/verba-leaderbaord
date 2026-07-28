@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK, medals } from "../theme";
+import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 export default function LeaderboardView({ sorted, memberCount, loading }) {
   const [search, setSearch] = useState("");
+  const showSlowHint = useSlowLoadHint(loading);
 
   const visible = useMemo(() => {
     if (!search.trim()) return sorted;
@@ -69,6 +71,12 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
           }}
         >
           Loading leaderboard…
+          {showSlowHint && (
+            <div style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
+              The server may be waking up from being idle — this can take up
+              to a minute on the free tier.
+            </div>
+          )}
         </div>
       )}
 

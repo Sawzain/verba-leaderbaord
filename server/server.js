@@ -9,6 +9,7 @@ const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
+const sharp = require("sharp");
 
 const app = express();
 
@@ -62,18 +63,18 @@ const Review = require("./models/Review");
 // --- Book cover uploads ---
 const uploadsDir = path.join(__dirname, "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
-app.use("/uploads", express.static(uploadsDir));
+// Filenames are timestamp+random, so a given URL's content never changes —
+// safe to cache aggressively and skip re-downloading the same cover on
+// every page load.
+app.use(
+  "/uploads",
+  express.static(uploadsDir, { maxAge: "7d", immutable: true }),
+);
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadsDir),
-    filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase();
-      cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     if (!ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
@@ -82,6 +83,20 @@ const upload = multer({
     cb(null, true);
   },
 });
+
+// Cover photos are often straight off a phone camera (several MB, wrong
+// orientation baked into EXIF instead of pixels). This resizes to a
+// sensible display width and re-encodes as compressed JPEG, so the Books
+// grid loads fast instead of pulling down full-resolution photos.
+async function saveCoverImage(fileBuffer) {
+  const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+  await sharp(fileBuffer)
+    .rotate() // apply EXIF orientation, then strip it
+    .resize({ width: 600, withoutEnlargement: true })
+    .jpeg({ quality: 78 })
+    .toFile(path.join(uploadsDir, filename));
+  return `/uploads/${filename}`;
+}
 
 function signToken(user) {
   return jwt.sign({ sub: user._id.toString(), name: user.name }, process.env.JWT_SECRET, {
@@ -314,11 +329,8 @@ app.post("/api/books", requireApiKey, upload.single("cover"), async (req, res) =
   }
 
   try {
-    const book = await Book.create({
-      title,
-      author,
-      coverImage: req.file ? `/uploads/${req.file.filename}` : "",
-    });
+    const coverImage = req.file ? await saveCoverImage(req.file.buffer) : "";
+    const book = await Book.create({ title, author, coverImage });
     res.json(book);
   } catch (err) {
     res.status(500).json({ error: "Failed to add book" });
