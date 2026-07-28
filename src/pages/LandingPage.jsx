@@ -1,3 +1,8 @@
+import Footer from "./Footer";
+
+// Define theme color constants
+const OLIVE_DARK = "#2D3C2D";
+
 export default function LandingPage() {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "48px 16px 20px" }}>
