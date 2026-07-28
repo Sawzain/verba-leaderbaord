@@ -1,14 +1,20 @@
 require("dotenv").config();
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
+
+// Trust Render's proxy so rate limiting keys off the real client IP,
+// not the proxy's.
+app.set("trust proxy", 1);
 
 const allowedOrigin = process.env.FRONTEND_ORIGIN;
 app.use(cors(allowedOrigin ? { origin: allowedOrigin } : {}));
@@ -83,6 +89,16 @@ function signToken(user) {
   });
 }
 
+// Slows down brute-force login/register attempts against a single account
+// or from a single client, without needing a captcha or external service.
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many attempts. Please wait a few minutes and try again." },
+});
+
 // GET: Verify an admin key without doing anything mutating.
 // The frontend uses this to show a clear "unlocked" state instead of
 // only finding out the key is wrong after a failed add/edit/delete.
@@ -156,7 +172,7 @@ app.put("/api/members/:id", requireApiKey, async (req, res) => {
 // Separate from the admin x-api-key: this is a real login so a review is
 // always tied to one specific person, not just whatever name they typed.
 
-app.post("/api/auth/register", async (req, res) => {
+app.post("/api/auth/register", authLimiter, async (req, res) => {
   const name = (req.body.name || "").trim();
   const email = (req.body.email || "").trim().toLowerCase();
   const password = req.body.password || "";
@@ -184,7 +200,7 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-app.post("/api/auth/login", async (req, res) => {
+app.post("/api/auth/login", authLimiter, async (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
   const password = req.body.password || "";
 
@@ -206,6 +222,33 @@ app.post("/api/auth/login", async (req, res) => {
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ id: req.userId, name: req.userName });
+});
+
+// POST: admin-assisted password reset. There's no email service configured,
+// so this doesn't send anything automatically — it generates a fresh
+// temporary password and hands it back to the admin, who relays it to the
+// member out of band (Discord DM, in person, etc). The member can't request
+// this themselves; it requires the admin x-api-key.
+app.post("/api/admin/reset-password", requireApiKey, async (req, res) => {
+  const email = (req.body.email || "").trim().toLowerCase();
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "No account found with that email" });
+    }
+
+    const tempPassword = crypto.randomBytes(6).toString("hex"); // 12 chars
+    user.passwordHash = await bcrypt.hash(tempPassword, 10);
+    await user.save();
+
+    res.json({ email: user.email, name: user.name, tempPassword });
+  } catch (err) {
+    res.status(500).json({ error: "Couldn't reset that password" });
+  }
 });
 
 // ============================== Books ==============================
@@ -336,6 +379,17 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
       return res.status(409).json({ error: "You've already reviewed this book" });
     }
     res.status(400).json({ error: "Invalid book id" });
+  }
+});
+
+// DELETE: remove a review (admin only) — e.g. for abusive or off-topic reviews
+app.delete("/api/reviews/:id", requireApiKey, async (req, res) => {
+  try {
+    const deleted = await Review.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "Review not found" });
+    res.sendStatus(204);
+  } catch (err) {
+    res.status(400).json({ error: "Invalid review id" });
   }
 });
 

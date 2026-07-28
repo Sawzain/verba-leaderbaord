@@ -8,12 +8,27 @@ export default function BookDetail({
   auth,
   onBack,
   onSubmitReview,
+  isAdminUnlocked,
+  onRemoveReview,
 }) {
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [justSubmitted, setJustSubmitted] = useState(false);
+  const [removingId, setRemovingId] = useState(null);
+
+  const handleRemoveReview = async (reviewId) => {
+    if (!window.confirm("Remove this review? This can't be undone.")) return;
+    setRemovingId(reviewId);
+    try {
+      await onRemoveReview(reviewId);
+    } catch (err) {
+      window.alert(err.message || "Couldn't remove that review.");
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   const myReview = auth.user
     ? book.reviews.find((r) => r.userId === auth.user.id)
@@ -236,7 +251,26 @@ export default function BookDetail({
             <span style={{ fontSize: 14, fontWeight: "bold", color: "#2d2d2d" }}>
               {r.reviewer}
             </span>
-            <StarDisplay value={r.rating} size={13} />
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <StarDisplay value={r.rating} size={13} />
+              {isAdminUnlocked && (
+                <button
+                  onClick={() => handleRemoveReview(r.id)}
+                  disabled={removingId === r.id}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#a33",
+                    fontSize: 11,
+                    cursor: removingId === r.id ? "default" : "pointer",
+                    opacity: removingId === r.id ? 0.6 : 1,
+                    padding: 0,
+                  }}
+                >
+                  {removingId === r.id ? "Removing…" : "Remove"}
+                </button>
+              )}
+            </div>
           </div>
           {r.text && (
             <div style={{ marginTop: 6, fontSize: 14, color: "#444", lineHeight: 1.5 }}>

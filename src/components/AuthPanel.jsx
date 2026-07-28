@@ -19,6 +19,7 @@ export default function AuthPanel({ authError, setAuthError, authBusy, onRegiste
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const submit = () => {
     if (mode === "register") {
@@ -95,14 +96,32 @@ export default function AuthPanel({ authError, setAuthError, authBusy, onRegiste
           placeholder="Email"
           style={inputStyle}
         />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={mode === "register" ? "Password (min. 8 characters)" : "Password"}
-          style={inputStyle}
-        />
+        <div style={{ display: "flex", gap: 8 }}>
+          <input
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            placeholder={mode === "register" ? "Password (min. 8 characters)" : "Password"}
+            style={{ ...inputStyle, flex: 1 }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            title={showPassword ? "Hide password" : "Show password"}
+            style={{
+              border: `1.5px solid ${CREAM_DARK}`,
+              background: WHITE,
+              borderRadius: 10,
+              width: 42,
+              flexShrink: 0,
+              cursor: "pointer",
+              fontSize: 15,
+            }}
+          >
+            {showPassword ? "🙈" : "👁"}
+          </button>
+        </div>
 
         {authError && (
           <div style={{ fontSize: 13, color: "#a33" }}>{authError}</div>

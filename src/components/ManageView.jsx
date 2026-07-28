@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 import MemberRow from "./MemberRow";
+import AdminPasswordReset from "./AdminPasswordReset";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -195,6 +196,8 @@ export default function ManageView({
           </button>
         </div>
       )}
+
+      <AdminPasswordReset adminKey={adminKey} />
 
       <div style={{ marginBottom: 24 }}>
         <div

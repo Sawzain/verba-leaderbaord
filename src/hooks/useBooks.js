@@ -78,5 +78,26 @@ export default function useBooks() {
     return body;
   };
 
-  return { books, loading, error, loadBooks, fetchBook, addBook, removeBook, addReview };
+  const removeReview = async (adminKey, reviewId) => {
+    const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
+      method: "DELETE",
+      headers: { "x-api-key": adminKey },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Couldn't remove that review");
+    }
+  };
+
+  return {
+    books,
+    loading,
+    error,
+    loadBooks,
+    fetchBook,
+    addBook,
+    removeBook,
+    addReview,
+    removeReview,
+  };
 }
