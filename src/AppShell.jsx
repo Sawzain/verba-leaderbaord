@@ -28,7 +28,7 @@ export default function AppShell() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "32px 16px",
+        padding: "48px 16px",
       }}
     >
       <Header />
@@ -41,7 +41,7 @@ export default function AppShell() {
           background: CREAM,
           borderRadius: 20,
           overflow: "hidden",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
+          boxShadow: "0 8px 40px rgba(45, 60, 45, 0.08)",
         }}
       >
         <Outlet context={context} />

@@ -29,7 +29,7 @@ export default function Header() {
         borderRadius: "16px",
         display: "block",
         margin: "0 auto",
-        boxShadow: "0 8px 30px rgba(45, 60, 45, 0.15)",
+        boxShadow: "0 8px 30px rgba(45, 60, 45, 0.08)",
       }}
     />
   );

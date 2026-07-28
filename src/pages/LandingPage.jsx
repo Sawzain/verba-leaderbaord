@@ -24,7 +24,6 @@ const sectionHeading = {
   fontWeight: "bold",
 };
 
-// Updated CTA shadow to be softer
 const ctaButtonStyle = {
   display: "inline-block",
   background: OLIVE,
@@ -36,7 +35,7 @@ const ctaButtonStyle = {
   fontFamily: "'Georgia', serif",
   textDecoration: "none",
   cursor: "pointer",
-  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+  boxShadow: "0 8px 30px rgba(45, 60, 45, 0.08)",
 };
 
 export default function LandingPage() {
@@ -67,7 +66,7 @@ export default function LandingPage() {
             display: "block",
             margin: "0 auto 20px",
             // Updated shadow to the softer, modern float
-            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+            boxShadow: "0 8px 30px rgba(45, 60, 45, 0.08)",
           }}
         />
         <div
@@ -104,9 +103,9 @@ export default function LandingPage() {
             }}
           >
             Verba is Latin for <em>words</em> — the words we read, the words we
-            share, the words that quietly change us. It's also the Ukrainian word
-            for <em>willow</em>: a tree that bends in the storm but never breaks,
-            always reaching toward water and depth.
+            share, the words that quietly change us. It's also the Ukrainian
+            word for <em>willow</em>: a tree that bends in the storm but never
+            breaks, always reaching toward water and depth.
           </p>
           <p
             style={{
@@ -116,9 +115,9 @@ export default function LandingPage() {
               margin: 0,
             }}
           >
-            That's the space we're building here — somewhere to show up exactly as
-            you are, on the hard days and the easy ones. No pressure, no judgement.
-            Just words, stories, and the people who love them.
+            That's the space we're building here — somewhere to show up exactly
+            as you are, on the hard days and the easy ones. No pressure, no
+            judgement. Just words, stories, and the people who love them.
           </p>
         </div>
 
