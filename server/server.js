@@ -147,13 +147,23 @@ function deleteCoverAssets(book) {
 // bigger migration, a review's points are credited to the Score entry whose
 // username matches the reviewer's account name (case-insensitively). If no
 // matching Score entry exists yet, one is created.
+// Points-per-review used to auto-credit the Score/leaderboard entry that
+// matches a reviewer's account name. Turned OFF by default (see
+// AUTO_AWARD_REVIEW_POINTS below) — with review volume still low, matching
+// by name string was creating duplicate leaderboard entries whenever a
+// review-login name didn't exactly match how someone was already listed on
+// the leaderboard (e.g. "Sajen Malakar" vs "Sajen"). Points are managed by
+// hand in Manage instead for now. Set AUTO_AWARD_REVIEW_POINTS=true to turn
+// this back on once accounts and leaderboard names are fully unified.
 const REVIEW_POINTS = Number(process.env.REVIEW_POINTS) || 10;
+const AUTO_AWARD_REVIEW_POINTS = process.env.AUTO_AWARD_REVIEW_POINTS === "true";
 
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function awardReviewPoints(username) {
+  if (!AUTO_AWARD_REVIEW_POINTS) return;
   const name = (username || "").trim();
   if (!name) return;
   const match = new RegExp(`^${escapeRegex(name)}$`, "i");
@@ -169,6 +179,7 @@ async function awardReviewPoints(username) {
 // Called when a review is removed, so deleting or editing away a review
 // doesn't leave stale points on the leaderboard.
 async function revokeReviewPoints(username) {
+  if (!AUTO_AWARD_REVIEW_POINTS) return;
   const name = (username || "").trim();
   if (!name) return;
   const match = new RegExp(`^${escapeRegex(name)}$`, "i");
