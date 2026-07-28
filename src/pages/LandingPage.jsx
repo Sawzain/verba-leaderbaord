@@ -2,18 +2,15 @@ import { Link } from "react-router-dom";
 import useBooks from "../hooks/useBooks";
 import { StarDisplay } from "../components/StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
+import Footer, { DISCORD_INVITE_URL } from "../components/Footer";
 import {
   OLIVE,
   OLIVE_DARK,
-  OLIVE_LIGHT,
   CREAM,
   CREAM_DARK,
   WHITE,
   LOGO_SRC,
 } from "../theme";
-
-const DISCORD_INVITE_URL = "https://discord.gg/7a2H9bcXZ2";
-const INSTAGRAM_URL = "https://www.instagram.com/bookclub_verba";
 
 const sectionHeading = {
   fontSize: 13,
@@ -44,7 +41,7 @@ export default function LandingPage() {
   // (this page renders outside /app and shouldn't force that state to load
   // for visitors who never go past "/").
   const { books, loading } = useBooks();
-  const currentPick = books[0]; // API returns books sorted newest first
+  const currentPick = books.find((b) => b.isCurrentPick);
 
   return (
     <div
@@ -84,10 +81,15 @@ export default function LandingPage() {
         </div>
         <div
           style={{
-            fontSize: 15,
+            display: "inline-block",
+            fontSize: 14,
             color: OLIVE_DARK,
+            fontWeight: "bold",
             letterSpacing: "1px",
             fontStyle: "italic",
+            background: CREAM,
+            padding: "4px 14px",
+            borderRadius: 20,
             marginBottom: 20,
           }}
         >
@@ -101,10 +103,13 @@ export default function LandingPage() {
             marginBottom: 28,
           }}
         >
-          A small reading community that tracks what we finish, argues about
-          it, and hands out points for showing up. Pick a book, read on your
-          own schedule, and leave a rating and review when you're done —
-          everyone's progress lands on one shared leaderboard.
+          Verba is Latin for <em>words</em> — the words we read, the words we
+          share, the words that quietly change us. It's also the Ukrainian
+          word for <em>willow</em>: a tree that bends in the storm but never
+          breaks, always reaching toward water and depth. That's the space
+          we're building here — somewhere to show up exactly as you are, on
+          the hard days and the easy ones. No pressure, no judgement. Just
+          words, stories, and the people who love them.
         </p>
         <Link to="/app/leaderboard" style={ctaButtonStyle}>
           Enter the club →
@@ -127,9 +132,12 @@ export default function LandingPage() {
         <div style={{ padding: "28px 32px", borderBottom: `1px solid ${CREAM_DARK}` }}>
           <div style={sectionHeading}>How it works</div>
           <p style={{ fontSize: 15, color: "#3f4230", lineHeight: 1.7, margin: 0 }}>
-            We read at our own pace and check in together on Discord — no
-            fixed weekly deadline, just a shared shelf and a running
-            scoreboard. New members are always welcome.
+            We meet every Saturday at 3pm GMT on Google Meet to talk through
+            our current pick, then choose the next one and read it together
+            over the following month. Everyone's progress lands on a shared
+            leaderboard, and reviews stay up so you can revisit what the
+            group thought long after we've moved on. New members are always
+            welcome — join our Discord to stay in the loop between calls.
           </p>
           <a
             href={DISCORD_INVITE_URL}
@@ -163,7 +171,9 @@ export default function LandingPage() {
           )}
           {!loading && !currentPick && (
             <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>
-              Nothing on the shelf yet — check back soon.
+              {books.length === 0
+                ? "Nothing on the shelf yet — check back soon."
+                : "No current pick chosen yet — check back soon."}
             </div>
           )}
           {!loading && currentPick && (
@@ -233,38 +243,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 720,
-          textAlign: "center",
-          padding: "20px 16px 0",
-          borderTop: `1px solid ${OLIVE_LIGHT}55`,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 10 }}>
-          <a
-            href={DISCORD_INVITE_URL}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
-          >
-            Discord
-          </a>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
-          >
-            Instagram
-          </a>
-        </div>
-        <div style={{ fontSize: 12, color: OLIVE_DARK, opacity: 0.85 }}>
-          Verba Book Club © {new Date().getFullYear()} · Est. 2025
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 }

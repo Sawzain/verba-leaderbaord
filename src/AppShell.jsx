@@ -1,10 +1,11 @@
 import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import TabSwitcher from "./components/TabSwitcher";
+import Footer from "./components/Footer";
 import useMembers from "./hooks/useMembers";
 import useBooks from "./hooks/useBooks";
 import useAuth from "./hooks/useAuth";
-import { CREAM, CREAM_DARK } from "./theme";
+import { CREAM } from "./theme";
 
 // Shell for everything under /app/*. Owns all the state that used to live
 // directly in VerbaLeaderboard.jsx (auth, members, books) and lifts it above
@@ -46,17 +47,7 @@ export default function AppShell() {
         <Outlet context={context} />
       </div>
 
-      <div
-        style={{
-          marginTop: 20,
-          color: CREAM_DARK,
-          fontSize: 12,
-          opacity: 0.5,
-          letterSpacing: "1px",
-        }}
-      >
-        verba — words that stay
-      </div>
+      <Footer maxWidth={620} />
     </div>
   );
 }
