@@ -16,7 +16,7 @@ export default function Header() {
   const subtitle =
     location.pathname === "/"
       ? "words that stay"
-      : SUBTITLES[location.pathname] ?? null;
+      : (SUBTITLES[location.pathname] ?? null);
 
   const logoImg = (
     <img
@@ -29,7 +29,7 @@ export default function Header() {
         borderRadius: "16px",
         display: "block",
         margin: "0 auto",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+        boxShadow: "0 8px 30px rgba(45, 60, 45, 0.15)",
       }}
     />
   );

@@ -24,6 +24,7 @@ const sectionHeading = {
   fontWeight: "bold",
 };
 
+// Updated CTA shadow to be softer
 const ctaButtonStyle = {
   display: "inline-block",
   background: OLIVE,
@@ -35,14 +36,10 @@ const ctaButtonStyle = {
   fontFamily: "'Georgia', serif",
   textDecoration: "none",
   cursor: "pointer",
-  boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
 };
 
 export default function LandingPage() {
-  // The landing page only needs the book list for the "current pick" teaser,
-  // so it fetches independently rather than through AppShell's shared state
-  // (this page renders outside /app and shouldn't force that state to load
-  // for visitors who never go past "/").
   const { books, loading } = useBooks();
   const currentPick = books.find((b) => b.isCurrentPick);
 
@@ -69,7 +66,8 @@ export default function LandingPage() {
             borderRadius: 16,
             display: "block",
             margin: "0 auto 20px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            // Updated shadow to the softer, modern float
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
           }}
         />
         <div
@@ -93,22 +91,37 @@ export default function LandingPage() {
         >
           verba — words that stay
         </div>
-        <p
-          style={{
-            fontSize: 16,
-            color: "#3f4230",
-            lineHeight: 1.7,
-            marginBottom: 28,
-          }}
-        >
-          Verba is Latin for <em>words</em> — the words we read, the words we
-          share, the words that quietly change us. It's also the Ukrainian word
-          for <em>willow</em>: a tree that bends in the storm but never breaks,
-          always reaching toward water and depth. That's the space we're
-          building here — somewhere to show up exactly as you are, on the hard
-          days and the easy ones. No pressure, no judgement. Just words,
-          stories, and the people who love them.
-        </p>
+
+        {/* Broken up text into two paragraphs for better readability */}
+        <div style={{ marginBottom: 28 }}>
+          <p
+            style={{
+              fontSize: 16,
+              color: "#3f4230",
+              lineHeight: 1.7,
+              marginBottom: 12,
+              marginTop: 0,
+            }}
+          >
+            Verba is Latin for <em>words</em> — the words we read, the words we
+            share, the words that quietly change us. It's also the Ukrainian word
+            for <em>willow</em>: a tree that bends in the storm but never breaks,
+            always reaching toward water and depth.
+          </p>
+          <p
+            style={{
+              fontSize: 16,
+              color: "#3f4230",
+              lineHeight: 1.7,
+              margin: 0,
+            }}
+          >
+            That's the space we're building here — somewhere to show up exactly as
+            you are, on the hard days and the easy ones. No pressure, no judgement.
+            Just words, stories, and the people who love them.
+          </p>
+        </div>
+
         <Link to="/app/leaderboard" style={ctaButtonStyle}>
           Enter the club →
         </Link>
@@ -122,7 +135,8 @@ export default function LandingPage() {
           background: CREAM,
           borderRadius: 20,
           overflow: "hidden",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.2)",
+          // Softened the card shadow to match the overall modern aesthetic
+          boxShadow: "0 12px 40px rgba(0, 0, 0, 0.08)",
           marginBottom: 24,
         }}
       >
@@ -149,6 +163,8 @@ export default function LandingPage() {
             after we've moved on. New members are always welcome — join our
             Discord to stay in the loop between calls.
           </p>
+
+          {/* Changed the Discord button to a subtle outline button */}
           <a
             href={DISCORD_INVITE_URL}
             target="_blank"
@@ -158,10 +174,11 @@ export default function LandingPage() {
               alignItems: "center",
               gap: 8,
               marginTop: 16,
-              background: "#5865F2",
-              color: "#fff",
+              background: "transparent",
+              color: OLIVE_DARK,
+              border: `1px solid ${OLIVE_DARK}`,
               borderRadius: 10,
-              padding: "10px 18px",
+              padding: "9px 17px",
               fontSize: 14,
               fontFamily: "'Georgia', serif",
               textDecoration: "none",
