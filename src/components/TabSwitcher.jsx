@@ -1,6 +1,13 @@
+import { NavLink } from "react-router-dom";
 import { OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
 
-export default function TabSwitcher({ tab, setTab }) {
+const TABS = [
+  { to: "/app/leaderboard", label: "Leaderboard" },
+  { to: "/app/reviews", label: "Book Review" },
+  { to: "/app/manage", label: "Manage" },
+];
+
+export default function TabSwitcher() {
   return (
     <div
       style={{
@@ -12,11 +19,11 @@ export default function TabSwitcher({ tab, setTab }) {
         borderRadius: 12,
       }}
     >
-      {["board", "books", "manage"].map((t) => (
-        <button
-          key={t}
-          onClick={() => setTab(t)}
-          style={{
+      {TABS.map(({ to, label }) => (
+        <NavLink
+          key={to}
+          to={to}
+          style={({ isActive }) => ({
             padding: "8px 16px",
             borderRadius: 8,
             border: "none",
@@ -25,14 +32,15 @@ export default function TabSwitcher({ tab, setTab }) {
             letterSpacing: "1px",
             textTransform: "uppercase",
             fontFamily: "'Georgia', serif",
-            background: tab === t ? CREAM : "transparent",
-            color: tab === t ? OLIVE_DARK : CREAM_DARK,
-            fontWeight: tab === t ? "bold" : "normal",
+            textDecoration: "none",
+            background: isActive ? CREAM : "transparent",
+            color: isActive ? OLIVE_DARK : CREAM_DARK,
+            fontWeight: isActive ? "bold" : "normal",
             transition: "all 0.2s",
-          }}
+          })}
         >
-          {t === "board" ? "Leaderboard" : t === "books" ? "Book Review" : "Manage"}
-        </button>
+          {label}
+        </NavLink>
       ))}
     </div>
   );

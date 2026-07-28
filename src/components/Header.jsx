@@ -1,6 +1,23 @@
+import { useLocation } from "react-router-dom";
 import { OLIVE_DARK, LOGO_SRC } from "../theme";
 
+// Subtitle now reflects whichever route is actually active, instead of
+// always reading "READING LEADERBOARD" no matter which view you're on.
+const SUBTITLES = {
+  "/app/leaderboard": "Reading Leaderboard",
+  "/app/reviews": "Book Reviews",
+  "/app/manage": "Admin Panel",
+};
+
 export default function Header() {
+  const location = useLocation();
+  // On the public landing page, show the brand tagline instead of an
+  // app-view label; on any other unmatched route, show nothing.
+  const subtitle =
+    location.pathname === "/"
+      ? "words that stay"
+      : SUBTITLES[location.pathname] ?? null;
+
   return (
     <div style={{ textAlign: "center", marginBottom: 32 }}>
       <img
@@ -16,18 +33,20 @@ export default function Header() {
           boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
         }}
       />
-      <div
-        style={{
-          marginTop: 12,
-          fontSize: 13,
-          color: OLIVE_DARK,
-          letterSpacing: "2px",
-          textTransform: "uppercase",
-          opacity: 0.8,
-        }}
-      >
-        Reading Leaderboard
-      </div>
+      {subtitle && (
+        <div
+          style={{
+            marginTop: 12,
+            fontSize: 13,
+            color: OLIVE_DARK,
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            opacity: 0.8,
+          }}
+        >
+          {subtitle}
+        </div>
+      )}
     </div>
   );
 }
