@@ -550,6 +550,30 @@ app.delete("/api/books/:id", requireApiKey, async (req, res) => {
   }
 });
 
+// PATCH: toggle a book's "current pick" status (admin only). Setting a
+// book as the current pick clears the flag on every other book first, so
+// exactly one (or zero) books can ever be the current pick. Calling this
+// again on the book that's already the current pick unsets it.
+app.patch("/api/books/:id/current-pick", requireApiKey, async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ error: "Book not found" });
+
+    const makeCurrent = !book.isCurrentPick;
+    if (makeCurrent) {
+      await Book.updateMany(
+        { _id: { $ne: book._id } },
+        { isCurrentPick: false },
+      );
+    }
+    book.isCurrentPick = makeCurrent;
+    await book.save();
+    res.json({ isCurrentPick: book.isCurrentPick });
+  } catch (err) {
+    res.status(400).json({ error: "Couldn't update the current pick" });
+  }
+});
+
 // ============================== Reviews ==============================
 
 // POST: add a review — requires a logged-in member.

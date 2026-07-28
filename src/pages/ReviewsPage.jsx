@@ -12,6 +12,7 @@ export default function ReviewsPage() {
       adminKey={auth.token}
       addBook={booksState.addBook}
       removeBook={booksState.removeBook}
+      setCurrentPick={booksState.setCurrentPick}
       fetchBook={booksState.fetchBook}
       addReview={booksState.addReview}
       removeReview={booksState.removeReview}

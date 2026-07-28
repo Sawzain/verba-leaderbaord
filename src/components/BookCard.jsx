@@ -1,15 +1,23 @@
-import { OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
+import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
 import { StarDisplay } from "./StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
-export default function BookCard({ book, onOpen, canRemove, onRemove }) {
+export default function BookCard({
+  book,
+  onOpen,
+  canRemove,
+  onRemove,
+  canManageCurrentPick,
+  onToggleCurrentPick,
+}) {
   return (
     <div
       onClick={onOpen}
       style={{
+        position: "relative",
         cursor: "pointer",
         background: CREAM,
-        border: `1px solid ${CREAM_DARK}`,
+        border: book.isCurrentPick ? `1.5px solid ${OLIVE}` : `1px solid ${CREAM_DARK}`,
         borderRadius: 12,
         overflow: "hidden",
         display: "flex",
@@ -36,6 +44,27 @@ export default function BookCard({ book, onOpen, canRemove, onRemove }) {
         ) : (
           <span style={{ fontSize: 32, opacity: 0.4 }}>📖</span>
         )}
+
+        {book.isCurrentPick && (
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              background: OLIVE,
+              color: CREAM,
+              fontSize: 10,
+              fontWeight: "bold",
+              letterSpacing: "0.5px",
+              textTransform: "uppercase",
+              borderRadius: 20,
+              padding: "3px 8px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+            }}
+          >
+            ★ Current pick
+          </div>
+        )}
       </div>
 
       <div style={{ padding: "10px 12px", flex: 1, display: "flex", flexDirection: "column" }}>
@@ -59,25 +88,47 @@ export default function BookCard({ book, onOpen, canRemove, onRemove }) {
           )}
         </div>
 
-        {canRemove && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-            style={{
-              marginTop: 8,
-              alignSelf: "flex-start",
-              background: "transparent",
-              border: "none",
-              color: "#a33",
-              fontSize: 11,
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            Remove
-          </button>
+        {(canManageCurrentPick || canRemove) && (
+          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+            {canManageCurrentPick && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleCurrentPick();
+                }}
+                style={{
+                  alignSelf: "flex-start",
+                  background: "transparent",
+                  border: "none",
+                  color: OLIVE_DARK,
+                  fontSize: 11,
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                {book.isCurrentPick ? "Unset current pick" : "Set as current pick"}
+              </button>
+            )}
+            {canRemove && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                style={{
+                  alignSelf: "flex-start",
+                  background: "transparent",
+                  border: "none",
+                  color: "#a33",
+                  fontSize: 11,
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                Remove
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>

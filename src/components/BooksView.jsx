@@ -14,6 +14,7 @@ export default function BooksView({
   adminKey,
   addBook,
   removeBook,
+  setCurrentPick,
   fetchBook,
   addReview,
   removeReview,
@@ -78,6 +79,14 @@ export default function BooksView({
       }
     } catch (err) {
       window.alert(err.message || "Couldn't remove that book.");
+    }
+  };
+
+  const handleToggleCurrentPick = async (id) => {
+    try {
+      await setCurrentPick(adminKey, id);
+    } catch (err) {
+      window.alert(err.message || "Couldn't update the current pick.");
     }
   };
 
@@ -177,6 +186,8 @@ export default function BooksView({
             onOpen={() => openBook(book._id)}
             canRemove={isAdminUnlocked}
             onRemove={() => handleRemove(book._id, book.title)}
+            canManageCurrentPick={isAdminUnlocked}
+            onToggleCurrentPick={() => handleToggleCurrentPick(book._id)}
           />
         ))}
       </div>

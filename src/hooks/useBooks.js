@@ -64,6 +64,27 @@ export default function useBooks() {
     setBooks((prev) => prev.filter((b) => b._id !== id));
   };
 
+  // Admin-only: mark a book as the manually-chosen "current pick" shown on
+  // the landing page. The server clears the flag on every other book when
+  // one is newly selected, so this mirrors that locally instead of
+  // re-fetching the whole list.
+  const setCurrentPick = async (token, id) => {
+    const res = await fetch(`${API_BASE}/${id}/current-pick`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "Couldn't update the current pick");
+
+    setBooks((prev) =>
+      prev.map((b) => {
+        if (b._id === id) return { ...b, isCurrentPick: body.isCurrentPick };
+        return body.isCurrentPick ? { ...b, isCurrentPick: false } : b;
+      }),
+    );
+    return body;
+  };
+
   const addReview = async (token, bookId, { rating, text }) => {
     const res = await fetch(`${API_BASE}/${bookId}/reviews`, {
       method: "POST",
@@ -124,6 +145,7 @@ export default function useBooks() {
     fetchBook,
     addBook,
     removeBook,
+    setCurrentPick,
     addReview,
     removeReview,
     removeMyReview,
