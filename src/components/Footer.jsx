@@ -16,7 +16,7 @@ export default function Footer({ maxWidth = 720 }) {
         maxWidth,
         textAlign: "center",
         padding: "20px 16px 0",
-        borderTop: `1px solid ${OLIVE_LIGHT}55`,
+        borderTop: "1px solid rgba(45, 60, 45, 0.15)",
       }}
     >
       <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 10 }}>
