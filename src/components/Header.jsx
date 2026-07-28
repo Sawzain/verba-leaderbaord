@@ -23,8 +23,8 @@ export default function Header() {
       src={LOGO_SRC}
       alt="Verba Book Club"
       style={{
-        width: 160,
-        height: 160,
+        width: 140,
+        height: 140,
         objectFit: "cover",
         borderRadius: "16px",
         display: "block",
