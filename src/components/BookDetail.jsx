@@ -11,6 +11,8 @@ export default function BookDetail({
   onSubmitReview,
   isAdminUnlocked,
   onRemoveReview,
+  onEditReview,
+  onRemoveMyReview,
 }) {
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
@@ -18,6 +20,12 @@ export default function BookDetail({
   const [submitError, setSubmitError] = useState(null);
   const [justSubmitted, setJustSubmitted] = useState(false);
   const [removingId, setRemovingId] = useState(null);
+
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editRating, setEditRating] = useState(0);
+  const [editText, setEditText] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState(null);
 
   const handleRemoveReview = async (reviewId) => {
     if (!window.confirm("Remove this review? This can't be undone.")) return;
@@ -28,6 +36,47 @@ export default function BookDetail({
       window.alert(err.message || "Couldn't remove that review.");
     } finally {
       setRemovingId(null);
+    }
+  };
+
+  const handleRemoveMyReview = async (reviewId) => {
+    if (!window.confirm("Delete your review? This can't be undone.")) return;
+    setRemovingId(reviewId);
+    try {
+      await onRemoveMyReview(reviewId);
+    } catch (err) {
+      window.alert(err.message || "Couldn't delete your review.");
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  const startEditReview = (review) => {
+    setEditingReviewId(review.id);
+    setEditRating(review.rating);
+    setEditText(review.text || "");
+    setEditError(null);
+  };
+
+  const cancelEditReview = () => {
+    setEditingReviewId(null);
+    setEditError(null);
+  };
+
+  const saveEditReview = async (reviewId) => {
+    if (!editRating) {
+      setEditError("Pick a star rating first.");
+      return;
+    }
+    setEditSubmitting(true);
+    setEditError(null);
+    try {
+      await onEditReview(reviewId, { rating: editRating, text: editText.trim() });
+      setEditingReviewId(null);
+    } catch (err) {
+      setEditError(err.message || "Couldn't save your changes.");
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -134,10 +183,11 @@ export default function BookDetail({
             authBusy={auth.authBusy}
             onRegister={auth.register}
             onLogin={auth.login}
+            discordLoginUrl={auth.discordLoginUrl}
           />
         )}
 
-        {auth.isLoggedIn && myReview && !justSubmitted && (
+        {auth.isLoggedIn && myReview && !justSubmitted && editingReviewId !== myReview.id && (
           <div
             style={{
               background: "#eef3e2",
@@ -146,9 +196,100 @@ export default function BookDetail({
               padding: "12px 14px",
               fontSize: 13,
               color: "#3f4d1e",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 10,
             }}
           >
-            You already reviewed this book — thanks! ({myReview.rating}/5)
+            <span>You already reviewed this book — thanks! ({myReview.rating}/5)</span>
+            <button
+              onClick={() => startEditReview(myReview)}
+              style={{
+                background: "none",
+                border: "none",
+                color: OLIVE_DARK,
+                fontSize: 12,
+                textDecoration: "underline",
+                cursor: "pointer",
+                padding: 0,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Edit
+            </button>
+          </div>
+        )}
+
+        {auth.isLoggedIn && myReview && editingReviewId === myReview.id && (
+          <div
+            style={{
+              background: "#f6f3e8",
+              border: `1px solid ${CREAM_DARK}`,
+              borderRadius: 12,
+              padding: "16px",
+            }}
+          >
+            <div style={{ marginBottom: 12 }}>
+              <StarInput value={editRating} onChange={setEditRating} />
+            </div>
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              placeholder="What did you think? (optional)"
+              rows={3}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                borderRadius: 10,
+                border: `1.5px solid ${CREAM_DARK}`,
+                fontSize: 14,
+                fontFamily: "'Georgia', serif",
+                outline: "none",
+                background: WHITE,
+                color: "#2d2d2d",
+                boxSizing: "border-box",
+                resize: "vertical",
+              }}
+            />
+            {editError && (
+              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>{editError}</div>
+            )}
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <button
+                onClick={() => saveEditReview(myReview.id)}
+                disabled={editSubmitting}
+                style={{
+                  background: "#6B7A3A",
+                  color: CREAM,
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "10px 20px",
+                  fontSize: 14,
+                  cursor: editSubmitting ? "default" : "pointer",
+                  opacity: editSubmitting ? 0.7 : 1,
+                  fontFamily: "'Georgia', serif",
+                }}
+              >
+                {editSubmitting ? "Saving…" : "Save changes"}
+              </button>
+              <button
+                onClick={cancelEditReview}
+                disabled={editSubmitting}
+                style={{
+                  background: "none",
+                  border: `1.5px solid ${CREAM_DARK}`,
+                  borderRadius: 10,
+                  padding: "10px 20px",
+                  fontSize: 14,
+                  cursor: "pointer",
+                  fontFamily: "'Georgia', serif",
+                  color: "#2d2d2d",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
 
@@ -240,46 +381,81 @@ export default function BookDetail({
         <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>No reviews yet.</div>
       )}
 
-      {book.reviews.map((r) => (
-        <div
-          key={r.id}
-          style={{
-            padding: "12px 0",
-            borderBottom: `1px solid ${CREAM}`,
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 14, fontWeight: "bold", color: "#2d2d2d" }}>
-              {r.reviewer}
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <StarDisplay value={r.rating} size={13} />
-              {isAdminUnlocked && (
-                <button
-                  onClick={() => handleRemoveReview(r.id)}
-                  disabled={removingId === r.id}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "#a33",
-                    fontSize: 11,
-                    cursor: removingId === r.id ? "default" : "pointer",
-                    opacity: removingId === r.id ? 0.6 : 1,
-                    padding: 0,
-                  }}
-                >
-                  {removingId === r.id ? "Removing…" : "Remove"}
-                </button>
-              )}
+      {book.reviews.map((r) => {
+        const isMine = auth.user && r.userId === auth.user.id;
+        return (
+          <div
+            key={r.id}
+            style={{
+              padding: "12px 0",
+              borderBottom: `1px solid ${CREAM}`,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 14, fontWeight: "bold", color: "#2d2d2d" }}>
+                {r.reviewer}
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <StarDisplay value={r.rating} size={13} />
+                {isMine && editingReviewId !== r.id && (
+                  <>
+                    <button
+                      onClick={() => startEditReview(r)}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: OLIVE_DARK,
+                        fontSize: 11,
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleRemoveMyReview(r.id)}
+                      disabled={removingId === r.id}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#a33",
+                        fontSize: 11,
+                        cursor: removingId === r.id ? "default" : "pointer",
+                        opacity: removingId === r.id ? 0.6 : 1,
+                        padding: 0,
+                      }}
+                    >
+                      {removingId === r.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </>
+                )}
+                {isAdminUnlocked && !isMine && (
+                  <button
+                    onClick={() => handleRemoveReview(r.id)}
+                    disabled={removingId === r.id}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#a33",
+                      fontSize: 11,
+                      cursor: removingId === r.id ? "default" : "pointer",
+                      opacity: removingId === r.id ? 0.6 : 1,
+                      padding: 0,
+                    }}
+                  >
+                    {removingId === r.id ? "Removing…" : "Remove"}
+                  </button>
+                )}
+              </div>
             </div>
+            {r.text && editingReviewId !== r.id && (
+              <div style={{ marginTop: 6, fontSize: 14, color: "#444", lineHeight: 1.5 }}>
+                {r.text}
+              </div>
+            )}
           </div>
-          {r.text && (
-            <div style={{ marginTop: 6, fontSize: 14, color: "#444", lineHeight: 1.5 }}>
-              {r.text}
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

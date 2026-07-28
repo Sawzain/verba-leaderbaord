@@ -17,6 +17,8 @@ export default function BooksView({
   fetchBook,
   addReview,
   removeReview,
+  removeMyReview,
+  editReview,
   auth,
 }) {
   const [selectedId, setSelectedId] = useState(null);
@@ -53,6 +55,16 @@ export default function BooksView({
 
   const handleRemoveReview = async (reviewId) => {
     await removeReview(adminKey, reviewId);
+    await refreshSelected();
+  };
+
+  const handleRemoveMyReview = async (reviewId) => {
+    await removeMyReview(auth.token, reviewId);
+    await refreshSelected();
+  };
+
+  const handleEditReview = async (reviewId, payload) => {
+    await editReview(auth.token, reviewId, payload);
     await refreshSelected();
   };
 
@@ -102,6 +114,8 @@ export default function BooksView({
           onSubmitReview={handleSubmitReview}
           isAdminUnlocked={isAdminUnlocked}
           onRemoveReview={handleRemoveReview}
+          onEditReview={handleEditReview}
+          onRemoveMyReview={handleRemoveMyReview}
         />
       </div>
     );

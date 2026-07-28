@@ -80,6 +80,8 @@ export default function VerbaLeaderboard() {
             fetchBook={booksState.fetchBook}
             addReview={booksState.addReview}
             removeReview={booksState.removeReview}
+            removeMyReview={booksState.removeMyReview}
+            editReview={booksState.editReview}
             auth={auth}
           />
         )}

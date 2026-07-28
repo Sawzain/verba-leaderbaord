@@ -10,6 +10,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const sharp = require("sharp");
+const { v2: cloudinary } = require("cloudinary");
 
 const app = express();
 
@@ -39,6 +40,19 @@ if (!process.env.JWT_SECRET) {
   );
   process.exit(1);
 }
+if (!process.env.CLOUDINARY_URL) {
+  console.error(
+    "Missing CLOUDINARY_URL environment variable. Render's disk is ephemeral, so " +
+      "book covers are stored on Cloudinary instead. Get a free account at " +
+      "cloudinary.com, then copy the 'API Environment variable' (starts with " +
+      "cloudinary://...) from your dashboard into CLOUDINARY_URL.",
+  );
+  process.exit(1);
+}
+// cloudinary.config() picks up CLOUDINARY_URL from the environment
+// automatically, but calling it explicitly makes that dependency obvious
+// here instead of implicit magic.
+cloudinary.config({ secure: true });
 
 function requireApiKey(req, res, next) {
   const key = req.headers["x-api-key"];
@@ -61,11 +75,14 @@ const Book = require("./models/Book");
 const Review = require("./models/Review");
 
 // --- Book cover uploads ---
+// Covers live on Cloudinary, not Render's disk. Render's free tier disk is
+// ephemeral — anything written to it disappears on the next deploy or
+// restart — so storing covers locally meant they'd vanish unpredictably.
+// This directory is kept only so any covers uploaded *before* this
+// migration (still pointing at "/uploads/xxx.jpg") keep working until
+// they're naturally replaced.
 const uploadsDir = path.join(__dirname, "uploads");
 fs.mkdirSync(uploadsDir, { recursive: true });
-// Filenames are timestamp+random, so a given URL's content never changes —
-// safe to cache aggressively and skip re-downloading the same cover on
-// every page load.
 app.use(
   "/uploads",
   express.static(uploadsDir, { maxAge: "7d", immutable: true }),
@@ -86,16 +103,77 @@ const upload = multer({
 
 // Cover photos are often straight off a phone camera (several MB, wrong
 // orientation baked into EXIF instead of pixels). This resizes to a
-// sensible display width and re-encodes as compressed JPEG, so the Books
-// grid loads fast instead of pulling down full-resolution photos.
+// sensible display width and re-encodes as compressed JPEG, then uploads
+// the result to Cloudinary, which is where the file actually lives
+// permanently. Returns the public URL and the public_id (needed later to
+// delete the asset when the book is removed).
 async function saveCoverImage(fileBuffer) {
-  const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
-  await sharp(fileBuffer)
+  const processed = await sharp(fileBuffer)
     .rotate() // apply EXIF orientation, then strip it
     .resize({ width: 600, withoutEnlargement: true })
     .jpeg({ quality: 78 })
-    .toFile(path.join(uploadsDir, filename));
-  return `/uploads/${filename}`;
+    .toBuffer();
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "verba-covers", resource_type: "image", format: "jpg" },
+      (err, result) => {
+        if (err) return reject(err);
+        resolve({ url: result.secure_url, publicId: result.public_id });
+      },
+    );
+    stream.end(processed);
+  });
+}
+
+// Best-effort cleanup for a book's cover — handles both a Cloudinary asset
+// (current) and a legacy local file (pre-migration), without throwing if
+// either is already gone.
+function deleteCoverAssets(book) {
+  if (book.coverPublicId) {
+    cloudinary.uploader.destroy(book.coverPublicId).catch(() => {});
+  } else if (book.coverImage && book.coverImage.startsWith("/uploads/")) {
+    fs.unlink(path.join(uploadsDir, path.basename(book.coverImage)), () => {});
+  }
+}
+
+// ===================== Leaderboard points for reviews =====================
+// The Leaderboard (Score model) and Books/Reviews (User model) are two
+// separate systems that predate each other — Score entries are just a
+// username string, not linked to a User account. To connect them without a
+// bigger migration, a review's points are credited to the Score entry whose
+// username matches the reviewer's account name (case-insensitively). If no
+// matching Score entry exists yet, one is created.
+const REVIEW_POINTS = Number(process.env.REVIEW_POINTS) || 10;
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function awardReviewPoints(username) {
+  const name = (username || "").trim();
+  if (!name) return;
+  const match = new RegExp(`^${escapeRegex(name)}$`, "i");
+  const score = await Score.findOne({ username: match });
+  if (score) {
+    score.score = (score.score || 0) + REVIEW_POINTS;
+    await score.save();
+  } else {
+    await Score.create({ username: name, score: REVIEW_POINTS });
+  }
+}
+
+// Called when a review is removed, so deleting or editing away a review
+// doesn't leave stale points on the leaderboard.
+async function revokeReviewPoints(username) {
+  const name = (username || "").trim();
+  if (!name) return;
+  const match = new RegExp(`^${escapeRegex(name)}$`, "i");
+  const score = await Score.findOne({ username: match });
+  if (score) {
+    score.score = Math.max(0, (score.score || 0) - REVIEW_POINTS);
+    await score.save();
+  }
 }
 
 function signToken(user) {
@@ -235,8 +313,104 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
   }
 });
 
-app.get("/api/auth/me", requireAuth, (req, res) => {
-  res.json({ id: req.userId, name: req.userName });
+app.get("/api/auth/me", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).lean();
+    res.json({ id: req.userId, name: req.userName, email: user?.email || "" });
+  } catch (err) {
+    res.json({ id: req.userId, name: req.userName, email: "" });
+  }
+});
+
+// ===================== Discord login =====================
+// Lets a member sign in with their Discord identity instead of creating a
+// separate email/password account — Verba already lives on Discord, so
+// this is a more native fit than a brand-new signup flow. Only active if
+// all three Discord env vars are set; otherwise these routes explain what's
+// missing instead of failing mysteriously.
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
+const discordConfigured = Boolean(
+  DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_REDIRECT_URI,
+);
+// Where to send the browser back to after the OAuth round trip completes.
+const FRONTEND_REDIRECT = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+
+app.get("/api/auth/discord", (req, res) => {
+  if (!discordConfigured) {
+    return res
+      .status(503)
+      .send(
+        "Discord login isn't configured on this server yet. Set DISCORD_CLIENT_ID, " +
+          "DISCORD_CLIENT_SECRET, and DISCORD_REDIRECT_URI.",
+      );
+  }
+  const params = new URLSearchParams({
+    client_id: DISCORD_CLIENT_ID,
+    redirect_uri: DISCORD_REDIRECT_URI,
+    response_type: "code",
+    scope: "identify email",
+    prompt: "consent",
+  });
+  res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
+});
+
+app.get("/api/auth/discord/callback", async (req, res) => {
+  if (!discordConfigured) {
+    return res.redirect(`${FRONTEND_REDIRECT}?authError=discord_not_configured`);
+  }
+  const code = req.query.code;
+  if (!code) {
+    return res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
+  }
+
+  try {
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: DISCORD_CLIENT_ID,
+        client_secret: DISCORD_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: DISCORD_REDIRECT_URI,
+      }),
+    });
+    if (!tokenRes.ok) throw new Error("Discord token exchange failed");
+    const tokenBody = await tokenRes.json();
+
+    const profileRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${tokenBody.access_token}` },
+    });
+    if (!profileRes.ok) throw new Error("Discord profile fetch failed");
+    const profile = await profileRes.json();
+
+    const discordId = profile.id;
+    const name = profile.global_name || profile.username || "Discord member";
+    const email = profile.email ? profile.email.trim().toLowerCase() : "";
+
+    let user = await User.findOne({ discordId });
+    if (!user && email) {
+      // If a password account already exists with this email, link Discord
+      // to it instead of creating a duplicate person.
+      user = await User.findOne({ email });
+    }
+    if (!user) {
+      user = new User({ name, discordId });
+      if (email) user.email = email;
+    } else {
+      user.discordId = discordId;
+      user.name = name;
+    }
+    await user.save();
+
+    const jwtToken = signToken(user);
+    res.redirect(`${FRONTEND_REDIRECT}?token=${encodeURIComponent(jwtToken)}`);
+  } catch (err) {
+    console.error("Discord auth failed", err);
+    res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
+  }
 });
 
 // POST: admin-assisted password reset. There's no email service configured,
@@ -329,8 +503,14 @@ app.post("/api/books", requireApiKey, upload.single("cover"), async (req, res) =
   }
 
   try {
-    const coverImage = req.file ? await saveCoverImage(req.file.buffer) : "";
-    const book = await Book.create({ title, author, coverImage });
+    let coverImage = "";
+    let coverPublicId = "";
+    if (req.file) {
+      const uploaded = await saveCoverImage(req.file.buffer);
+      coverImage = uploaded.url;
+      coverPublicId = uploaded.publicId;
+    }
+    const book = await Book.create({ title, author, coverImage, coverPublicId });
     res.json(book);
   } catch (err) {
     res.status(500).json({ error: "Failed to add book" });
@@ -345,7 +525,7 @@ app.delete("/api/books/:id", requireApiKey, async (req, res) => {
 
     await Review.deleteMany({ book: book._id });
     if (book.coverImage) {
-      fs.unlink(path.join(uploadsDir, path.basename(book.coverImage)), () => {});
+      deleteCoverAssets(book);
     }
     res.sendStatus(204);
   } catch (err) {
@@ -378,6 +558,8 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
       text,
     });
 
+    await awardReviewPoints(req.userName);
+
     res.json({
       id: review._id,
       rating: review.rating,
@@ -394,11 +576,79 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
   }
 });
 
-// DELETE: remove a review (admin only) — e.g. for abusive or off-topic reviews
-app.delete("/api/reviews/:id", requireApiKey, async (req, res) => {
+// Authorizes either the admin (x-api-key) or the review's own author
+// (Bearer token) to edit/remove a review — a member manages their own
+// review, an admin can still step in for abusive or off-topic ones.
+function authorizeReviewOwnerOrAdmin(req, res, next) {
+  const key = req.headers["x-api-key"];
+  if (key && key === process.env.API_KEY) {
+    req.isAdmin = true;
+    return next();
+  }
+
+  const header = req.headers["authorization"] || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  if (!token) {
+    return res.status(401).json({ error: "Log in to do that" });
+  }
   try {
-    const deleted = await Review.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Review not found" });
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = payload.sub;
+    req.userName = payload.name;
+    next();
+  } catch (err) {
+    res.status(401).json({ error: "Your session expired. Please log in again." });
+  }
+}
+
+// PUT: edit a review — the review's own author, or an admin
+app.put("/api/reviews/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id).populate("user", "name");
+    if (!review) return res.status(404).json({ error: "Review not found" });
+    if (!req.isAdmin && review.user._id.toString() !== req.userId) {
+      return res.status(403).json({ error: "You can only edit your own review" });
+    }
+
+    if (req.body.rating !== undefined) {
+      const rating = Number(req.body.rating);
+      if (!rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+      }
+      review.rating = rating;
+    }
+    if (req.body.text !== undefined) {
+      review.text = String(req.body.text).trim();
+    }
+    await review.save();
+
+    res.json({
+      id: review._id,
+      rating: review.rating,
+      text: review.text,
+      createdAt: review.createdAt,
+      reviewer: review.user?.name || "Former member",
+      userId: review.user?._id?.toString() || null,
+    });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid review id" });
+  }
+});
+
+// DELETE: remove a review — the review's own author, or an admin
+// (e.g. for abusive or off-topic reviews)
+app.delete("/api/reviews/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id).populate("user", "name");
+    if (!review) return res.status(404).json({ error: "Review not found" });
+    if (!req.isAdmin && review.user._id.toString() !== req.userId) {
+      return res.status(403).json({ error: "You can only remove your own review" });
+    }
+
+    const reviewerName = review.user?.name;
+    await review.deleteOne();
+    if (reviewerName) await revokeReviewPoints(reviewerName);
+
     res.sendStatus(204);
   } catch (err) {
     res.status(400).json({ error: "Invalid review id" });

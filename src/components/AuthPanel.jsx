@@ -14,7 +14,14 @@ const inputStyle = {
   width: "100%",
 };
 
-export default function AuthPanel({ authError, setAuthError, authBusy, onRegister, onLogin }) {
+export default function AuthPanel({
+  authError,
+  setAuthError,
+  authBusy,
+  onRegister,
+  onLogin,
+  discordLoginUrl,
+}) {
   const [mode, setMode] = useState("login"); // "login" | "register"
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -43,6 +50,42 @@ export default function AuthPanel({ authError, setAuthError, authBusy, onRegiste
         padding: "18px 16px",
       }}
     >
+      <a
+        href={discordLoginUrl}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          background: "#5865F2",
+          color: "#fff",
+          border: "none",
+          borderRadius: 10,
+          padding: "10px 18px",
+          fontSize: 14,
+          fontFamily: "'Georgia', serif",
+          textDecoration: "none",
+          marginBottom: 14,
+        }}
+      >
+        Continue with Discord
+      </a>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 14,
+          color: "#999",
+          fontSize: 12,
+        }}
+      >
+        <div style={{ flex: 1, height: 1, background: CREAM_DARK }} />
+        or use email
+        <div style={{ flex: 1, height: 1, background: CREAM_DARK }} />
+      </div>
+
       <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
         <button
           onClick={() => switchMode("login")}

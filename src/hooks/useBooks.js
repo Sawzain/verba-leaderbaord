@@ -89,6 +89,33 @@ export default function useBooks() {
     }
   };
 
+  // Member removing their own review, authenticated with their login token
+  // instead of the admin key.
+  const removeMyReview = async (token, reviewId) => {
+    const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Couldn't remove that review");
+    }
+  };
+
+  const editReview = async (token, reviewId, { rating, text }) => {
+    const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ rating, text }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "Couldn't save your changes");
+    return body;
+  };
+
   return {
     books,
     loading,
@@ -99,5 +126,7 @@ export default function useBooks() {
     removeBook,
     addReview,
     removeReview,
+    removeMyReview,
+    editReview,
   };
 }

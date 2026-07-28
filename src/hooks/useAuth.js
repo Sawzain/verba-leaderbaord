@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { API_ROOT } from "./useMembers";
 
 const TOKEN_KEY = "verba-member-token";
 const USER_KEY = "verba-member-user";
 
-// Real member accounts (name + email + password), separate from the admin
-// x-api-key. This is what lets a review be tied to one specific person
-// instead of just whatever name someone types in.
+// Real member accounts (name + email + password, or Discord), separate from
+// the admin x-api-key. This is what lets a review be tied to one specific
+// person instead of just whatever name someone types in.
 export default function useAuth() {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
   const [user, setUser] = useState(() => {
@@ -25,6 +25,41 @@ export default function useAuth() {
     localStorage.setItem(TOKEN_KEY, nextToken);
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
   };
+
+  // After "Log in with Discord", the backend redirects back here with
+  // ?token=... in the URL. Pick it up, fetch who it belongs to, persist it
+  // like any other login, then strip it from the address bar.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const incomingToken = params.get("token");
+    const discordError = params.get("authError");
+
+    const stripParams = (keys) => {
+      keys.forEach((k) => params.delete(k));
+      const cleanUrl =
+        window.location.pathname + (params.toString() ? `?${params}` : "") + window.location.hash;
+      window.history.replaceState({}, "", cleanUrl);
+    };
+
+    if (discordError) {
+      setAuthError("Discord login didn't work. Please try again.");
+      stripParams(["authError"]);
+      return;
+    }
+
+    if (!incomingToken) return;
+
+    fetch(`${API_ROOT}/auth/me`, {
+      headers: { Authorization: `Bearer ${incomingToken}` },
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((me) => {
+        persist(incomingToken, { id: me.id, name: me.name, email: me.email || "" });
+        stripParams(["token"]);
+      })
+      .catch(() => setAuthError("Discord login didn't work. Please try again."));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (path, payload) => {
     setAuthBusy(true);
@@ -59,6 +94,11 @@ export default function useAuth() {
     localStorage.removeItem(USER_KEY);
   };
 
+  // API_ROOT is "/api" in dev (proxied) or an absolute backend URL in prod.
+  // Discord needs a real, absolute redirect target, so resolve "/api" against
+  // the current page origin.
+  const discordLoginUrl = new URL(`${API_ROOT}/auth/discord`, window.location.href).toString();
+
   return {
     token,
     user,
@@ -69,5 +109,6 @@ export default function useAuth() {
     register,
     login,
     logout,
+    discordLoginUrl,
   };
 }
