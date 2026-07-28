@@ -17,7 +17,7 @@ const inputStyle = {
 // There's no email service wired up, so this doesn't send anything —
 // it generates a fresh temporary password that the admin copies and
 // relays to the member directly (Discord DM, in person, etc).
-export default function AdminPasswordReset({ adminKey }) {
+export default function AdminPasswordReset({ token }) {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -31,7 +31,7 @@ export default function AdminPasswordReset({ adminKey }) {
     try {
       const res = await fetch(`${API_ROOT}/admin/reset-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": adminKey },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ email: email.trim() }),
       });
       const body = await res.json().catch(() => ({}));

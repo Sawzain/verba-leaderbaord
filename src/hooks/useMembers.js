@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 export const API_ROOT = import.meta.env.VITE_API_BASE || "/api";
 const API_BASE = `${API_ROOT}/members`;
 
-export default function useMembers(adminKey) {
+export default function useMembers(token) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,15 +69,15 @@ export default function useMembers(adminKey) {
       if (!newName.trim()) return;
       const response = await fetch(API_BASE, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": adminKey },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           username: newName.trim(),
           score: Number(newPoints) || 0,
         }),
       });
 
-      if (response.status === 401) {
-        throw new Error("Your admin key was rejected. Unlock again with a valid key.");
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Your admin session was rejected. Please log in again.");
       }
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
@@ -98,11 +98,11 @@ export default function useMembers(adminKey) {
     withAuthError(async () => {
       const response = await fetch(`${API_BASE}/${id}`, {
         method: "DELETE",
-        headers: { "x-api-key": adminKey },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.status === 401) {
-        throw new Error("Your admin key was rejected. Unlock again with a valid key.");
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Your admin session was rejected. Please log in again.");
       }
       if (!response.ok) {
         throw new Error("Couldn't remove that member.");
@@ -130,12 +130,12 @@ export default function useMembers(adminKey) {
       try {
         const response = await fetch(`${API_BASE}/${id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json", "x-api-key": adminKey },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ score: nextPoints }),
         });
 
-        if (response.status === 401) {
-          throw new Error("Your admin key was rejected. Unlock again with a valid key.");
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Your admin session was rejected. Please log in again.");
         }
         if (!response.ok) {
           throw new Error("Couldn't save that change.");
@@ -163,12 +163,12 @@ export default function useMembers(adminKey) {
       try {
         const response = await fetch(`${API_BASE}/${id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json", "x-api-key": adminKey },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ score: Number(editPoints) || 0 }),
         });
 
-        if (response.status === 401) {
-          throw new Error("Your admin key was rejected. Unlock again with a valid key.");
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Your admin session was rejected. Please log in again.");
         }
         if (!response.ok) {
           throw new Error("Couldn't save that change.");

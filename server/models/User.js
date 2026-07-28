@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String },
   // Set for accounts created (or linked) via "Log in with Discord".
   discordId: { type: String, unique: true, sparse: true },
+  isAdmin: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

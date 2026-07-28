@@ -56,13 +56,16 @@ cloudinary.config({ secure: true });
 
 function requireApiKey(req, res, next) {
   const key = req.headers["x-api-key"];
-  if (key !== process.env.API_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
+  if (key === process.env.API_KEY) {
+    return next();
   }
-  next();
+  // Fall back to an individual admin account (Bearer token, isAdmin: true)
+  // so the shared key doesn't have to be handed out to every admin.
+  return requireAdminAccount(req, res, next);
 }
 
 const requireAuth = require("./middleware/auth");
+const { requireAdminAccount } = require("./middleware/auth");
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -177,9 +180,11 @@ async function revokeReviewPoints(username) {
 }
 
 function signToken(user) {
-  return jwt.sign({ sub: user._id.toString(), name: user.name }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
-  });
+  return jwt.sign(
+    { sub: user._id.toString(), name: user.name, isAdmin: Boolean(user.isAdmin) },
+    process.env.JWT_SECRET,
+    { expiresIn: "30d" },
+  );
 }
 
 // Slows down brute-force login/register attempts against a single account
@@ -192,9 +197,10 @@ const authLimiter = rateLimit({
   message: { error: "Too many attempts. Please wait a few minutes and try again." },
 });
 
-// GET: Verify an admin key without doing anything mutating.
+// GET: Verify admin access — works with either the legacy shared x-api-key
+// or a logged-in admin account's Bearer token (requireApiKey checks both).
 // The frontend uses this to show a clear "unlocked" state instead of
-// only finding out the key is wrong after a failed add/edit/delete.
+// only finding out after a failed add/edit/delete.
 app.get("/api/admin/verify", requireApiKey, (req, res) => {
   res.json({ ok: true });
 });
@@ -286,7 +292,7 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
     const user = await User.create({ name, email, passwordHash });
     res.json({
       token: signToken(user),
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin },
     });
   } catch (err) {
     res.status(500).json({ error: "Couldn't create the account" });
@@ -306,7 +312,7 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
     res.json({
       token: signToken(user),
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin },
     });
   } catch (err) {
     res.status(500).json({ error: "Couldn't log in" });
@@ -316,9 +322,9 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId).lean();
-    res.json({ id: req.userId, name: req.userName, email: user?.email || "" });
+    res.json({ id: req.userId, name: req.userName, email: user?.email || "", isAdmin: Boolean(user?.isAdmin) });
   } catch (err) {
-    res.json({ id: req.userId, name: req.userName, email: "" });
+    res.json({ id: req.userId, name: req.userName, email: "", isAdmin: req.userIsAdmin || false });
   }
 });
 
@@ -595,6 +601,7 @@ function authorizeReviewOwnerOrAdmin(req, res, next) {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = payload.sub;
     req.userName = payload.name;
+    req.isAdmin = Boolean(payload.isAdmin);
     next();
   } catch (err) {
     res.status(401).json({ error: "Your session expired. Please log in again." });

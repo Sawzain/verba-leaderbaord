@@ -2,6 +2,7 @@ import { useState } from "react";
 import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 import MemberRow from "./MemberRow";
 import AdminPasswordReset from "./AdminPasswordReset";
+import AuthPanel from "./AuthPanel";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -15,93 +16,51 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
-function AdminKeyGate({ status, onUnlock }) {
-  const [value, setValue] = useState("");
-  const [show, setShow] = useState(false);
-
-  const submit = () => {
-    if (!value.trim()) return;
-    onUnlock(value.trim());
-  };
+// Shown when the current visitor either isn't logged in, or is logged in
+// but their account isn't flagged as an admin. Reuses the same login/signup
+// form members use elsewhere, so there's no separate "admin key" to share
+// around — admin access is just a flag on someone's regular account.
+function AdminGate({ auth }) {
+  if (auth.isLoggedIn) {
+    return (
+      <div style={{ padding: "32px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
+        <div style={{ fontSize: 15, color: "#2d2d2d", marginBottom: 4, fontWeight: "bold" }}>
+          Admin access required
+        </div>
+        <div style={{ fontSize: 13, color: OLIVE_DARK, maxWidth: 320, margin: "0 auto" }}>
+          You're logged in as {auth.user?.name || "a member"}, but this account doesn't have
+          admin access yet. Ask an existing admin to grant it.
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "32px 24px", textAlign: "center" }}>
-      <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
-      <div
-        style={{
-          fontSize: 15,
-          color: "#2d2d2d",
-          marginBottom: 4,
-          fontWeight: "bold",
-        }}
-      >
-        Manage view is locked
-      </div>
-      <div style={{ fontSize: 13, color: OLIVE_DARK, marginBottom: 20 }}>
-        Enter the admin key to add, edit, or remove members.
-      </div>
-
-      <div style={{ display: "flex", gap: 8, maxWidth: 340, margin: "0 auto" }}>
-        <input
-          type={show ? "text" : "password"}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="Admin key"
-          autoFocus
-          style={{ ...inputStyle, flex: 1 }}
-        />
-        <button
-          type="button"
-          onClick={() => setShow((s) => !s)}
-          title={show ? "Hide key" : "Show key"}
-          style={{
-            border: `1.5px solid ${CREAM_DARK}`,
-            background: WHITE,
-            borderRadius: 10,
-            width: 42,
-            cursor: "pointer",
-            fontSize: 15,
-          }}
-        >
-          {show ? "🙈" : "👁"}
-        </button>
-      </div>
-
-      <button
-        onClick={submit}
-        disabled={status === "checking"}
-        style={{
-          marginTop: 12,
-          background: "#6B7A3A",
-          color: CREAM,
-          border: "none",
-          borderRadius: 10,
-          padding: "10px 28px",
-          fontSize: 15,
-          cursor: status === "checking" ? "default" : "pointer",
-          opacity: status === "checking" ? 0.7 : 1,
-          fontFamily: "'Georgia', serif",
-        }}
-      >
-        {status === "checking" ? "Checking…" : "Unlock"}
-      </button>
-
-      {status === "invalid" && (
-        <div style={{ marginTop: 14, fontSize: 13, color: "#a33" }}>
-          That key wasn't accepted. Double-check it and try again.
+    <div style={{ padding: "32px 24px" }}>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
+        <div style={{ fontSize: 15, color: "#2d2d2d", marginBottom: 4, fontWeight: "bold" }}>
+          Manage view is locked
         </div>
-      )}
+        <div style={{ fontSize: 13, color: OLIVE_DARK }}>
+          Log in with an admin account to add, edit, or remove members.
+        </div>
+      </div>
+      <AuthPanel
+        authError={auth.authError}
+        setAuthError={auth.setAuthError}
+        authBusy={auth.authBusy}
+        onRegister={auth.register}
+        onLogin={auth.login}
+        discordLoginUrl={auth.discordLoginUrl}
+      />
     </div>
   );
 }
 
 export default function ManageView({
-  adminKey,
-  adminStatus,
-  isUnlocked,
-  unlockAdmin,
-  lockAdmin,
+  auth,
   members,
   filteredMembers,
   search,
@@ -124,8 +83,10 @@ export default function ManageView({
   adjustPoints,
   removeMember,
 }) {
-  if (!isUnlocked) {
-    return <AdminKeyGate status={adminStatus} onUnlock={unlockAdmin} />;
+  const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
+
+  if (!isAdmin) {
+    return <AdminGate auth={auth} />;
   }
 
   const handleRemove = (id, name) => {
@@ -149,10 +110,10 @@ export default function ManageView({
         }}
       >
         <span style={{ fontSize: 13, color: "#3f4d1e", fontWeight: "bold" }}>
-          🔓 Unlocked — you can edit the leaderboard
+          🔓 Logged in as {auth.user?.name} — you can edit the leaderboard
         </span>
         <button
-          onClick={lockAdmin}
+          onClick={auth.logout}
           style={{
             background: "transparent",
             border: "none",
@@ -162,7 +123,7 @@ export default function ManageView({
             cursor: "pointer",
           }}
         >
-          Lock
+          Log out
         </button>
       </div>
 
@@ -197,7 +158,7 @@ export default function ManageView({
         </div>
       )}
 
-      <AdminPasswordReset adminKey={adminKey} />
+      <AdminPasswordReset token={auth.token} />
 
       <div style={{ marginBottom: 24 }}>
         <div

@@ -4,9 +4,9 @@ import { API_ROOT } from "./useMembers";
 const TOKEN_KEY = "verba-member-token";
 const USER_KEY = "verba-member-user";
 
-// Real member accounts (name + email + password, or Discord), separate from
-// the admin x-api-key. This is what lets a review be tied to one specific
-// person instead of just whatever name someone types in.
+// Real member accounts (name + email + password, or Discord). Admin access
+// is just an isAdmin flag on one of these accounts now — there's no
+// separate shared key.
 export default function useAuth() {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
   const [user, setUser] = useState(() => {
@@ -54,7 +54,12 @@ export default function useAuth() {
     })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((me) => {
-        persist(incomingToken, { id: me.id, name: me.name, email: me.email || "" });
+        persist(incomingToken, {
+          id: me.id,
+          name: me.name,
+          email: me.email || "",
+          isAdmin: Boolean(me.isAdmin),
+        });
         stripParams(["token"]);
       })
       .catch(() => setAuthError("Discord login didn't work. Please try again."));

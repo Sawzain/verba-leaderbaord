@@ -34,7 +34,7 @@ export default function useBooks() {
     return body;
   };
 
-  const addBook = async (adminKey, { title, author, file }) => {
+  const addBook = async (token, { title, author, file }) => {
     const form = new FormData();
     form.append("title", title);
     form.append("author", author);
@@ -42,7 +42,7 @@ export default function useBooks() {
 
     const res = await fetch(API_BASE, {
       method: "POST",
-      headers: { "x-api-key": adminKey },
+      headers: { Authorization: `Bearer ${token}` },
       body: form,
     });
     const body = await res.json().catch(() => ({}));
@@ -52,10 +52,10 @@ export default function useBooks() {
     return body;
   };
 
-  const removeBook = async (adminKey, id) => {
+  const removeBook = async (token, id) => {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: "DELETE",
-      headers: { "x-api-key": adminKey },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -78,10 +78,10 @@ export default function useBooks() {
     return body;
   };
 
-  const removeReview = async (adminKey, reviewId) => {
+  const removeReview = async (token, reviewId) => {
     const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
       method: "DELETE",
-      headers: { "x-api-key": adminKey },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));

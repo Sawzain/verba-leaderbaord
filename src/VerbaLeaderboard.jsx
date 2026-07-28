@@ -5,16 +5,15 @@ import LeaderboardView from "./components/LeaderboardView";
 import ManageView from "./components/ManageView";
 import BooksView from "./components/BooksView";
 import useMembers from "./hooks/useMembers";
-import useAdminKey from "./hooks/useAdminKey";
 import useBooks from "./hooks/useBooks";
 import useAuth from "./hooks/useAuth";
 import { CREAM, CREAM_DARK } from "./theme";
 
 export default function VerbaLeaderboard() {
   const [tab, setTab] = useState("board");
-  const { adminKey, status: adminStatus, isUnlocked, unlock, lock } = useAdminKey();
-  const booksState = useBooks();
   const auth = useAuth();
+  const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
+  const booksState = useBooks();
   const {
     members,
     sorted,
@@ -38,7 +37,7 @@ export default function VerbaLeaderboard() {
     adjustPoints,
     startEdit,
     saveEdit,
-  } = useMembers(adminKey);
+  } = useMembers(auth.token);
 
   return (
     <div
@@ -58,7 +57,7 @@ export default function VerbaLeaderboard() {
       <div
         style={{
           width: "100%",
-          maxWidth: 480,
+          maxWidth: 620,
           background: CREAM,
           borderRadius: 20,
           overflow: "hidden",
@@ -73,8 +72,8 @@ export default function VerbaLeaderboard() {
             books={booksState.books}
             loading={booksState.loading}
             error={booksState.error}
-            isAdminUnlocked={isUnlocked}
-            adminKey={adminKey}
+            isAdminUnlocked={isAdmin}
+            adminKey={auth.token}
             addBook={booksState.addBook}
             removeBook={booksState.removeBook}
             fetchBook={booksState.fetchBook}
@@ -87,11 +86,7 @@ export default function VerbaLeaderboard() {
         )}
         {tab === "manage" && (
           <ManageView
-            adminKey={adminKey}
-            adminStatus={adminStatus}
-            isUnlocked={isUnlocked}
-            unlockAdmin={unlock}
-            lockAdmin={lock}
+            auth={auth}
             members={members}
             filteredMembers={filteredMembers}
             search={search}
