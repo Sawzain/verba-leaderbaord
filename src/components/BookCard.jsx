@@ -1,5 +1,6 @@
 import { OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
 import { StarDisplay } from "./StarRating";
+import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
 export default function BookCard({ book, onOpen, canRemove, onRemove }) {
   return (
@@ -28,7 +29,7 @@ export default function BookCard({ book, onOpen, canRemove, onRemove }) {
       >
         {book.coverImage ? (
           <img
-            src={book.coverImage}
+            src={resolveCoverUrl(book.coverImage)}
             alt={book.title}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />

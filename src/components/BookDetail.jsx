@@ -2,6 +2,7 @@ import { useState } from "react";
 import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
+import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
 export default function BookDetail({
   book,
@@ -84,7 +85,7 @@ export default function BookDetail({
         >
           {book.coverImage ? (
             <img
-              src={book.coverImage}
+              src={resolveCoverUrl(book.coverImage)}
               alt={book.title}
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
