@@ -3,6 +3,7 @@ import { OLIVE, OLIVE_DARK, CREAM_DARK } from "../theme";
 import BookCard from "./BookCard";
 import AddBookForm from "./AddBookForm";
 import BookDetail from "./BookDetail";
+import AccountBar from "./AccountBar";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 export default function BooksView({
@@ -90,19 +91,26 @@ export default function BooksView({
       );
     }
     return (
-      <BookDetail
-        book={selectedBook}
-        auth={auth}
-        onBack={() => setSelectedId(null)}
-        onSubmitReview={handleSubmitReview}
-        isAdminUnlocked={isAdminUnlocked}
-        onRemoveReview={handleRemoveReview}
-      />
+      <div>
+        <div style={{ padding: "16px 24px 0" }}>
+          <AccountBar auth={auth} />
+        </div>
+        <BookDetail
+          book={selectedBook}
+          auth={auth}
+          onBack={() => setSelectedId(null)}
+          onSubmitReview={handleSubmitReview}
+          isAdminUnlocked={isAdminUnlocked}
+          onRemoveReview={handleRemoveReview}
+        />
+      </div>
     );
   }
 
   return (
     <div style={{ padding: "24px" }}>
+      <AccountBar auth={auth} />
+
       {isAdminUnlocked && (
         <>
           <div
