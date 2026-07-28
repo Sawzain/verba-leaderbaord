@@ -101,10 +101,13 @@ export default function LandingPage() {
             marginBottom: 28,
           }}
         >
-          A small reading community that tracks what we finish, argues about
-          it, and hands out points for showing up. Pick a book, read on your
-          own schedule, and leave a rating and review when you're done —
-          everyone's progress lands on one shared leaderboard.
+          Verba is Latin for <em>words</em> — the words we read, the words we
+          share, the words that quietly change us. It's also the Ukrainian word
+          for <em>willow</em>: a tree that bends in the storm but never breaks,
+          always reaching toward water and depth. That's the space we're
+          building here — somewhere to show up exactly as you are, on the hard
+          days and the easy ones. No pressure, no judgement. Just words,
+          stories, and the people who love them.
         </p>
         <Link to="/app/leaderboard" style={ctaButtonStyle}>
           Enter the club →
@@ -124,12 +127,27 @@ export default function LandingPage() {
         }}
       >
         {/* How it works / how to join */}
-        <div style={{ padding: "28px 32px", borderBottom: `1px solid ${CREAM_DARK}` }}>
+        <div
+          style={{
+            padding: "28px 32px",
+            borderBottom: `1px solid ${CREAM_DARK}`,
+          }}
+        >
           <div style={sectionHeading}>How it works</div>
-          <p style={{ fontSize: 15, color: "#3f4230", lineHeight: 1.7, margin: 0 }}>
-            We read at our own pace and check in together on Discord — no
-            fixed weekly deadline, just a shared shelf and a running
-            scoreboard. New members are always welcome.
+          <p
+            style={{
+              fontSize: 15,
+              color: "#3f4230",
+              lineHeight: 1.7,
+              margin: 0,
+            }}
+          >
+            We meet every Saturday at 3pm GMT on Google Meet to talk through our
+            current pick, then choose the next one and read it together over the
+            following month. Everyone's progress lands on a shared leaderboard,
+            and reviews stay up so you can revisit what the group thought long
+            after we've moved on. New members are always welcome — join our
+            Discord to stay in the loop between calls.
           </p>
           <a
             href={DISCORD_INVITE_URL}
@@ -199,32 +217,54 @@ export default function LandingPage() {
                   <img
                     src={resolveCoverUrl(currentPick.coverImage)}
                     alt={currentPick.title}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
                   />
                 ) : (
                   <span style={{ fontSize: 24, opacity: 0.4 }}>📖</span>
                 )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 17, fontWeight: "bold", color: "#2d2d2d" }}>
+                <div
+                  style={{ fontSize: 17, fontWeight: "bold", color: "#2d2d2d" }}
+                >
                   {currentPick.title}
                 </div>
                 {currentPick.author && (
-                  <div style={{ fontSize: 13, color: OLIVE_DARK, marginTop: 2 }}>
+                  <div
+                    style={{ fontSize: 13, color: OLIVE_DARK, marginTop: 2 }}
+                  >
                     {currentPick.author}
                   </div>
                 )}
-                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                <div
+                  style={{
+                    marginTop: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
                   {currentPick.avgRating ? (
                     <>
                       <StarDisplay value={currentPick.avgRating} size={13} />
                       <span style={{ fontSize: 12, color: "#888" }}>
-                        {currentPick.avgRating} · {currentPick.reviewCount} review
+                        {currentPick.avgRating} · {currentPick.reviewCount}{" "}
+                        review
                         {currentPick.reviewCount !== 1 ? "s" : ""}
                       </span>
                     </>
                   ) : (
-                    <span style={{ fontSize: 12, color: "#aaa", fontStyle: "italic" }}>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "#aaa",
+                        fontStyle: "italic",
+                      }}
+                    >
                       No reviews yet — be the first
                     </span>
                   )}
@@ -245,7 +285,14 @@ export default function LandingPage() {
           borderTop: `1px solid ${OLIVE_LIGHT}55`,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 10 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 20,
+            marginBottom: 10,
+          }}
+        >
           <a
             href={DISCORD_INVITE_URL}
             target="_blank"
