@@ -12,10 +12,8 @@ import {
   LOGO_SRC,
 } from "../theme";
 
-// TODO(Sajen): swap these placeholders for the real invite/handles once you
-// tell me what to link — see the note in my reply.
-const DISCORD_INVITE_URL = "https://discord.gg/your-invite";
-const INSTAGRAM_URL = "https://instagram.com/verbabookclub";
+const DISCORD_INVITE_URL = "https://discord.gg/7a2H9bcXZ2";
+const INSTAGRAM_URL = "https://www.instagram.com/bookclub_verba";
 
 const sectionHeading = {
   fontSize: 13,
@@ -263,8 +261,8 @@ export default function LandingPage() {
             Instagram
           </a>
         </div>
-        <div style={{ fontSize: 12, color: CREAM_DARK, opacity: 0.8 }}>
-          © {new Date().getFullYear()} Verba Book Club · words that stay
+        <div style={{ fontSize: 12, color: OLIVE_DARK, opacity: 0.85 }}>
+          Verba Book Club © {new Date().getFullYear()} · Est. 2025
         </div>
       </div>
     </div>

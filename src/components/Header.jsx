@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { OLIVE_DARK, LOGO_SRC } from "../theme";
 
 // Subtitle now reflects whichever route is actually active, instead of
@@ -18,21 +18,31 @@ export default function Header() {
       ? "words that stay"
       : SUBTITLES[location.pathname] ?? null;
 
+  const logoImg = (
+    <img
+      src={LOGO_SRC}
+      alt="Verba Book Club"
+      style={{
+        width: 160,
+        height: 160,
+        objectFit: "cover",
+        borderRadius: "16px",
+        display: "block",
+        margin: "0 auto",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+      }}
+    />
+  );
+
   return (
     <div style={{ textAlign: "center", marginBottom: 32 }}>
-      <img
-        src={LOGO_SRC}
-        alt="Verba Book Club"
-        style={{
-          width: 160,
-          height: 160,
-          objectFit: "cover",
-          borderRadius: "16px",
-          display: "block",
-          margin: "0 auto",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-        }}
-      />
+      {location.pathname === "/" ? (
+        logoImg
+      ) : (
+        <Link to="/" aria-label="Back to Verba Book Club home">
+          {logoImg}
+        </Link>
+      )}
       {subtitle && (
         <div
           style={{
