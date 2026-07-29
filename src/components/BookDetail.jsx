@@ -76,7 +76,10 @@ export default function BookDetail({
     setEditSubmitting(true);
     setEditError(null);
     try {
-      await onEditReview(reviewId, { rating: editRating, text: editText.trim() });
+      await onEditReview(reviewId, {
+        rating: editRating,
+        text: editText.trim(),
+      });
       setEditingReviewId(null);
     } catch (err) {
       setEditError(err.message || "Couldn't save your changes.");
@@ -161,19 +164,38 @@ export default function BookDetail({
           )}
         </div>
         <div>
-          <div style={{ fontSize: 19, fontWeight: "bold", color: "#2d2d2d" }}>{book.title}</div>
+          <div style={{ fontSize: 19, fontWeight: "bold", color: "#2d2d2d" }}>
+            {book.title}
+          </div>
           {book.author && (
-            <div style={{ fontSize: 14, color: OLIVE_DARK, marginTop: 2 }}>{book.author}</div>
+            <div style={{ fontSize: 14, color: OLIVE_DARK, marginTop: 2 }}>
+              {book.author}
+            </div>
           )}
           {book.avgRating ? (
-            <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                marginTop: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
               <StarDisplay value={book.avgRating} size={16} />
               <span style={{ fontSize: 13, color: "#888" }}>
-                {book.avgRating} · {book.reviewCount} review{book.reviewCount !== 1 ? "s" : ""}
+                {book.avgRating} · {book.reviewCount} review
+                {book.reviewCount !== 1 ? "s" : ""}
               </span>
             </div>
           ) : (
-            <div style={{ marginTop: 8, fontSize: 13, color: "#aaa", fontStyle: "italic" }}>
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 13,
+                color: "#aaa",
+                fontStyle: "italic",
+              }}
+            >
               No reviews yet — be the first
             </div>
           )}
@@ -242,73 +264,87 @@ export default function BookDetail({
           </div>
         )}
 
-        {auth.isLoggedIn && auth.user && !auth.user.emailVerified && !myReview && !justSubmitted && (
-          <div
-            style={{
-              background: "#fff8e1",
-              border: "1px solid #e0c97a",
-              borderRadius: 10,
-              padding: "12px 14px",
-              fontSize: 13,
-              color: "#6b5410",
-            }}
-          >
-            <div>Verify your email to submit a review — check your inbox for the link we sent.</div>
-            <button
-              onClick={resendVerificationEmail}
-              disabled={resendBusy}
+        {auth.isLoggedIn &&
+          auth.user &&
+          !auth.user.emailVerified &&
+          !myReview &&
+          !justSubmitted && (
+            <div
               style={{
-                marginTop: 8,
-                background: "none",
-                border: "none",
+                background: "#fff8e1",
+                border: "1px solid #e0c97a",
+                borderRadius: 10,
+                padding: "12px 14px",
+                fontSize: 13,
                 color: "#6b5410",
-                fontSize: 12,
-                textDecoration: "underline",
-                cursor: resendBusy ? "default" : "pointer",
-                padding: 0,
               }}
             >
-              {resendBusy ? "Sending…" : "Resend verification email"}
-            </button>
-            {resendMessage && (
-              <div style={{ marginTop: 6, fontSize: 12 }}>{resendMessage}</div>
-            )}
-          </div>
-        )}
+              <div>
+                Verify your email to submit a review — check your inbox for the
+                link we sent.
+              </div>
+              <button
+                onClick={resendVerificationEmail}
+                disabled={resendBusy}
+                style={{
+                  marginTop: 8,
+                  background: "none",
+                  border: "none",
+                  color: "#6b5410",
+                  fontSize: 12,
+                  textDecoration: "underline",
+                  cursor: resendBusy ? "default" : "pointer",
+                  padding: 0,
+                }}
+              >
+                {resendBusy ? "Sending…" : "Resend verification email"}
+              </button>
+              {resendMessage && (
+                <div style={{ marginTop: 6, fontSize: 12 }}>
+                  {resendMessage}
+                </div>
+              )}
+            </div>
+          )}
 
-        {auth.isLoggedIn && myReview && !justSubmitted && editingReviewId !== myReview.id && (
-          <div
-            style={{
-              background: "#eef3e2",
-              border: "1px solid #d3e0bd",
-              borderRadius: 10,
-              padding: "12px 14px",
-              fontSize: 13,
-              color: "#3f4d1e",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <span>You already reviewed this book — thanks! ({myReview.rating}/5)</span>
-            <button
-              onClick={() => startEditReview(myReview)}
+        {auth.isLoggedIn &&
+          myReview &&
+          !justSubmitted &&
+          editingReviewId !== myReview.id && (
+            <div
               style={{
-                background: "none",
-                border: "none",
-                color: OLIVE_DARK,
-                fontSize: 12,
-                textDecoration: "underline",
-                cursor: "pointer",
-                padding: 0,
-                whiteSpace: "nowrap",
+                background: "#eef3e2",
+                border: "1px solid #d3e0bd",
+                borderRadius: 10,
+                padding: "12px 14px",
+                fontSize: 13,
+                color: "#3f4d1e",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 10,
               }}
             >
-              Edit
-            </button>
-          </div>
-        )}
+              <span>
+                You already reviewed this book — thanks! ({myReview.rating}/5)
+              </span>
+              <button
+                onClick={() => startEditReview(myReview)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: OLIVE_DARK,
+                  fontSize: 12,
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  padding: 0,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Edit
+              </button>
+            </div>
+          )}
 
         {auth.isLoggedIn && myReview && editingReviewId === myReview.id && (
           <div
@@ -342,7 +378,9 @@ export default function BookDetail({
               }}
             />
             {editError && (
-              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>{editError}</div>
+              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>
+                {editError}
+              </div>
             )}
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <button
@@ -382,7 +420,8 @@ export default function BookDetail({
           </div>
         )}
 
-        {auth.isLoggedIn && auth.user?.emailVerified && !myReview && !justSubmitted && (
+        {/* {auth.isLoggedIn && auth.user?.emailVerified && !myReview && !justSubmitted && ( */}
+        {auth.isLoggedIn && !myReview && !justSubmitted && (
           <div
             style={{
               background: "#f6f3e8",
@@ -414,7 +453,9 @@ export default function BookDetail({
               }}
             />
             {submitError && (
-              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>{submitError}</div>
+              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>
+                {submitError}
+              </div>
             )}
             <button
               onClick={submit}
@@ -462,7 +503,8 @@ export default function BookDetail({
           marginBottom: 14,
         }}
       >
-        Reviews {book.reviews.length > 0 && (
+        Reviews{" "}
+        {book.reviews.length > 0 && (
           <span style={{ fontSize: 15, fontWeight: "normal", color: "#888" }}>
             ({book.reviews.length})
           </span>
@@ -470,7 +512,9 @@ export default function BookDetail({
       </div>
 
       {book.reviews.length === 0 && (
-        <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>No reviews yet.</div>
+        <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>
+          No reviews yet.
+        </div>
       )}
 
       {book.reviews.map((r) => {
@@ -507,8 +551,16 @@ export default function BookDetail({
               {initial}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 14, fontWeight: "bold", color: "#2d2d2d" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span
+                  style={{ fontSize: 14, fontWeight: "bold", color: "#2d2d2d" }}
+                >
                   {r.reviewer}
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -565,7 +617,14 @@ export default function BookDetail({
                 </div>
               </div>
               {r.text && editingReviewId !== r.id && (
-                <div style={{ marginTop: 6, fontSize: 14, color: "#444", lineHeight: 1.5 }}>
+                <div
+                  style={{
+                    marginTop: 6,
+                    fontSize: 14,
+                    color: "#444",
+                    lineHeight: 1.5,
+                  }}
+                >
                   {r.text}
                 </div>
               )}

@@ -775,13 +775,13 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "Rating must be between 1 and 5" });
   }
 
-  try {
-    const author = await User.findById(req.userId);
-    if (!author?.emailVerified) {
-      return res.status(403).json({
-        error: "Please verify your email before submitting a review.",
-      });
-    }
+  // try {
+  //   const author = await User.findById(req.userId);
+  //   if (!author?.emailVerified) {
+  //     return res.status(403).json({
+  //       error: "Please verify your email before submitting a review.",
+  //     });
+  //   }
 
     const book = await Book.findById(req.params.id);
     if (!book) return res.status(404).json({ error: "Book not found" });
