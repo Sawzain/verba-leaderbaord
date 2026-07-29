@@ -13,6 +13,8 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
+const MAX_COVER_BYTES = 5 * 1024 * 1024; // matches the server's multer limit
+
 export default function AddBookForm({ onAdd }) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -24,11 +26,23 @@ export default function AddBookForm({ onAdd }) {
 
   const pickFile = (e) => {
     const f = e.target.files?.[0] || null;
+    if (preview) URL.revokeObjectURL(preview);
+
+    if (f && f.size > MAX_COVER_BYTES) {
+      setError("That image is over 5MB — please pick a smaller file.");
+      e.target.value = "";
+      setFile(null);
+      setPreview(null);
+      return;
+    }
+
+    setError(null);
     setFile(f);
     setPreview(f ? URL.createObjectURL(f) : null);
   };
 
   const reset = () => {
+    if (preview) URL.revokeObjectURL(preview);
     setTitle("");
     setAuthor("");
     setFile(null);

@@ -671,6 +671,18 @@ export default function BookDetail({
                   }}
                 >
                   {r.text}
+                  {r.edited && (
+                    <span
+                      style={{
+                        marginLeft: 8,
+                        fontSize: 11,
+                        color: "#aaa",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      (edited)
+                    </span>
+                  )}
                 </div>
               )}
             </div>

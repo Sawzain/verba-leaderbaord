@@ -145,6 +145,7 @@ export default function ManageView({
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
+            aria-label="Dismiss error"
             style={{
               background: "none",
               border: "none",

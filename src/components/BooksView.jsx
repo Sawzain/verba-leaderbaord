@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { OLIVE, OLIVE_DARK, CREAM_DARK } from "../theme";
+import { useMemo, useState } from "react";
+import { OLIVE, OLIVE_DARK, CREAM_DARK, WHITE } from "../theme";
 import BookCard from "./BookCard";
 import AddBookForm from "./AddBookForm";
 import BookDetail from "./BookDetail";
@@ -26,7 +26,18 @@ export default function BooksView({
   const [selectedBook, setSelectedBook] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState(null);
+  const [search, setSearch] = useState("");
   const showSlowHint = useSlowLoadHint(loading);
+
+  const visibleBooks = useMemo(() => {
+    if (!search.trim()) return books;
+    const q = search.trim().toLowerCase();
+    return books.filter(
+      (b) =>
+        b.title.toLowerCase().includes(q) ||
+        (b.author || "").toLowerCase().includes(q),
+    );
+  }, [books, search]);
 
   const openBook = async (id) => {
     setSelectedId(id);
@@ -210,6 +221,40 @@ export default function BooksView({
         </div>
       )}
 
+      {!loading && books.length > 5 && (
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search books or authors…"
+          style={{
+            width: "100%",
+            padding: "8px 14px",
+            borderRadius: 10,
+            border: `1.5px solid ${CREAM_DARK}`,
+            fontSize: 14,
+            fontFamily: "'Georgia', serif",
+            outline: "none",
+            background: WHITE,
+            color: "#2d2d2d",
+            boxSizing: "border-box",
+            marginBottom: 16,
+          }}
+        />
+      )}
+
+      {!loading && books.length > 0 && visibleBooks.length === 0 && (
+        <div
+          style={{
+            padding: 20,
+            textAlign: "center",
+            color: "#aaa",
+            fontStyle: "italic",
+          }}
+        >
+          No books match "{search}".
+        </div>
+      )}
+
       <div
         style={{
           display: "grid",
@@ -217,7 +262,7 @@ export default function BooksView({
           gap: 12,
         }}
       >
-        {books.map((book) => (
+        {visibleBooks.map((book) => (
           <BookCard
             key={book._id}
             book={book}

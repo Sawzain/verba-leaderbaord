@@ -68,6 +68,7 @@ export default function MemberRow({
           </button>
           <button
             onClick={onCancelEdit}
+            aria-label="Cancel editing points"
             style={{
               background: "transparent",
               color: "#0a3101",
@@ -84,6 +85,7 @@ export default function MemberRow({
           <button
             onClick={() => onAdjustPoints(member._id, -1)}
             disabled={isSaving}
+            aria-label={`Decrease ${member.name}'s points`}
             style={{
               width: 28,
               height: 28,
@@ -103,7 +105,6 @@ export default function MemberRow({
           <div
             onClick={() => onStartEdit(member)}
             title="Click to edit"
-            className="verba-clickable"
             style={{
               minWidth: 44,
               textAlign: "center",
@@ -121,6 +122,7 @@ export default function MemberRow({
           <button
             onClick={() => onAdjustPoints(member._id, 1)}
             disabled={isSaving}
+            aria-label={`Increase ${member.name}'s points`}
             style={{
               width: 28,
               height: 28,
@@ -141,10 +143,13 @@ export default function MemberRow({
           <button
             onClick={onRemove}
             disabled={isSaving}
-            className="verba-clickable"
+            aria-label={`Remove ${member.name}`}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#222")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "#333")}
             style={{
               background: "transparent",
               border: "none",
+              color: "#333",
               cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               marginLeft: 4,
