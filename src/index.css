@@ -37,7 +37,7 @@ a {
 
 button:not(:disabled):hover,
 a:hover {
-  filter: brightness(0.92);
+  filter: brightness(0.8);
 }
 
 button:not(:disabled):active,
@@ -83,6 +83,26 @@ a:active {
 
 .verba-nav-btn:not(:disabled):active {
   transform: scale(0.96);
+}
+
+/* Delete button (🗑) — a filter/brightness hover barely shows on an
+   already-muted grey emoji, so give it an actual background instead. */
+.verba-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s ease,
+    transform 0.08s ease;
+}
+
+.verba-delete-btn:not(:disabled):hover {
+  background: #f0d3d3;
+}
+
+.verba-delete-btn:not(:disabled):active {
+  background: #e0b3b3;
+  transform: scale(0.9);
 }
 
 /* Same feedback for clickable elements that aren't a <button> or <a>
