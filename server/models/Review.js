@@ -6,6 +6,9 @@ const reviewSchema = new mongoose.Schema({
   rating: { type: Number, required: true, min: 1, max: 5 },
   text: { type: String, trim: true, default: "" },
   createdAt: { type: Date, default: Date.now },
+  // Set only when a review is edited after creation (see PUT /api/reviews/:id)
+  // — its presence, not its value, drives the "(edited)" badge in the UI.
+  updatedAt: { type: Date },
 });
 
 // This is the actual "check and balance": a unique compound index means

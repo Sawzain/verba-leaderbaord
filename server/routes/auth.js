@@ -1,0 +1,270 @@
+const express = require("express");
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
+const requireAuth = require("../middleware/auth");
+const { authLimiter } = require("../middleware/rateLimiters");
+const { signToken } = require("../utils/tokens");
+const { sendVerificationEmail } = require("../config/mailer");
+const {
+  REQUIRE_EMAIL_VERIFICATION,
+  FRONTEND_REDIRECT,
+  DISCORD_CLIENT_ID,
+  DISCORD_CLIENT_SECRET,
+  DISCORD_REDIRECT_URI,
+  DISCORD_CONFIGURED,
+} = require("../config/env");
+
+const router = express.Router();
+
+// ===================== Member accounts (for reviews) =====================
+// Separate from the admin x-api-key: this is a real login so a review is
+// always tied to one specific person, not just whatever name they typed.
+
+router.post("/register", authLimiter, async (req, res) => {
+  const name = (req.body.name || "").trim();
+  const email = (req.body.email || "").trim().toLowerCase();
+  const password = req.body.password || "";
+
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ error: "Name, email, and password are required" });
+  }
+  if (password.length < 8) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters" });
+  }
+
+  try {
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ error: "An account with that email already exists" });
+    }
+    const passwordHash = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(24).toString("hex");
+    const user = await User.create({
+      name,
+      email,
+      passwordHash,
+      verificationToken,
+      verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    sendVerificationEmail(user, verificationToken).catch(() => {});
+
+    res.json({
+      token: signToken(user),
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+        requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Couldn't create the account" });
+  }
+});
+
+router.post("/login", authLimiter, async (req, res) => {
+  const email = (req.body.email || "").trim().toLowerCase();
+  const password = req.body.password || "";
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(401).json({ error: "Invalid email or password" });
+
+    const match = await bcrypt.compare(password, user.passwordHash);
+    if (!match)
+      return res.status(401).json({ error: "Invalid email or password" });
+
+    res.json({
+      token: signToken(user),
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+        requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Couldn't log in" });
+  }
+});
+
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).lean();
+    res.json({
+      id: req.userId,
+      name: req.userName,
+      email: user?.email || "",
+      isAdmin: Boolean(user?.isAdmin),
+      emailVerified: Boolean(user?.emailVerified),
+      requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
+    });
+  } catch (err) {
+    res.json({
+      id: req.userId,
+      name: req.userName,
+      email: "",
+      isAdmin: req.userIsAdmin || false,
+      emailVerified: false,
+      requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
+    });
+  }
+});
+
+// GET: click-through link from the verification email. Not behind
+// requireAuth since the person may be opening it in a different browser/
+// device than the one they registered on.
+router.get("/verify", async (req, res) => {
+  const token = req.query.token;
+  if (!token)
+    return res.redirect(`${FRONTEND_REDIRECT}/app/reviews?emailVerified=0`);
+
+  try {
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: new Date() },
+    });
+    if (!user) {
+      return res.redirect(
+        `${FRONTEND_REDIRECT}/app/reviews?emailVerified=expired`,
+      );
+    }
+    user.emailVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+    res.redirect(`${FRONTEND_REDIRECT}/app/reviews?emailVerified=1`);
+  } catch (err) {
+    res.redirect(`${FRONTEND_REDIRECT}/app/reviews?emailVerified=0`);
+  }
+});
+
+// POST: resend the verification email to the logged-in user's own address.
+router.post(
+  "/resend-verification",
+  requireAuth,
+  authLimiter,
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.userId);
+      if (!user || !user.email) {
+        return res.status(400).json({ error: "No email on this account" });
+      }
+      if (user.emailVerified) {
+        return res.json({ ok: true, alreadyVerified: true });
+      }
+      user.verificationToken = crypto.randomBytes(24).toString("hex");
+      user.verificationTokenExpires = new Date(
+        Date.now() + 24 * 60 * 60 * 1000,
+      );
+      await user.save();
+      await sendVerificationEmail(user, user.verificationToken);
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: "Couldn't resend the verification email" });
+    }
+  },
+);
+
+// ===================== Discord login =====================
+// Lets a member sign in with their Discord identity instead of creating a
+// separate email/password account — Verba already lives on Discord, so
+// this is a more native fit than a brand-new signup flow. Only active if
+// all three Discord env vars are set; otherwise these routes explain what's
+// missing instead of failing mysteriously.
+
+router.get("/discord", (req, res) => {
+  if (!DISCORD_CONFIGURED) {
+    return res
+      .status(503)
+      .send(
+        "Discord login isn't configured on this server yet. Set DISCORD_CLIENT_ID, " +
+          "DISCORD_CLIENT_SECRET, and DISCORD_REDIRECT_URI.",
+      );
+  }
+  const params = new URLSearchParams({
+    client_id: DISCORD_CLIENT_ID,
+    redirect_uri: DISCORD_REDIRECT_URI,
+    response_type: "code",
+    scope: "identify email",
+    prompt: "consent",
+  });
+  res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
+});
+
+router.get("/discord/callback", async (req, res) => {
+  if (!DISCORD_CONFIGURED) {
+    return res.redirect(
+      `${FRONTEND_REDIRECT}?authError=discord_not_configured`,
+    );
+  }
+  const code = req.query.code;
+  if (!code) {
+    return res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
+  }
+
+  try {
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: DISCORD_CLIENT_ID,
+        client_secret: DISCORD_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: DISCORD_REDIRECT_URI,
+      }),
+    });
+    if (!tokenRes.ok) throw new Error("Discord token exchange failed");
+    const tokenBody = await tokenRes.json();
+
+    const profileRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${tokenBody.access_token}` },
+    });
+    if (!profileRes.ok) throw new Error("Discord profile fetch failed");
+    const profile = await profileRes.json();
+
+    const discordId = profile.id;
+    const name = profile.global_name || profile.username || "Discord member";
+    const email = profile.email ? profile.email.trim().toLowerCase() : "";
+
+    let user = await User.findOne({ discordId });
+    if (!user && email) {
+      // If a password account already exists with this email, link Discord
+      // to it instead of creating a duplicate person.
+      user = await User.findOne({ email });
+    }
+    if (!user) {
+      // Discord already confirmed the person owns this email/identity, so
+      // there's no separate verification step needed for these accounts.
+      user = new User({ name, discordId, emailVerified: true });
+      if (email) user.email = email;
+    } else {
+      user.discordId = discordId;
+      user.name = name;
+      user.emailVerified = true;
+    }
+    await user.save();
+
+    const jwtToken = signToken(user);
+    res.redirect(`${FRONTEND_REDIRECT}?token=${encodeURIComponent(jwtToken)}`);
+  } catch (err) {
+    console.error("Discord auth failed", err);
+    res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
+  }
+});
+
+module.exports = router;
