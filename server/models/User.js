@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   // Discord accounts are trusted as verified (Discord already confirmed the
   // email on their end); email/password accounts start false until they
   // click the link sent to their inbox.
-  emailVerified: { type: Boolean, default: false },
+  emailVerified: { type: Boolean, default: true },
   verificationToken: { type: String },
   verificationTokenExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
