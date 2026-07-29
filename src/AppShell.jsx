@@ -4,7 +4,7 @@ import TabSwitcher from "./components/TabSwitcher";
 import Footer from "./components/Footer";
 import useMembers from "./hooks/useMembers";
 import useBooks from "./hooks/useBooks";
-import useAuth from "./hooks/useAuth";
+import { useAuthContext } from "./AuthContext";
 import { CREAM } from "./theme";
 
 // Shell for everything under /app/*. Owns all the state that used to live
@@ -13,7 +13,7 @@ import { CREAM } from "./theme";
 // /app/leaderboard, /app/reviews and /app/manage doesn't lose session state
 // or refetch data that's already loaded.
 export default function AppShell() {
-  const auth = useAuth();
+  const auth = useAuthContext();
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
   const location = useLocation();
 
