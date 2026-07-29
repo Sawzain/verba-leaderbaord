@@ -233,6 +233,7 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={safePage === 1}
+            className="verba-nav-btn"
             style={{
               background: "none",
               border: `1.5px solid ${CREAM_DARK}`,
@@ -252,6 +253,7 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={safePage === totalPages}
+            className="verba-nav-btn"
             style={{
               background: "none",
               border: `1.5px solid ${CREAM_DARK}`,

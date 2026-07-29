@@ -19,11 +19,19 @@ export default function Footer({ maxWidth = 720 }) {
         borderTop: `1px solid ${OLIVE_LIGHT}55`,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 10 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 20,
+          marginBottom: 10,
+        }}
+      >
         <a
           href={DISCORD_INVITE_URL}
           target="_blank"
           rel="noreferrer"
+          className="verba-link-pill"
           style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
         >
           Discord
@@ -32,6 +40,7 @@ export default function Footer({ maxWidth = 720 }) {
           href={INSTAGRAM_URL}
           target="_blank"
           rel="noreferrer"
+          className="verba-link-pill"
           style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
         >
           Instagram

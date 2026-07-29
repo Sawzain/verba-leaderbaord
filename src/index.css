@@ -45,6 +45,46 @@ a:active {
   transform: scale(0.96);
 }
 
+/* Pill-style text links (footer socials) — hover swaps to a filled,
+   inverted look instead of a subtle brightness dim. */
+.verba-link-pill {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.08s ease;
+}
+
+.verba-link-pill:hover {
+  background: #4f5a28;
+  color: #eee8d5 !important;
+}
+
+.verba-link-pill:active {
+  transform: scale(0.96);
+}
+
+/* Prev/Next-style outlined nav buttons — hover fills the outline solid
+   instead of just dimming it slightly. */
+.verba-nav-btn {
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.08s ease;
+}
+
+.verba-nav-btn:not(:disabled):hover {
+  background: #4f5a28 !important;
+  color: #eee8d5 !important;
+  border-color: #4f5a28 !important;
+}
+
+.verba-nav-btn:not(:disabled):active {
+  transform: scale(0.96);
+}
+
 /* Same feedback for clickable elements that aren't a <button> or <a>
    (star ratings, book cards, the tap-to-edit points pill, etc). Add
    className="verba-clickable" to any div/span with an onClick. */
