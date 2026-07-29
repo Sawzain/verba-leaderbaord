@@ -203,7 +203,7 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <div
                 style={{
-                  background: OLIVE_DARK,
+                  background: OLIVE,
                   color: CREAM,
                   borderRadius: 20,
                   padding: "4px 14px",
