@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   OLIVE,
   OLIVE_DARK,
@@ -9,8 +9,11 @@ import {
 } from "../theme";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
+const PAGE_SIZE = 10;
+
 export default function LeaderboardView({ sorted, memberCount, loading }) {
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const showSlowHint = useSlowLoadHint(loading);
 
   const visible = useMemo(() => {
@@ -18,6 +21,38 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
     const q = search.trim().toLowerCase();
     return sorted.filter((m) => m.name.toLowerCase().includes(q));
   }, [sorted, search]);
+
+  // Search narrows the result set, so whatever page you were on may no
+  // longer exist (e.g. you were on page 3, then searched down to 1 result).
+  // Reset to page 1 any time the search term changes.
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageItems = useMemo(
+    () => visible.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [visible, safePage],
+  );
+
+  // Competitive ranking ("1224"): tied members share a rank, and the next
+  // distinct point total skips ahead accordingly (1, 2, 2, 4 — not 1, 2, 2, 3).
+  // Computed once over the full (unfiltered) `sorted` list so a member's
+  // rank stays their true standing even while a search narrows what's shown.
+  const ranks = useMemo(() => {
+    const map = new Map();
+    let rank = 0;
+    let prevPoints = null;
+    sorted.forEach((m, i) => {
+      if (m.points !== prevPoints) {
+        rank = i + 1;
+        prevPoints = m.points;
+      }
+      map.set(m._id, rank);
+    });
+    return map;
+  }, [sorted]);
 
   return (
     <div>
@@ -122,11 +157,8 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
         </div>
       )}
 
-      {visible.map((member) => {
-        // Rank always reflects the member's true position on the full
-        // (unfiltered) leaderboard, even while a search is narrowing the view.
-        const displayRank =
-          sorted.findIndex((m) => m.points === member.points) + 1;
+      {pageItems.map((member) => {
+        const displayRank = ranks.get(member._id);
         const isTop3 = displayRank <= 3;
         const isFirstPlace = displayRank === 1;
 
@@ -186,6 +218,55 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
           </div>
         );
       })}
+
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 16,
+            padding: "14px 24px",
+            borderTop: `1px solid ${CREAM_DARK}`,
+          }}
+        >
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage === 1}
+            style={{
+              background: "none",
+              border: `1.5px solid ${CREAM_DARK}`,
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontFamily: "'Georgia', serif",
+              color: safePage === 1 ? "#bbb" : OLIVE_DARK,
+              cursor: safePage === 1 ? "default" : "pointer",
+            }}
+          >
+            ← Prev
+          </button>
+          <span style={{ fontSize: 13, color: "#888" }}>
+            Page {safePage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage === totalPages}
+            style={{
+              background: "none",
+              border: `1.5px solid ${CREAM_DARK}`,
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontFamily: "'Georgia', serif",
+              color: safePage === totalPages ? "#bbb" : OLIVE_DARK,
+              cursor: safePage === totalPages ? "default" : "pointer",
+            }}
+          >
+            Next →
+          </button>
+        </div>
+      )}
 
       <div
         style={{
