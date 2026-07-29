@@ -7,5 +7,6 @@ const scoreSchema = new mongoose.Schema({
 });
 
 scoreSchema.index({ score: -1 });
+scoreSchema.index({ username: 1 }, { unique: true, collation: { locale: "en", strength: 2 } });
 
 module.exports = mongoose.model("Score", scoreSchema);

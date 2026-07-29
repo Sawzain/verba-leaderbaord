@@ -59,6 +59,7 @@ export default function useAuth() {
           name: me.name,
           email: me.email || "",
           isAdmin: Boolean(me.isAdmin),
+          emailVerified: Boolean(me.emailVerified),
         });
         stripParams(["token"]);
       })
@@ -99,6 +100,17 @@ export default function useAuth() {
     localStorage.removeItem(USER_KEY);
   };
 
+  // Resend the verification email to the logged-in user's own address.
+  const resendVerification = async () => {
+    const res = await fetch(`${API_ROOT}/auth/resend-verification`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "Couldn't resend that email");
+    return body;
+  };
+
   // API_ROOT is "/api" in dev (proxied) or an absolute backend URL in prod.
   // Discord needs a real, absolute redirect target, so resolve "/api" against
   // the current page origin.
@@ -114,6 +126,7 @@ export default function useAuth() {
     register,
     login,
     logout,
+    resendVerification,
     discordLoginUrl,
   };
 }

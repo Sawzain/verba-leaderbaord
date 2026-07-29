@@ -3,10 +3,17 @@ import { API_ROOT } from "./useMembers";
 
 const API_BASE = `${API_ROOT}/books`;
 
-export default function useBooks() {
+// `enabled` lets callers (AppShell) defer fetching books until a tab that
+// actually needs them is active, instead of fetching on every /app/* mount
+// regardless of which tab you're on. Once loaded, `hasLoaded` keeps the
+// data cached so switching tabs back and forth doesn't refetch.
+// LandingPage calls this with no argument (enabled defaults to true) since
+// it always needs the book list for the "current pick" teaser.
+export default function useBooks(enabled = true) {
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const loadBooks = useCallback(() => {
     setLoading(true);
@@ -16,7 +23,10 @@ export default function useBooks() {
         if (!res.ok) throw new Error("Server responded with an error");
         return res.json();
       })
-      .then(setBooks)
+      .then((data) => {
+        setBooks(data);
+        setHasLoaded(true);
+      })
       .catch(() =>
         setError("Couldn't reach the server. Check your connection and try again."),
       )
@@ -24,8 +34,8 @@ export default function useBooks() {
   }, []);
 
   useEffect(() => {
-    loadBooks();
-  }, [loadBooks]);
+    if (enabled && !hasLoaded) loadBooks();
+  }, [enabled, hasLoaded, loadBooks]);
 
   const fetchBook = async (id) => {
     const res = await fetch(`${API_BASE}/${id}`);

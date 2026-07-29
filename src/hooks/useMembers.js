@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
 // In dev, Vite proxies /api to the Express server (see vite.config.js),
 // so the frontend never needs to know the backend's host or port.
@@ -6,10 +6,15 @@ import { useState, useEffect, useMemo } from "react";
 export const API_ROOT = import.meta.env.VITE_API_BASE || "/api";
 const API_BASE = `${API_ROOT}/members`;
 
-export default function useMembers(token) {
+// `enabled` lets callers (AppShell) defer fetching members until a tab that
+// actually needs them is active, instead of fetching on every /app/* mount
+// regardless of which tab you're on. Once loaded, `hasLoaded` keeps the
+// data cached so switching tabs back and forth doesn't refetch.
+export default function useMembers(token, enabled = true) {
   const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [search, setSearch] = useState("");
 
   const [newName, setNewName] = useState("");
@@ -18,7 +23,7 @@ export default function useMembers(token) {
   const [editPoints, setEditPoints] = useState(0);
   const [savingId, setSavingId] = useState(null);
 
-  const loadMembers = () => {
+  const loadMembers = useCallback(() => {
     setLoading(true);
     setError(null);
     return fetch(API_BASE)
@@ -26,20 +31,21 @@ export default function useMembers(token) {
         if (!res.ok) throw new Error("Server responded with an error");
         return res.json();
       })
-      .then((data) =>
+      .then((data) => {
         setMembers(
           data.map((m) => ({ name: m.username, points: m.score, _id: m._id })),
-        ),
-      )
+        );
+        setHasLoaded(true);
+      })
       .catch(() =>
         setError("Couldn't reach the server. Check your connection and try again."),
       )
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
-    loadMembers();
-  }, []);
+    if (enabled && !hasLoaded) loadMembers();
+  }, [enabled, hasLoaded, loadMembers]);
 
   const sorted = useMemo(
     () =>

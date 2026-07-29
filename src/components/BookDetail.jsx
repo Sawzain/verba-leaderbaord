@@ -29,6 +29,9 @@ export default function BookDetail({
   const [editSubmitting, setEditSubmitting] = useState(false);
   const [editError, setEditError] = useState(null);
 
+  const [resendBusy, setResendBusy] = useState(false);
+  const [resendMessage, setResendMessage] = useState(null);
+
   const handleRemoveReview = async (reviewId) => {
     if (!window.confirm("Remove this review? This can't be undone.")) return;
     setRemovingId(reviewId);
@@ -100,6 +103,19 @@ export default function BookDetail({
       setSubmitError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const resendVerificationEmail = async () => {
+    setResendBusy(true);
+    setResendMessage(null);
+    try {
+      await auth.resendVerification();
+      setResendMessage("Verification email sent — check your inbox.");
+    } catch (err) {
+      setResendMessage(err.message || "Couldn't resend that email.");
+    } finally {
+      setResendBusy(false);
     }
   };
 
@@ -226,6 +242,40 @@ export default function BookDetail({
           </div>
         )}
 
+        {auth.isLoggedIn && auth.user && !auth.user.emailVerified && !myReview && !justSubmitted && (
+          <div
+            style={{
+              background: "#fff8e1",
+              border: "1px solid #e0c97a",
+              borderRadius: 10,
+              padding: "12px 14px",
+              fontSize: 13,
+              color: "#6b5410",
+            }}
+          >
+            <div>Verify your email to submit a review — check your inbox for the link we sent.</div>
+            <button
+              onClick={resendVerificationEmail}
+              disabled={resendBusy}
+              style={{
+                marginTop: 8,
+                background: "none",
+                border: "none",
+                color: "#6b5410",
+                fontSize: 12,
+                textDecoration: "underline",
+                cursor: resendBusy ? "default" : "pointer",
+                padding: 0,
+              }}
+            >
+              {resendBusy ? "Sending…" : "Resend verification email"}
+            </button>
+            {resendMessage && (
+              <div style={{ marginTop: 6, fontSize: 12 }}>{resendMessage}</div>
+            )}
+          </div>
+        )}
+
         {auth.isLoggedIn && myReview && !justSubmitted && editingReviewId !== myReview.id && (
           <div
             style={{
@@ -332,7 +382,7 @@ export default function BookDetail({
           </div>
         )}
 
-        {auth.isLoggedIn && !myReview && !justSubmitted && (
+        {auth.isLoggedIn && auth.user?.emailVerified && !myReview && !justSubmitted && (
           <div
             style={{
               background: "#f6f3e8",

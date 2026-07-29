@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const sharp = require("sharp");
 const { v2: cloudinary } = require("cloudinary");
+const { Resend } = require("resend");
 
 const app = express();
 
@@ -54,6 +55,49 @@ if (!process.env.CLOUDINARY_URL) {
 // here instead of implicit magic.
 cloudinary.config({ secure: true });
 
+// Email verification (Resend). Optional — if RESEND_API_KEY isn't set,
+// verification links get logged to the console instead of emailed, so
+// local dev doesn't require a Resend account.
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+if (!resend) {
+  console.warn(
+    "RESEND_API_KEY not set — verification emails will be logged to the " +
+      "console instead of sent. Set it in .env to actually send them.",
+  );
+}
+// This backend's own public URL (not FRONTEND_ORIGIN) — the verification
+// link in the email hits this server directly, which then redirects to
+// the frontend once the token is confirmed.
+const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || "http://localhost:5000";
+const FRONTEND_REDIRECT =
+  process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+
+async function sendVerificationEmail(user, token) {
+  const verifyUrl = `${BACKEND_ORIGIN}/api/auth/verify?token=${token}`;
+  const html = `
+    <p>Hi ${user.name},</p>
+    <p>Confirm your email for Verba Book Club to start submitting reviews:</p>
+    <p><a href="${verifyUrl}">Verify my email</a></p>
+    <p>This link expires in 24 hours.</p>
+  `;
+  if (!resend) {
+    console.log(`[dev] Verification link for ${user.email}: ${verifyUrl}`);
+    return;
+  }
+  try {
+    await resend.emails.send({
+      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      to: user.email,
+      subject: "Verify your email — Verba Book Club",
+      html,
+    });
+  } catch (err) {
+    console.error("Failed to send verification email", err);
+  }
+}
+
 function requireApiKey(req, res, next) {
   const key = req.headers["x-api-key"];
   if (key === process.env.API_KEY) {
@@ -91,7 +135,12 @@ app.use(
   express.static(uploadsDir, { maxAge: "7d", immutable: true }),
 );
 
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -156,7 +205,8 @@ function deleteCoverAssets(book) {
 // hand in Manage instead for now. Set AUTO_AWARD_REVIEW_POINTS=true to turn
 // this back on once accounts and leaderboard names are fully unified.
 const REVIEW_POINTS = Number(process.env.REVIEW_POINTS) || 10;
-const AUTO_AWARD_REVIEW_POINTS = process.env.AUTO_AWARD_REVIEW_POINTS === "true";
+const AUTO_AWARD_REVIEW_POINTS =
+  process.env.AUTO_AWARD_REVIEW_POINTS === "true";
 
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -192,7 +242,11 @@ async function revokeReviewPoints(username) {
 
 function signToken(user) {
   return jwt.sign(
-    { sub: user._id.toString(), name: user.name, isAdmin: Boolean(user.isAdmin) },
+    {
+      sub: user._id.toString(),
+      name: user.name,
+      isAdmin: Boolean(user.isAdmin),
+    },
     process.env.JWT_SECRET,
     { expiresIn: "30d" },
   );
@@ -205,7 +259,9 @@ const authLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many attempts. Please wait a few minutes and try again." },
+  message: {
+    error: "Too many attempts. Please wait a few minutes and try again.",
+  },
 });
 
 // GET: Verify admin access — works with either the legacy shared x-api-key
@@ -236,6 +292,19 @@ app.post("/api/members", requireApiKey, async (req, res) => {
   }
 
   try {
+    // Case-insensitive duplicate check — leaderboard names are added
+    // manually by an admin, so this is the only guard against "Sam" and
+    // "sam" (or "Sam ") ending up as two separate entries.
+    const escaped = username.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existing = await Score.findOne({
+      username: new RegExp(`^${escaped}$`, "i"),
+    });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ error: `"${username}" is already on the leaderboard` });
+    }
+
     const newEntry = new Score({ username, score });
     await newEntry.save();
     res.json(newEntry);
@@ -288,22 +357,44 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
   const password = req.body.password || "";
 
   if (!name || !email || !password) {
-    return res.status(400).json({ error: "Name, email, and password are required" });
+    return res
+      .status(400)
+      .json({ error: "Name, email, and password are required" });
   }
   if (password.length < 8) {
-    return res.status(400).json({ error: "Password must be at least 8 characters" });
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters" });
   }
 
   try {
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(409).json({ error: "An account with that email already exists" });
+      return res
+        .status(409)
+        .json({ error: "An account with that email already exists" });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, passwordHash });
+    const verificationToken = crypto.randomBytes(24).toString("hex");
+    const user = await User.create({
+      name,
+      email,
+      passwordHash,
+      verificationToken,
+      verificationTokenExpires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    sendVerificationEmail(user, verificationToken).catch(() => {});
+
     res.json({
       token: signToken(user),
-      user: { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: "Couldn't create the account" });
@@ -316,14 +407,22 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ error: "Invalid email or password" });
+    if (!user)
+      return res.status(401).json({ error: "Invalid email or password" });
 
     const match = await bcrypt.compare(password, user.passwordHash);
-    if (!match) return res.status(401).json({ error: "Invalid email or password" });
+    if (!match)
+      return res.status(401).json({ error: "Invalid email or password" });
 
     res.json({
       token: signToken(user),
-      user: { id: user._id, name: user.name, email: user.email, isAdmin: user.isAdmin },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        emailVerified: user.emailVerified,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: "Couldn't log in" });
@@ -333,11 +432,78 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId).lean();
-    res.json({ id: req.userId, name: req.userName, email: user?.email || "", isAdmin: Boolean(user?.isAdmin) });
+    res.json({
+      id: req.userId,
+      name: req.userName,
+      email: user?.email || "",
+      isAdmin: Boolean(user?.isAdmin),
+      emailVerified: Boolean(user?.emailVerified),
+    });
   } catch (err) {
-    res.json({ id: req.userId, name: req.userName, email: "", isAdmin: req.userIsAdmin || false });
+    res.json({
+      id: req.userId,
+      name: req.userName,
+      email: "",
+      isAdmin: req.userIsAdmin || false,
+      emailVerified: false,
+    });
   }
 });
+
+// GET: click-through link from the verification email. Not behind
+// requireAuth since the person may be opening it in a different browser/
+// device than the one they registered on.
+app.get("/api/auth/verify", async (req, res) => {
+  const token = req.query.token;
+  if (!token)
+    return res.redirect(`${FRONTEND_REDIRECT}/app/reviews?emailVerified=0`);
+
+  try {
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: new Date() },
+    });
+    if (!user) {
+      return res.redirect(
+        `${FRONTEND_REDIRECT}/app/reviews?emailVerified=expired`,
+      );
+    }
+    user.emailVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpires = undefined;
+    await user.save();
+    res.redirect(`${FRONTEND_REDIRECT}/app/reviews?emailVerified=1`);
+  } catch (err) {
+    res.redirect(`${FRONTEND_REDIRECT}/app/reviews?emailVerified=0`);
+  }
+});
+
+// POST: resend the verification email to the logged-in user's own address.
+app.post(
+  "/api/auth/resend-verification",
+  requireAuth,
+  authLimiter,
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.userId);
+      if (!user || !user.email) {
+        return res.status(400).json({ error: "No email on this account" });
+      }
+      if (user.emailVerified) {
+        return res.json({ ok: true, alreadyVerified: true });
+      }
+      user.verificationToken = crypto.randomBytes(24).toString("hex");
+      user.verificationTokenExpires = new Date(
+        Date.now() + 24 * 60 * 60 * 1000,
+      );
+      await user.save();
+      await sendVerificationEmail(user, user.verificationToken);
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: "Couldn't resend the verification email" });
+    }
+  },
+);
 
 // ===================== Discord login =====================
 // Lets a member sign in with their Discord identity instead of creating a
@@ -351,8 +517,6 @@ const DISCORD_REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const discordConfigured = Boolean(
   DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET && DISCORD_REDIRECT_URI,
 );
-// Where to send the browser back to after the OAuth round trip completes.
-const FRONTEND_REDIRECT = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
 app.get("/api/auth/discord", (req, res) => {
   if (!discordConfigured) {
@@ -375,7 +539,9 @@ app.get("/api/auth/discord", (req, res) => {
 
 app.get("/api/auth/discord/callback", async (req, res) => {
   if (!discordConfigured) {
-    return res.redirect(`${FRONTEND_REDIRECT}?authError=discord_not_configured`);
+    return res.redirect(
+      `${FRONTEND_REDIRECT}?authError=discord_not_configured`,
+    );
   }
   const code = req.query.code;
   if (!code) {
@@ -414,11 +580,14 @@ app.get("/api/auth/discord/callback", async (req, res) => {
       user = await User.findOne({ email });
     }
     if (!user) {
-      user = new User({ name, discordId });
+      // Discord already confirmed the person owns this email/identity, so
+      // there's no separate verification step needed for these accounts.
+      user = new User({ name, discordId, emailVerified: true });
       if (email) user.email = email;
     } else {
       user.discordId = discordId;
       user.name = name;
+      user.emailVerified = true;
     }
     await user.save();
 
@@ -430,11 +599,11 @@ app.get("/api/auth/discord/callback", async (req, res) => {
   }
 });
 
-// POST: admin-assisted password reset. There's no email service configured,
-// so this doesn't send anything automatically — it generates a fresh
-// temporary password and hands it back to the admin, who relays it to the
-// member out of band (Discord DM, in person, etc). The member can't request
-// this themselves; it requires the admin x-api-key.
+// POST: admin-assisted password reset. There's no email service configured
+// for this flow, so it doesn't send anything automatically — it generates a
+// fresh temporary password and hands it back to the admin, who relays it to
+// the member out of band (Discord DM, in person, etc). The member can't
+// request this themselves; it requires the admin x-api-key.
 app.post("/api/admin/reset-password", requireApiKey, async (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
   if (!email) {
@@ -444,7 +613,9 @@ app.post("/api/admin/reset-password", requireApiKey, async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "No account found with that email" });
+      return res
+        .status(404)
+        .json({ error: "No account found with that email" });
     }
 
     const tempPassword = crypto.randomBytes(6).toString("hex"); // 12 chars
@@ -464,7 +635,13 @@ app.get("/api/books", async (req, res) => {
   try {
     const books = await Book.find().sort({ addedAt: -1 }).lean();
     const summaries = await Review.aggregate([
-      { $group: { _id: "$book", avgRating: { $avg: "$rating" }, count: { $sum: 1 } } },
+      {
+        $group: {
+          _id: "$book",
+          avgRating: { $avg: "$rating" },
+          count: { $sum: 1 },
+        },
+      },
     ]);
     const summaryById = new Map(summaries.map((s) => [s._id.toString(), s]));
 
@@ -511,28 +688,38 @@ app.get("/api/books/:id", async (req, res) => {
 });
 
 // POST: add a book (admin only), with an optional cover image upload
-app.post("/api/books", requireApiKey, upload.single("cover"), async (req, res) => {
-  const title = (req.body.title || "").trim();
-  const author = (req.body.author || "").trim();
+app.post(
+  "/api/books",
+  requireApiKey,
+  upload.single("cover"),
+  async (req, res) => {
+    const title = (req.body.title || "").trim();
+    const author = (req.body.author || "").trim();
 
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
-  }
-
-  try {
-    let coverImage = "";
-    let coverPublicId = "";
-    if (req.file) {
-      const uploaded = await saveCoverImage(req.file.buffer);
-      coverImage = uploaded.url;
-      coverPublicId = uploaded.publicId;
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
     }
-    const book = await Book.create({ title, author, coverImage, coverPublicId });
-    res.json(book);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to add book" });
-  }
-});
+
+    try {
+      let coverImage = "";
+      let coverPublicId = "";
+      if (req.file) {
+        const uploaded = await saveCoverImage(req.file.buffer);
+        coverImage = uploaded.url;
+        coverPublicId = uploaded.publicId;
+      }
+      const book = await Book.create({
+        title,
+        author,
+        coverImage,
+        coverPublicId,
+      });
+      res.json(book);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to add book" });
+    }
+  },
+);
 
 // DELETE: remove a book (admin only) — also clears its reviews and cover file
 app.delete("/api/books/:id", requireApiKey, async (req, res) => {
@@ -576,7 +763,7 @@ app.patch("/api/books/:id/current-pick", requireApiKey, async (req, res) => {
 
 // ============================== Reviews ==============================
 
-// POST: add a review — requires a logged-in member.
+// POST: add a review — requires a logged-in member whose email is verified.
 // The one-review-per-person rule is enforced by the unique (book, user)
 // index on Review, so this is safe even against duplicate/concurrent
 // submissions, not just a check done in this handler.
@@ -589,6 +776,13 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
   }
 
   try {
+    const author = await User.findById(req.userId);
+    if (!author?.emailVerified) {
+      return res.status(403).json({
+        error: "Please verify your email before submitting a review.",
+      });
+    }
+
     const book = await Book.findById(req.params.id);
     if (!book) return res.status(404).json({ error: "Book not found" });
 
@@ -611,7 +805,9 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
     });
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(409).json({ error: "You've already reviewed this book" });
+      return res
+        .status(409)
+        .json({ error: "You've already reviewed this book" });
     }
     res.status(400).json({ error: "Invalid book id" });
   }
@@ -639,23 +835,32 @@ function authorizeReviewOwnerOrAdmin(req, res, next) {
     req.isAdmin = Boolean(payload.isAdmin);
     next();
   } catch (err) {
-    res.status(401).json({ error: "Your session expired. Please log in again." });
+    res
+      .status(401)
+      .json({ error: "Your session expired. Please log in again." });
   }
 }
 
 // PUT: edit a review — the review's own author, or an admin
 app.put("/api/reviews/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
   try {
-    const review = await Review.findById(req.params.id).populate("user", "name");
+    const review = await Review.findById(req.params.id).populate(
+      "user",
+      "name",
+    );
     if (!review) return res.status(404).json({ error: "Review not found" });
     if (!req.isAdmin && review.user._id.toString() !== req.userId) {
-      return res.status(403).json({ error: "You can only edit your own review" });
+      return res
+        .status(403)
+        .json({ error: "You can only edit your own review" });
     }
 
     if (req.body.rating !== undefined) {
       const rating = Number(req.body.rating);
       if (!rating || rating < 1 || rating > 5) {
-        return res.status(400).json({ error: "Rating must be between 1 and 5" });
+        return res
+          .status(400)
+          .json({ error: "Rating must be between 1 and 5" });
       }
       review.rating = rating;
     }
@@ -679,23 +884,32 @@ app.put("/api/reviews/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
 
 // DELETE: remove a review — the review's own author, or an admin
 // (e.g. for abusive or off-topic reviews)
-app.delete("/api/reviews/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
-  try {
-    const review = await Review.findById(req.params.id).populate("user", "name");
-    if (!review) return res.status(404).json({ error: "Review not found" });
-    if (!req.isAdmin && review.user._id.toString() !== req.userId) {
-      return res.status(403).json({ error: "You can only remove your own review" });
+app.delete(
+  "/api/reviews/:id",
+  authorizeReviewOwnerOrAdmin,
+  async (req, res) => {
+    try {
+      const review = await Review.findById(req.params.id).populate(
+        "user",
+        "name",
+      );
+      if (!review) return res.status(404).json({ error: "Review not found" });
+      if (!req.isAdmin && review.user._id.toString() !== req.userId) {
+        return res
+          .status(403)
+          .json({ error: "You can only remove your own review" });
+      }
+
+      const reviewerName = review.user?.name;
+      await review.deleteOne();
+      if (reviewerName) await revokeReviewPoints(reviewerName);
+
+      res.sendStatus(204);
+    } catch (err) {
+      res.status(400).json({ error: "Invalid review id" });
     }
-
-    const reviewerName = review.user?.name;
-    await review.deleteOne();
-    if (reviewerName) await revokeReviewPoints(reviewerName);
-
-    res.sendStatus(204);
-  } catch (err) {
-    res.status(400).json({ error: "Invalid review id" });
-  }
-});
+  },
+);
 
 // Turns multer/upload errors (bad file type, too large) into clean JSON
 // instead of Express's default HTML error page.
