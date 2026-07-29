@@ -8,7 +8,9 @@ const USER_KEY = "verba-member-user";
 // is just an isAdmin flag on one of these accounts now — there's no
 // separate shared key.
 export default function useAuth() {
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || "");
+  const [token, setToken] = useState(
+    () => localStorage.getItem(TOKEN_KEY) || "",
+  );
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(USER_KEY) || "null");
@@ -37,7 +39,9 @@ export default function useAuth() {
     const stripParams = (keys) => {
       keys.forEach((k) => params.delete(k));
       const cleanUrl =
-        window.location.pathname + (params.toString() ? `?${params}` : "") + window.location.hash;
+        window.location.pathname +
+        (params.toString() ? `?${params}` : "") +
+        window.location.hash;
       window.history.replaceState({}, "", cleanUrl);
     };
 
@@ -60,10 +64,13 @@ export default function useAuth() {
           email: me.email || "",
           isAdmin: Boolean(me.isAdmin),
           emailVerified: Boolean(me.emailVerified),
+          requireEmailVerification: Boolean(me.requireEmailVerification),
         });
         stripParams(["token"]);
       })
-      .catch(() => setAuthError("Discord login didn't work. Please try again."));
+      .catch(() =>
+        setAuthError("Discord login didn't work. Please try again."),
+      );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -114,7 +121,10 @@ export default function useAuth() {
   // API_ROOT is "/api" in dev (proxied) or an absolute backend URL in prod.
   // Discord needs a real, absolute redirect target, so resolve "/api" against
   // the current page origin.
-  const discordLoginUrl = new URL(`${API_ROOT}/auth/discord`, window.location.href).toString();
+  const discordLoginUrl = new URL(
+    `${API_ROOT}/auth/discord`,
+    window.location.href,
+  ).toString();
 
   return {
     token,

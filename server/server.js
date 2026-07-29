@@ -74,6 +74,15 @@ const BACKEND_ORIGIN = process.env.BACKEND_ORIGIN || "http://localhost:5000";
 const FRONTEND_REDIRECT =
   process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
+// Whether email verification is actually enforced. Paused by default while
+// the Resend sending domain isn't verified yet (see warning above) — set
+// REQUIRE_EMAIL_VERIFICATION=true in .env once outbound email is reliable.
+// Both the review-submission check below and the frontend banner
+// (BookDetail.jsx) read this same flag, so re-enabling it is a single env
+// var flip + redeploy instead of hunting through commented-out code.
+const REQUIRE_EMAIL_VERIFICATION =
+  process.env.REQUIRE_EMAIL_VERIFICATION === "true";
+
 async function sendVerificationEmail(user, token) {
   const verifyUrl = `${BACKEND_ORIGIN}/api/auth/verify?token=${token}`;
   const html = `
@@ -394,6 +403,7 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         emailVerified: user.emailVerified,
+        requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
       },
     });
   } catch (err) {
@@ -422,6 +432,7 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         emailVerified: user.emailVerified,
+        requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
       },
     });
   } catch (err) {
@@ -438,6 +449,7 @@ app.get("/api/auth/me", requireAuth, async (req, res) => {
       email: user?.email || "",
       isAdmin: Boolean(user?.isAdmin),
       emailVerified: Boolean(user?.emailVerified),
+      requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
     });
   } catch (err) {
     res.json({
@@ -446,6 +458,7 @@ app.get("/api/auth/me", requireAuth, async (req, res) => {
       email: "",
       isAdmin: req.userIsAdmin || false,
       emailVerified: false,
+      requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
     });
   }
 });
@@ -763,10 +776,11 @@ app.patch("/api/books/:id/current-pick", requireApiKey, async (req, res) => {
 
 // ============================== Reviews ==============================
 
-// POST: add a review — requires a logged-in member whose email is verified.
-// The one-review-per-person rule is enforced by the unique (book, user)
-// index on Review, so this is safe even against duplicate/concurrent
-// submissions, not just a check done in this handler.
+// POST: add a review — requires a logged-in member; if REQUIRE_EMAIL_VERIFICATION
+// is enabled, their email must also be verified. The one-review-per-person
+// rule is enforced by the unique (book, user) index on Review, so this is
+// safe even against duplicate/concurrent submissions, not just a check done
+// in this handler.
 app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
   const rating = Number(req.body.rating);
   const text = (req.body.text || "").trim();
@@ -776,13 +790,14 @@ app.post("/api/books/:id/reviews", requireAuth, async (req, res) => {
   }
 
   try {
-    // Paused until a Resend domain is verified — see note above.
-    //   const author = await User.findById(req.userId);
-    //   if (!author?.emailVerified) {
-    //     return res.status(403).json({
-    //       error: "Please verify your email before submitting a review.",
-    //     });
-    //   }
+    if (REQUIRE_EMAIL_VERIFICATION) {
+      const author = await User.findById(req.userId);
+      if (!author?.emailVerified) {
+        return res.status(403).json({
+          error: "Please verify your email before submitting a review.",
+        });
+      }
+    }
 
     const book = await Book.findById(req.params.id);
     if (!book) return res.status(404).json({ error: "Book not found" });

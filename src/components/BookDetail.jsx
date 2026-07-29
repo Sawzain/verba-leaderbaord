@@ -266,6 +266,7 @@ export default function BookDetail({
 
         {auth.isLoggedIn &&
           auth.user &&
+          auth.user.requireEmailVerification &&
           !auth.user.emailVerified &&
           !myReview &&
           !justSubmitted && (
