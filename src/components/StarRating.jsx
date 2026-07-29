@@ -1,3 +1,7 @@
+import { useState } from "react";
+// TODO: update this path to wherever these color constants actually live in your project
+import { CREAM_DARK, OLIVE_DARK } from "../constants/theme";
+
 // Clickable stars for submitting a review.
 export function StarInput({ value, onChange }) {
   const [hover, setHover] = useState(0);
@@ -31,6 +35,24 @@ export function StarInput({ value, onChange }) {
       >
         {value ? `${value}/5` : "Tap to rate"}
       </span>
+    </span>
+  );
+}
+
+// Read-only stars for displaying an existing rating.
+export function StarDisplay({ value, size = 16 }) {
+  return (
+    <span style={{ fontSize: size }}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span
+          key={n}
+          style={{
+            color: n <= value ? "#c9a227" : CREAM_DARK,
+          }}
+        >
+          ★
+        </span>
+      ))}
     </span>
   );
 }
