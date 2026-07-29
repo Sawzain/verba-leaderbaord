@@ -20,9 +20,45 @@ body {
 * {
   box-sizing: border-box;
 }
-
 @keyframes verba-spin {
   to {
     transform: rotate(360deg);
   }
+}
+/* Hover/active feedback for buttons and links */
+button,
+a {
+  transition:
+    filter 0.15s ease,
+    transform 0.08s ease,
+    opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled):hover,
+a:hover {
+  filter: brightness(0.92);
+}
+
+button:not(:disabled):active,
+a:active {
+  transform: scale(0.96);
+}
+
+/* Same feedback for clickable elements that aren't a <button> or <a>
+   (star ratings, book cards, the tap-to-edit points pill, etc). Add
+   className="verba-clickable" to any div/span with an onClick. */
+.verba-clickable {
+  transition:
+    filter 0.15s ease,
+    transform 0.08s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.verba-clickable:hover {
+  filter: brightness(0.95);
+}
+
+.verba-clickable:active {
+  transform: scale(0.96);
 }

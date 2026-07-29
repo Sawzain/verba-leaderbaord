@@ -103,6 +103,7 @@ export default function MemberRow({
           <div
             onClick={() => onStartEdit(member)}
             title="Click to edit"
+            className="verba-clickable"
             style={{
               minWidth: 44,
               textAlign: "center",

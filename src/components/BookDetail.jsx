@@ -4,6 +4,38 @@ import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
+// Shared with LandingPage.jsx's .verba-btn / .verba-btn-outline classes.
+// Inline style objects can't express :hover/:active, so interactive
+// buttons/links get a matching CSS class defined here alongside their
+// inline styles — colors and layout stay inline, this only adds
+// transition/hover/active behavior.
+const buttonInteractionStyles = `
+  .verba-btn {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease, color 0.15s ease;
+  }
+  .verba-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+  }
+  .verba-btn:active {
+    transform: translateY(0);
+    filter: brightness(0.96);
+  }
+  .verba-btn:disabled {
+    transform: none;
+    filter: none;
+  }
+  .verba-link-btn {
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .verba-link-btn:hover {
+    opacity: 0.7;
+  }
+  .verba-link-btn:active {
+    opacity: 0.5;
+  }
+`;
+
 export default function BookDetail({
   book,
   auth,
@@ -124,8 +156,11 @@ export default function BookDetail({
 
   return (
     <div style={{ padding: "20px 24px" }}>
+      <style>{buttonInteractionStyles}</style>
+
       <button
         onClick={onBack}
+        className="verba-link-btn"
         style={{
           background: "none",
           border: "none",
@@ -219,6 +254,7 @@ export default function BookDetail({
         {!auth.isLoggedIn && !showAuthForm && (
           <button
             onClick={() => setShowAuthForm(true)}
+            className="verba-btn"
             style={{
               background: "none",
               border: `1px dashed ${CREAM_DARK}`,
@@ -248,6 +284,7 @@ export default function BookDetail({
             />
             <button
               onClick={() => setShowAuthForm(false)}
+              className="verba-link-btn"
               style={{
                 background: "none",
                 border: "none",
@@ -287,6 +324,7 @@ export default function BookDetail({
               <button
                 onClick={resendVerificationEmail}
                 disabled={resendBusy}
+                className="verba-link-btn"
                 style={{
                   marginTop: 8,
                   background: "none",
@@ -331,6 +369,7 @@ export default function BookDetail({
               </span>
               <button
                 onClick={() => startEditReview(myReview)}
+                className="verba-link-btn"
                 style={{
                   background: "none",
                   border: "none",
@@ -387,6 +426,7 @@ export default function BookDetail({
               <button
                 onClick={() => saveEditReview(myReview.id)}
                 disabled={editSubmitting}
+                className="verba-btn"
                 style={{
                   background: "#6B7A3A",
                   color: CREAM,
@@ -404,6 +444,7 @@ export default function BookDetail({
               <button
                 onClick={cancelEditReview}
                 disabled={editSubmitting}
+                className="verba-btn"
                 style={{
                   background: "none",
                   border: `1.5px solid ${CREAM_DARK}`,
@@ -421,7 +462,6 @@ export default function BookDetail({
           </div>
         )}
 
-        {/* {auth.isLoggedIn && auth.user?.emailVerified && !myReview && !justSubmitted && ( */}
         {auth.isLoggedIn && !myReview && !justSubmitted && (
           <div
             style={{
@@ -461,6 +501,7 @@ export default function BookDetail({
             <button
               onClick={submit}
               disabled={submitting}
+              className="verba-btn"
               style={{
                 marginTop: 10,
                 background: "#6B7A3A",
@@ -570,6 +611,7 @@ export default function BookDetail({
                     <>
                       <button
                         onClick={() => startEditReview(r)}
+                        className="verba-link-btn"
                         style={{
                           background: "transparent",
                           border: "none",
@@ -584,6 +626,7 @@ export default function BookDetail({
                       <button
                         onClick={() => handleRemoveMyReview(r.id)}
                         disabled={removingId === r.id}
+                        className="verba-link-btn"
                         style={{
                           background: "transparent",
                           border: "none",
@@ -602,6 +645,7 @@ export default function BookDetail({
                     <button
                       onClick={() => handleRemoveReview(r.id)}
                       disabled={removingId === r.id}
+                      className="verba-link-btn"
                       style={{
                         background: "transparent",
                         border: "none",

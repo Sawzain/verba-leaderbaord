@@ -37,6 +37,11 @@ export default function TabSwitcher() {
             color: isActive ? OLIVE_DARK : CREAM_DARK,
             fontWeight: isActive ? "bold" : "normal",
             transition: "all 0.2s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            whiteSpace: "nowrap",
           })}
         >
           {label}

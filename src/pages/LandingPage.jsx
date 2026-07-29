@@ -38,6 +38,32 @@ const ctaButtonStyle = {
   boxShadow: "0 8px 30px rgba(45, 60, 45, 0.08)",
 };
 
+// Inline style objects can't express :hover/:active, so interactive buttons
+// get a matching CSS class (defined in the <style> block below) alongside
+// their inline styles. The class only carries hover/active/transition
+// rules — colors and one-off layout stay in the inline style, so this is
+// additive rather than a second source of truth.
+const buttonInteractionStyles = `
+  .verba-btn {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+  }
+  .verba-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(45, 60, 45, 0.18);
+  }
+  .verba-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 14px rgba(45, 60, 45, 0.14);
+    opacity: 0.9;
+  }
+  .verba-btn-outline:hover {
+    background: ${OLIVE_LIGHT}22;
+  }
+  .verba-btn-outline:active {
+    background: ${OLIVE_LIGHT}3a;
+  }
+`;
+
 export default function LandingPage() {
   const { books, loading } = useBooks();
   const currentPick = books.find((b) => b.isCurrentPick);
@@ -53,6 +79,8 @@ export default function LandingPage() {
         padding: "48px 20px 24px",
       }}
     >
+      <style>{buttonInteractionStyles}</style>
+
       {/* Hero */}
       <div style={{ textAlign: "center", maxWidth: 640, marginBottom: 40 }}>
         <img
@@ -121,7 +149,11 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <Link to="/app/leaderboard" style={ctaButtonStyle}>
+        <Link
+          to="/app/leaderboard"
+          className="verba-btn"
+          style={ctaButtonStyle}
+        >
           Enter the club →
         </Link>
       </div>
@@ -168,6 +200,7 @@ export default function LandingPage() {
             href={DISCORD_INVITE_URL}
             target="_blank"
             rel="noreferrer"
+            className="verba-btn verba-btn-outline"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -205,6 +238,7 @@ export default function LandingPage() {
           {!loading && currentPick && (
             <Link
               to="/app/reviews"
+              className="verba-btn"
               style={{
                 display: "flex",
                 gap: 16,
