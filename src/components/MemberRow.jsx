@@ -141,12 +141,10 @@ export default function MemberRow({
           <button
             onClick={onRemove}
             disabled={isSaving}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#222")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "#333")}
+            className="verba-clickable"
             style={{
               background: "transparent",
               border: "none",
-              color: "#333",
               cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               marginLeft: 4,

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import useBooks from "../hooks/useBooks";
 import { StarDisplay } from "../components/StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
+import Footer from "../components/Footer";
 import {
   OLIVE,
   OLIVE_DARK,
@@ -13,7 +14,6 @@ import {
 } from "../theme";
 
 const DISCORD_INVITE_URL = "https://discord.gg/7a2H9bcXZ2";
-const INSTAGRAM_URL = "https://www.instagram.com/bookclub_verba";
 
 const sectionHeading = {
   fontSize: 13,
@@ -325,45 +325,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 720,
-          textAlign: "center",
-          padding: "20px 16px 0",
-          borderTop: `1px solid ${OLIVE_LIGHT}55`,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 20,
-            marginBottom: 10,
-          }}
-        >
-          <a
-            href={DISCORD_INVITE_URL}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
-          >
-            Discord
-          </a>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
-          >
-            Instagram
-          </a>
-        </div>
-        <div style={{ fontSize: 12, color: OLIVE_DARK, opacity: 0.85 }}>
-          Verba Book Club © {new Date().getFullYear()} · Est. 2025
-        </div>
-      </div>
+      <Footer />
     </div>
   );
 }
