@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
-import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK, medals } from "../theme";
+import {
+  OLIVE,
+  OLIVE_DARK,
+  OLIVE_LIGHT,
+  CREAM,
+  CREAM_DARK,
+  medals,
+} from "../theme";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 export default function LeaderboardView({ sorted, memberCount, loading }) {
@@ -67,14 +74,23 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
             padding: 40,
             textAlign: "center",
             color: "#aaa",
-            fontStyle: "italic",
           }}
         >
-          Loading leaderboard…
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              margin: "0 auto 14px",
+              border: `3px solid ${CREAM_DARK}`,
+              borderTopColor: OLIVE,
+              borderRadius: "50%",
+              animation: "verba-spin 0.8s linear infinite",
+            }}
+          />
+          <div style={{ fontStyle: "italic" }}>Loading leaderboard…</div>
           {showSlowHint && (
             <div style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
-              The server may be waking up from being idle — this can take up
-              to a minute on the free tier.
+              Still on it — this is taking longer than usual, but hang tight.
             </div>
           )}
         </div>
@@ -109,7 +125,8 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
       {visible.map((member) => {
         // Rank always reflects the member's true position on the full
         // (unfiltered) leaderboard, even while a search is narrowing the view.
-        const displayRank = sorted.findIndex((m) => m.points === member.points) + 1;
+        const displayRank =
+          sorted.findIndex((m) => m.points === member.points) + 1;
         const isTop3 = displayRank <= 3;
         const isFirstPlace = displayRank === 1;
 

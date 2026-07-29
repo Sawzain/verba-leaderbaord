@@ -10,7 +10,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #B7C7AC;
+  background: #b7c7ac;
 }
 
 #root {
@@ -19,4 +19,10 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+@keyframes verba-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

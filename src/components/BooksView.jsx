@@ -70,7 +70,8 @@ export default function BooksView({
   };
 
   const handleRemove = async (id, title) => {
-    if (!window.confirm(`Remove "${title}"? This deletes its reviews too.`)) return;
+    if (!window.confirm(`Remove "${title}"? This deletes its reviews too.`))
+      return;
     try {
       await removeBook(adminKey, id);
       if (selectedId === id) {
@@ -93,7 +94,14 @@ export default function BooksView({
   if (selectedId) {
     if (detailLoading) {
       return (
-        <div style={{ padding: 40, textAlign: "center", color: "#aaa", fontStyle: "italic" }}>
+        <div
+          style={{
+            padding: 40,
+            textAlign: "center",
+            color: "#aaa",
+            fontStyle: "italic",
+          }}
+        >
           Loading book…
         </div>
       );
@@ -101,10 +109,17 @@ export default function BooksView({
     if (detailError || !selectedBook) {
       return (
         <div style={{ padding: 24 }}>
-          <div style={{ color: "#a33", marginBottom: 12 }}>{detailError || "Couldn't load that book."}</div>
+          <div style={{ color: "#a33", marginBottom: 12 }}>
+            {detailError || "Couldn't load that book."}
+          </div>
           <button
             onClick={() => setSelectedId(null)}
-            style={{ background: "none", border: "none", color: OLIVE_DARK, cursor: "pointer" }}
+            style={{
+              background: "none",
+              border: "none",
+              color: OLIVE_DARK,
+              cursor: "pointer",
+            }}
           >
             ← Back to books
           </button>
@@ -148,26 +163,49 @@ export default function BooksView({
             Add a book
           </div>
           <AddBookForm onAdd={(payload) => addBook(adminKey, payload)} />
-          <div style={{ borderTop: `1px solid ${CREAM_DARK}`, margin: "0 0 20px" }} />
+          <div
+            style={{ borderTop: `1px solid ${CREAM_DARK}`, margin: "0 0 20px" }}
+          />
         </>
       )}
 
       {loading && (
-        <div style={{ padding: 20, textAlign: "center", color: "#aaa", fontStyle: "italic" }}>
-          Loading books…
+        <div style={{ padding: 20, textAlign: "center", color: "#aaa" }}>
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              margin: "0 auto 14px",
+              border: `3px solid ${CREAM_DARK}`,
+              borderTopColor: OLIVE,
+              borderRadius: "50%",
+              animation: "verba-spin 0.8s linear infinite",
+            }}
+          />
+          <div style={{ fontStyle: "italic" }}>Loading books…</div>
           {showSlowHint && (
             <div style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
-              The server may be waking up from being idle — this can take up
-              to a minute on the free tier.
+              Still on it — this is taking longer than usual, but hang tight.
             </div>
           )}
         </div>
       )}
 
-      {error && <div style={{ color: "#a33", fontSize: 13, marginBottom: 12 }}>{error}</div>}
+      {error && (
+        <div style={{ color: "#a33", fontSize: 13, marginBottom: 12 }}>
+          {error}
+        </div>
+      )}
 
       {!loading && books.length === 0 && (
-        <div style={{ padding: 20, textAlign: "center", color: "#aaa", fontStyle: "italic" }}>
+        <div
+          style={{
+            padding: 20,
+            textAlign: "center",
+            color: "#aaa",
+            fontStyle: "italic",
+          }}
+        >
           No books yet.
         </div>
       )}
