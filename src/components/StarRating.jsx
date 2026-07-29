@@ -1,5 +1,4 @@
 import { useState } from "react";
-// TODO: update this path to wherever these color constants actually live in your project
 import { CREAM_DARK, OLIVE_DARK } from "../theme";
 
 // Clickable stars for submitting a review.
