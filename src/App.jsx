@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AppShell from "./AppShell";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ReviewsPage from "./pages/ReviewsPage";
@@ -14,6 +15,7 @@ export default function App() {
     <AuthContext.Provider value={auth}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/app" element={<AppShell />}>
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="reviews" element={<ReviewsPage />} />

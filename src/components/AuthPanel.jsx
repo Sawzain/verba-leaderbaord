@@ -20,13 +20,18 @@ export default function AuthPanel({
   authBusy,
   onRegister,
   onLogin,
+  onForgotPassword,
   discordLoginUrl,
 }) {
-  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [mode, setMode] = useState("login"); // "login" | "register" | "forgot"
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotBusy, setForgotBusy] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState(null);
 
   const submit = () => {
     if (mode === "register") {
@@ -39,7 +44,91 @@ export default function AuthPanel({
   const switchMode = (next) => {
     setMode(next);
     setAuthError(null);
+    setForgotMessage(null);
   };
+
+  const submitForgot = async () => {
+    if (!forgotEmail.trim()) return;
+    setForgotBusy(true);
+    setForgotMessage(null);
+    try {
+      const message = await onForgotPassword(forgotEmail.trim());
+      setForgotMessage(message);
+    } catch (err) {
+      setForgotMessage(
+        err.message || "Something went wrong. Please try again.",
+      );
+    } finally {
+      setForgotBusy(false);
+    }
+  };
+
+  if (mode === "forgot") {
+    return (
+      <div
+        style={{
+          background: "#f6f3e8",
+          border: `1px solid ${CREAM_DARK}`,
+          borderRadius: 12,
+          padding: "18px 16px",
+        }}
+      >
+        <div style={{ fontSize: 14, color: "#2d2d2d", marginBottom: 12 }}>
+          Enter your account email and we'll send a link to reset your password.
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <input
+            type="email"
+            value={forgotEmail}
+            onChange={(e) => setForgotEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submitForgot()}
+            placeholder="Your account email"
+            style={inputStyle}
+          />
+          {forgotMessage && (
+            <div style={{ fontSize: 13, color: OLIVE_DARK }}>
+              {forgotMessage}
+            </div>
+          )}
+          <button
+            onClick={submitForgot}
+            disabled={forgotBusy}
+            style={{
+              marginTop: 4,
+              background: "#6B7A3A",
+              color: CREAM,
+              border: "none",
+              borderRadius: 10,
+              padding: "10px 18px",
+              fontSize: 15,
+              cursor: forgotBusy ? "default" : "pointer",
+              opacity: forgotBusy ? 0.7 : 1,
+              fontFamily: "'Georgia', serif",
+            }}
+          >
+            {forgotBusy ? "Sending…" : "Send reset link"}
+          </button>
+          <button
+            onClick={() => switchMode("login")}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              marginTop: 4,
+              fontFamily: "'Georgia', serif",
+              fontSize: 13,
+              color: OLIVE_DARK,
+              textDecoration: "underline",
+              cursor: "pointer",
+              alignSelf: "flex-start",
+            }}
+          >
+            ← Back to log in
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -98,7 +187,10 @@ export default function AuthPanel({
             cursor: "pointer",
             color: mode === "login" ? OLIVE_DARK : "#999",
             fontWeight: mode === "login" ? "bold" : "normal",
-            borderBottom: mode === "login" ? `2px solid ${OLIVE_DARK}` : "2px solid transparent",
+            borderBottom:
+              mode === "login"
+                ? `2px solid ${OLIVE_DARK}`
+                : "2px solid transparent",
             paddingBottom: 4,
           }}
         >
@@ -115,7 +207,10 @@ export default function AuthPanel({
             cursor: "pointer",
             color: mode === "register" ? OLIVE_DARK : "#999",
             fontWeight: mode === "register" ? "bold" : "normal",
-            borderBottom: mode === "register" ? `2px solid ${OLIVE_DARK}` : "2px solid transparent",
+            borderBottom:
+              mode === "register"
+                ? `2px solid ${OLIVE_DARK}`
+                : "2px solid transparent",
             paddingBottom: 4,
           }}
         >
@@ -145,7 +240,9 @@ export default function AuthPanel({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
-            placeholder={mode === "register" ? "Password (min. 8 characters)" : "Password"}
+            placeholder={
+              mode === "register" ? "Password (min. 8 characters)" : "Password"
+            }
             style={{ ...inputStyle, flex: 1 }}
           />
           <button
@@ -165,6 +262,25 @@ export default function AuthPanel({
             {showPassword ? "🙈" : "👁"}
           </button>
         </div>
+
+        {mode === "login" && (
+          <button
+            onClick={() => switchMode("forgot")}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontFamily: "'Georgia', serif",
+              fontSize: 12,
+              color: OLIVE_DARK,
+              textDecoration: "underline",
+              cursor: "pointer",
+              alignSelf: "flex-end",
+            }}
+          >
+            Forgot password?
+          </button>
+        )}
 
         {authError && (
           <div style={{ fontSize: 13, color: "#a33" }}>{authError}</div>
@@ -186,7 +302,11 @@ export default function AuthPanel({
             fontFamily: "'Georgia', serif",
           }}
         >
-          {authBusy ? "Please wait…" : mode === "register" ? "Create account" : "Log in"}
+          {authBusy
+            ? "Please wait…"
+            : mode === "register"
+              ? "Create account"
+              : "Log in"}
         </button>
       </div>
     </div>

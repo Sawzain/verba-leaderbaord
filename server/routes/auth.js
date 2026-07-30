@@ -5,7 +5,10 @@ const User = require("../models/User");
 const requireAuth = require("../middleware/auth");
 const { authLimiter } = require("../middleware/rateLimiters");
 const { signToken } = require("../utils/tokens");
-const { sendVerificationEmail } = require("../config/mailer");
+const {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} = require("../config/mailer");
 const {
   REQUIRE_EMAIL_VERIFICATION,
   FRONTEND_REDIRECT,
@@ -179,6 +182,96 @@ router.post(
   },
 );
 
+// ===================== Self-service password reset =====================
+// Security properties, deliberately:
+// - The reset token is 256 bits of randomness (crypto.randomBytes(32)).
+// - Only its SHA-256 hash is ever stored — a leaked database can't be
+//   used to reset anyone's password, same reasoning as hashing passwords.
+// - Tokens expire in 1 hour and are cleared the moment they're used, so
+//   each one is single-use.
+// - The request-reset endpoint ALWAYS returns the same generic response,
+//   whether or not that email has an account. Varying the response (or
+//   even the response time in a way that's easy to notice) would let an
+//   attacker enumerate registered emails one guess at a time.
+
+router.post("/forgot-password", authLimiter, async (req, res) => {
+  const email = (req.body.email || "").trim().toLowerCase();
+
+  const genericResponse = {
+    ok: true,
+    message:
+      "If an account exists for that email, we've sent a link to reset the password.",
+  };
+
+  if (!email) return res.json(genericResponse);
+
+  try {
+    const user = await User.findOne({ email });
+    // Discord-only accounts have no passwordHash — there's no password to
+    // reset, so skip token generation for those rather than send a
+    // confusing "reset your password" email to a Discord-only member.
+    if (user && user.passwordHash) {
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex");
+
+      user.resetPasswordTokenHash = tokenHash;
+      user.resetPasswordTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
+      await user.save();
+
+      sendPasswordResetEmail(user, rawToken).catch(() => {});
+    }
+  } catch (err) {
+    // Deliberately swallowed — the response must not vary based on what,
+    // if anything, went wrong internally.
+  }
+
+  res.json(genericResponse);
+});
+
+router.post("/reset-password", authLimiter, async (req, res) => {
+  const token = (req.body.token || "").trim();
+  const password = req.body.password || "";
+
+  if (!token) {
+    return res
+      .status(400)
+      .json({ error: "This reset link is invalid or has expired." });
+  }
+  if (password.length < 8) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters" });
+  }
+
+  try {
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      resetPasswordTokenHash: tokenHash,
+      resetPasswordTokenExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: "This reset link is invalid or has expired." });
+    }
+
+    user.passwordHash = await bcrypt.hash(password, 10);
+    // Clearing these makes the token single-use — a second attempt with
+    // the same link, even before expiry, will fail the lookup above.
+    user.resetPasswordTokenHash = undefined;
+    user.resetPasswordTokenExpires = undefined;
+    await user.save();
+
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: "Couldn't reset your password" });
+  }
+});
+
 // ===================== Discord login =====================
 // Lets a member sign in with their Discord identity instead of creating a
 // separate email/password account — Verba already lives on Discord, so
@@ -243,13 +336,9 @@ router.get("/discord/callback", async (req, res) => {
 
     let user = await User.findOne({ discordId });
     if (!user && email) {
-      // If a password account already exists with this email, link Discord
-      // to it instead of creating a duplicate person.
       user = await User.findOne({ email });
     }
     if (!user) {
-      // Discord already confirmed the person owns this email/identity, so
-      // there's no separate verification step needed for these accounts.
       user = new User({ name, discordId, emailVerified: true });
       if (email) user.email = email;
     } else {

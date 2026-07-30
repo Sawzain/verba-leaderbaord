@@ -118,6 +118,41 @@ export default function useAuth() {
     return body;
   };
 
+  // Request a password reset link. The server always returns the same
+  // generic message regardless of whether the email has an account —
+  // that's intentional, so this always just resolves with that message
+  // rather than throwing on a "not found" case.
+  const forgotPassword = async (email) => {
+    try {
+      const res = await fetch(`${API_ROOT}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const body = await res.json().catch(() => ({}));
+      return (
+        body.message ||
+        "If an account exists for that email, we've sent a link to reset the password."
+      );
+    } catch (err) {
+      throw new Error(
+        "Couldn't reach the server. Check your connection and try again.",
+      );
+    }
+  };
+
+  // Complete a password reset using the token from the emailed link.
+  const resetPassword = async (resetToken, password) => {
+    const res = await fetch(`${API_ROOT}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: resetToken, password }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "Couldn't reset your password");
+    return body;
+  };
+
   // API_ROOT is "/api" in dev (proxied) or an absolute backend URL in prod.
   // Discord needs a real, absolute redirect target, so resolve "/api" against
   // the current page origin.
@@ -137,6 +172,8 @@ export default function useAuth() {
     login,
     logout,
     resendVerification,
+    forgotPassword,
+    resetPassword,
     discordLoginUrl,
   };
 }

@@ -280,6 +280,7 @@ export default function BookDetail({
               authBusy={auth.authBusy}
               onRegister={auth.register}
               onLogin={auth.login}
+              onForgotPassword={auth.forgotPassword}
               discordLoginUrl={auth.discordLoginUrl}
             />
             <button
