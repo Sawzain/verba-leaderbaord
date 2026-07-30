@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import useBooks from "../hooks/useBooks";
 import { StarDisplay } from "../components/StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
-import Footer from "../components/Footer";
+import Footer, { DISCORD_INVITE_URL } from "../components/Footer";
 import {
   OLIVE,
   OLIVE_DARK,
@@ -12,8 +12,6 @@ import {
   WHITE,
   LOGO_SRC,
 } from "../theme";
-
-const DISCORD_INVITE_URL = "https://discord.gg/7a2H9bcXZ2";
 
 const sectionHeading = {
   fontSize: 13,

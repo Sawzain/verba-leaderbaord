@@ -1,7 +1,4 @@
 import { OLIVE_DARK, OLIVE_LIGHT } from "../theme";
-
-// TODO(Sajen): swap these placeholders for the real invite/handles once you
-// tell me what to link — see the note in my reply.
 export const DISCORD_INVITE_URL = "https://discord.gg/7a2H9bcXZ2";
 export const INSTAGRAM_URL = "https://www.instagram.com/bookclub_verba";
 
@@ -30,7 +27,7 @@ export default function Footer({ maxWidth = 720 }) {
         <a
           href={DISCORD_INVITE_URL}
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
           className="verba-link-pill"
           style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
         >
@@ -39,7 +36,7 @@ export default function Footer({ maxWidth = 720 }) {
         <a
           href={INSTAGRAM_URL}
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
           className="verba-link-pill"
           style={{ color: OLIVE_DARK, fontSize: 13, textDecoration: "none" }}
         >

@@ -7,20 +7,15 @@ import useBooks from "./hooks/useBooks";
 import { useAuthContext } from "./AuthContext";
 import { CREAM } from "./theme";
 
-// Shell for everything under /app/*. Owns all the state that used to live
-// directly in VerbaLeaderboard.jsx (auth, members, books) and lifts it above
-// the routed views via <Outlet context={...}>, so switching between
-// /app/leaderboard, /app/reviews and /app/manage doesn't lose session state
-// or refetch data that's already loaded.
+// Owns auth/members/books state and lifts it to routed views via
+// <Outlet context={...}>, so switching tabs doesn't lose session state
+// or refetch already-loaded data.
 export default function AppShell() {
   const auth = useAuthContext();
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
   const location = useLocation();
 
-  // Only fetch what the active tab actually needs, instead of fetching
-  // books AND members on every /app/* mount regardless of which tab is
-  // open. Each hook caches once loaded, so flipping tabs back and forth
-  // doesn't refetch.
+  // Only fetch what the active tab needs; each hook caches once loaded.
   const needsBooks = location.pathname.startsWith("/app/reviews");
   const needsMembers =
     location.pathname.startsWith("/app/leaderboard") ||

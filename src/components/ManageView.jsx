@@ -3,6 +3,7 @@ import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 import MemberRow from "./MemberRow";
 import AdminPasswordReset from "./AdminPasswordReset";
 import AuthPanel from "./AuthPanel";
+import AccountBar from "./AccountBar";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -16,10 +17,8 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
-// Shown when the current visitor either isn't logged in, or is logged in
-// but their account isn't flagged as an admin. Reuses the same login/signup
-// form members use elsewhere, so there's no separate "admin key" to share
-// around — admin access is just a flag on someone's regular account.
+// Admin access is an isAdmin flag on a normal account, not a separate key —
+// so this gate reuses the same login/signup form members use elsewhere.
 function AdminGate({ auth }) {
   if (auth.isLoggedIn) {
     return (
@@ -97,35 +96,7 @@ export default function ManageView({
 
   return (
     <div style={{ padding: "24px" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 20,
-          background: "#eef3e2",
-          border: "1px solid #d3e0bd",
-          borderRadius: 10,
-          padding: "8px 12px",
-        }}
-      >
-        <span style={{ fontSize: 13, color: "#3f4d1e", fontWeight: "bold" }}>
-          🔓 Logged in as {auth.user?.name} — you can edit the leaderboard
-        </span>
-        <button
-          onClick={auth.logout}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: OLIVE_DARK,
-            fontSize: 12,
-            textDecoration: "underline",
-            cursor: "pointer",
-          }}
-        >
-          Log out
-        </button>
-      </div>
+      <AccountBar auth={auth} />
 
       {error && (
         <div
