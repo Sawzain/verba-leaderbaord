@@ -58,9 +58,11 @@ export default function useMembers(token, enabled = true) {
   );
 
   const filteredMembers = useMemo(() => {
-    if (!search.trim()) return members;
     const q = search.trim().toLowerCase();
-    return members.filter((m) => m.name.toLowerCase().includes(q));
+    const list = q
+      ? members.filter((m) => m.name.toLowerCase().includes(q))
+      : members;
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
   }, [members, search]);
 
   const withAuthError = async (fn) => {
