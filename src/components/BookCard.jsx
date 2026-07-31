@@ -1,4 +1,4 @@
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
+import { OLIVE, OLIVE_DARK, CREAM_DARK } from "../theme";
 import { StarDisplay } from "./StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
@@ -17,7 +17,9 @@ export default function BookCard({
       style={{
         position: "relative",
         cursor: "pointer",
-        background: CREAM,
+        background: "rgba(238,232,213,0.82)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
         border: book.isCurrentPick
           ? `1.5px solid ${OLIVE}`
           : `1px solid ${CREAM_DARK}`,
@@ -56,7 +58,7 @@ export default function BookCard({
               bottom: 8,
               left: 8,
               background: OLIVE,
-              color: CREAM,
+              color: "#EEE8D5",
               fontSize: 10,
               fontWeight: "bold",
               letterSpacing: "0.5px",
@@ -106,17 +108,19 @@ export default function BookCard({
                   background: book.isCurrentPick
                     ? "rgba(107,122,58,0.75)"
                     : "rgba(238,232,213,0.75)",
-                  color: book.isCurrentPick ? CREAM : OLIVE_DARK,
+                  color: book.isCurrentPick ? "#EEE8D5" : OLIVE_DARK,
                   cursor: "pointer",
                   fontSize: 13,
+                  lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
                   backdropFilter: "blur(3px)",
+                  WebkitBackdropFilter: "blur(3px)",
                 }}
               >
-                ★
+                <span style={{ transform: "translateY(0.5px)" }}>★</span>
               </button>
             )}
             {canRemove && (
@@ -136,14 +140,16 @@ export default function BookCard({
                   color: "#a33",
                   cursor: "pointer",
                   fontSize: 12,
+                  lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
                   backdropFilter: "blur(3px)",
+                  WebkitBackdropFilter: "blur(3px)",
                 }}
               >
-                🗑
+                <span style={{ transform: "translateY(1px)" }}>🗑</span>
               </button>
             )}
           </div>
