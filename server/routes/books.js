@@ -4,7 +4,11 @@ const Review = require("../models/Review");
 const User = require("../models/User");
 const requireApiKey = require("../middleware/apiKey");
 const requireAuth = require("../middleware/auth");
-const { upload, saveCoverImage, deleteCoverAssets } = require("../config/cloudinary");
+const {
+  upload,
+  saveCoverImage,
+  deleteCoverAssets,
+} = require("../config/cloudinary");
 const { awardReviewPoints } = require("../utils/points");
 const { REQUIRE_EMAIL_VERIFICATION } = require("../config/env");
 
@@ -190,6 +194,38 @@ router.post("/:id/reviews", requireAuth, async (req, res) => {
         .json({ error: "You've already reviewed this book" });
     }
     res.status(400).json({ error: "Invalid book id" });
+  }
+});
+// PUT: update a book (admin only), with optional new cover image upload
+router.put("/:id", requireApiKey, upload.single("cover"), async (req, res) => {
+  const title = (req.body.title || "").trim();
+  const author = (req.body.author || "").trim();
+
+  if (!title) {
+    return res.status(400).json({ error: "Title is required" });
+  }
+
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ error: "Book not found" });
+
+    book.title = title;
+    book.author = author;
+
+    // If a new cover image was uploaded, clean up the old one and save the new one
+    if (req.file) {
+      if (book.coverImage) {
+        deleteCoverAssets(book);
+      }
+      const uploaded = await saveCoverImage(req.file.buffer);
+      book.coverImage = uploaded.url;
+      book.coverPublicId = uploaded.publicId;
+    }
+
+    await book.save();
+    res.json(book);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update book" });
   }
 });
 
