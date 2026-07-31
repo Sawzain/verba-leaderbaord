@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
-
+const compression = require("compression");
 const { uploadsDir } = require("./config/cloudinary");
 
 const membersRouter = require("./routes/members");
@@ -19,6 +19,7 @@ app.set("trust proxy", 1);
 const allowedOrigin = process.env.FRONTEND_ORIGIN;
 app.use(cors(allowedOrigin ? { origin: allowedOrigin } : {}));
 app.use(express.json());
+app.use(compression());
 
 app.use(
   "/uploads",

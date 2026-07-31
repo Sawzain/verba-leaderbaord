@@ -51,10 +51,20 @@ async function saveCoverImage(fileBuffer) {
 
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder: "verba-covers", resource_type: "image", format: "jpg" },
+      {
+        folder: "verba-covers",
+        resource_type: "image",
+      },
       (err, result) => {
         if (err) return reject(err);
-        resolve({ url: result.secure_url, publicId: result.public_id });
+        // f_auto,q_auto: Cloudinary picks the smallest format the
+        // requesting browser supports (WebP/AVIF/JPEG) and a
+        // near-lossless-but-smaller quality automatically.
+        const optimizedUrl = result.secure_url.replace(
+          "/upload/",
+          "/upload/f_auto,q_auto/",
+        );
+        resolve({ url: optimizedUrl, publicId: result.public_id });
       },
     );
     stream.end(processed);
