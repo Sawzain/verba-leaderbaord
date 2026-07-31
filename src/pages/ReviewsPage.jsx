@@ -11,6 +11,7 @@ export default function ReviewsPage() {
       isAdminUnlocked={isAdmin}
       adminKey={auth.token}
       addBook={booksState.addBook}
+      editBook={booksState.editBook}
       removeBook={booksState.removeBook}
       setCurrentPick={booksState.setCurrentPick}
       fetchBook={booksState.fetchBook}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { OLIVE, OLIVE_DARK, CREAM_DARK, WHITE } from "../theme";
 import BookCard from "./BookCard";
-import AddBookForm from "./AddBookForm";
+import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
 import AccountBar from "./AccountBar";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
@@ -13,6 +13,7 @@ export default function BooksView({
   isAdminUnlocked,
   adminKey,
   addBook,
+  editBook,
   removeBook,
   setCurrentPick,
   fetchBook,
@@ -77,6 +78,11 @@ export default function BooksView({
 
   const handleEditReview = async (reviewId, payload) => {
     await editReview(auth.token, reviewId, payload);
+    await refreshSelected();
+  };
+
+  const handleEditBook = async (bookId, payload) => {
+    await editBook(adminKey, bookId, payload);
     await refreshSelected();
   };
 
@@ -151,6 +157,7 @@ export default function BooksView({
           onRemoveReview={handleRemoveReview}
           onEditReview={handleEditReview}
           onRemoveMyReview={handleRemoveMyReview}
+          onEditBook={handleEditBook}
         />
       </div>
     );
@@ -161,23 +168,12 @@ export default function BooksView({
       <AccountBar auth={auth} />
 
       {isAdminUnlocked && (
-        <>
-          <div
-            style={{
-              fontSize: 13,
-              color: OLIVE,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
-              marginBottom: 12,
-            }}
-          >
-            Add a book
-          </div>
-          <AddBookForm onAdd={(payload) => addBook(adminKey, payload)} />
-          <div
-            style={{ borderTop: `1px solid ${CREAM_DARK}`, margin: "0 0 20px" }}
+        <div style={{ marginBottom: 20 }}>
+          <BookForm
+            mode="add"
+            onSubmit={(payload) => addBook(adminKey, payload)}
           />
-        </>
+        </div>
       )}
 
       {loading && (

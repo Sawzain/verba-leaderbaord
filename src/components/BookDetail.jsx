@@ -2,6 +2,7 @@ import { useState } from "react";
 import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
+import BookForm from "./BookForm";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
 // Shared with LandingPage.jsx's .verba-btn / .verba-btn-outline classes.
@@ -45,7 +46,9 @@ export default function BookDetail({
   onRemoveReview,
   onEditReview,
   onRemoveMyReview,
+  onEditBook,
 }) {
+  const [editingBook, setEditingBook] = useState(false);
   const [rating, setRating] = useState(0);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -174,68 +177,116 @@ export default function BookDetail({
         ← Back to books
       </button>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <div
-          style={{
-            width: 96,
-            height: 128,
-            flexShrink: 0,
-            borderRadius: 8,
-            overflow: "hidden",
-            background: "#e4ddc7",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {book.coverImage ? (
-            <img
-              src={resolveCoverUrl(book.coverImage)}
-              alt={book.title}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          ) : (
-            <span style={{ fontSize: 28, opacity: 0.4 }}>📖</span>
-          )}
+      {editingBook ? (
+        <div style={{ marginBottom: 20 }}>
+          <BookForm
+            mode="edit"
+            initialValues={{
+              title: book.title,
+              author: book.author,
+              coverImage: book.coverImage,
+            }}
+            onSubmit={async (payload) => {
+              await onEditBook(book._id, payload);
+              setEditingBook(false);
+            }}
+            onCancel={() => setEditingBook(false)}
+          />
         </div>
-        <div>
-          <div style={{ fontSize: 19, fontWeight: "bold", color: "#2d2d2d" }}>
-            {book.title}
+      ) : (
+        <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+          <div
+            style={{
+              width: 96,
+              height: 128,
+              flexShrink: 0,
+              borderRadius: 8,
+              overflow: "hidden",
+              background: "#e4ddc7",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {book.coverImage ? (
+              <img
+                src={resolveCoverUrl(book.coverImage)}
+                alt={book.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <span style={{ fontSize: 28, opacity: 0.4 }}>📖</span>
+            )}
           </div>
-          {book.author && (
-            <div style={{ fontSize: 14, color: OLIVE_DARK, marginTop: 2 }}>
-              {book.author}
-            </div>
-          )}
-          {book.avgRating ? (
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div
               style={{
-                marginTop: 8,
                 display: "flex",
-                alignItems: "center",
-                gap: 6,
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 8,
               }}
             >
-              <StarDisplay value={book.avgRating} size={16} />
-              <span style={{ fontSize: 13, color: "#888" }}>
-                {book.avgRating} · {book.reviewCount} review
-                {book.reviewCount !== 1 ? "s" : ""}
-              </span>
+              <div
+                style={{ fontSize: 19, fontWeight: "bold", color: "#2d2d2d" }}
+              >
+                {book.title}
+              </div>
+              {isAdminUnlocked && (
+                <button
+                  onClick={() => setEditingBook(true)}
+                  className="verba-link-btn"
+                  style={{
+                    flexShrink: 0,
+                    background: "none",
+                    border: "none",
+                    color: OLIVE_DARK,
+                    fontSize: 12,
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                    padding: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Edit
+                </button>
+              )}
             </div>
-          ) : (
-            <div
-              style={{
-                marginTop: 8,
-                fontSize: 13,
-                color: "#aaa",
-                fontStyle: "italic",
-              }}
-            >
-              No reviews yet — be the first
-            </div>
-          )}
+            {book.author && (
+              <div style={{ fontSize: 14, color: OLIVE_DARK, marginTop: 2 }}>
+                {book.author}
+              </div>
+            )}
+            {book.avgRating ? (
+              <div
+                style={{
+                  marginTop: 8,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <StarDisplay value={book.avgRating} size={16} />
+                <span style={{ fontSize: 13, color: "#888" }}>
+                  {book.avgRating} · {book.reviewCount} review
+                  {book.reviewCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+            ) : (
+              <div
+                style={{
+                  marginTop: 8,
+                  fontSize: 13,
+                  color: "#aaa",
+                  fontStyle: "italic",
+                }}
+              >
+                No reviews yet — be the first
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Write a review */}
       <div style={{ marginBottom: 28 }}>

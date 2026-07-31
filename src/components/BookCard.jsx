@@ -119,26 +119,39 @@ export default function BookCard({
         </div>
 
         {(canManageCurrentPick || canRemove) && (
-          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
             {canManageCurrentPick && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleCurrentPick();
                 }}
+                aria-label={
+                  book.isCurrentPick
+                    ? `Unset ${book.title} as current pick`
+                    : `Set ${book.title} as current pick`
+                }
+                title={
+                  book.isCurrentPick
+                    ? "Unset current pick"
+                    : "Set as current pick"
+                }
                 style={{
-                  alignSelf: "flex-start",
-                  background: "transparent",
-                  border: "none",
-                  color: OLIVE_DARK,
-                  fontSize: 11,
+                  width: 30,
+                  height: 30,
+                  flexShrink: 0,
+                  borderRadius: "50%",
+                  border: `1.5px solid ${book.isCurrentPick ? OLIVE : CREAM_DARK}`,
+                  background: book.isCurrentPick ? OLIVE : "white",
+                  color: book.isCurrentPick ? CREAM : OLIVE_DARK,
                   cursor: "pointer",
-                  padding: 0,
+                  fontSize: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                {book.isCurrentPick
-                  ? "Unset current pick"
-                  : "Set as current pick"}
+                ★
               </button>
             )}
             {canRemove && (
@@ -147,17 +160,24 @@ export default function BookCard({
                   e.stopPropagation();
                   onRemove();
                 }}
+                aria-label={`Remove ${book.title}`}
+                title="Remove book"
                 style={{
-                  alignSelf: "flex-start",
-                  background: "transparent",
-                  border: "none",
+                  width: 30,
+                  height: 30,
+                  flexShrink: 0,
+                  borderRadius: "50%",
+                  border: `1.5px solid ${CREAM_DARK}`,
+                  background: "white",
                   color: "#a33",
-                  fontSize: 11,
                   cursor: "pointer",
-                  padding: 0,
+                  fontSize: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                Remove
+                🗑
               </button>
             )}
           </div>
