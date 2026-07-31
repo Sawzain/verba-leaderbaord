@@ -53,6 +53,7 @@ export default function MemberRow({
             }}
           />
           <button
+            className="verba-btn"
             onClick={() => onSaveEdit(member._id)}
             style={{
               background: "#6B7A3A",
@@ -91,7 +92,8 @@ export default function MemberRow({
               height: 28,
               borderRadius: "50%",
               border: `1.5px solid ${CREAM_DARK}`,
-              background: "white",
+              background: CREAM,
+              boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
               cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               color: OLIVE_DARK,
@@ -128,8 +130,7 @@ export default function MemberRow({
               height: 28,
               borderRadius: "50%",
               border: `1.5px solid ${CREAM_DARK}`,
-              background: CREAM,
-              boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+              background: "white",
               cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
               color: OLIVE_DARK,

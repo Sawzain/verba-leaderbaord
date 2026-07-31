@@ -122,3 +122,41 @@ a:active {
 .verba-clickable:active {
   transform: scale(0.96);
 }
+
+/* Primary lift-and-shadow button animation — previously duplicated inline
+   in LandingPage.jsx and BookDetail.jsx via local <style> tags. Promoted
+   here so any button anywhere can opt in with className="verba-btn". */
+.verba-btn {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    opacity 0.15s ease,
+    color 0.15s ease;
+}
+
+.verba-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(45, 60, 45, 0.18);
+}
+
+.verba-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 14px rgba(45, 60, 45, 0.14);
+  opacity: 0.9;
+}
+
+.verba-btn:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Outline variant for transparent/bordered buttons (e.g. "Join us on
+   Discord") that shouldn't get the solid lift shadow above. */
+.verba-btn-outline:hover {
+  background: rgba(138, 154, 74, 0.13);
+}
+
+.verba-btn-outline:active {
+  background: rgba(138, 154, 74, 0.23);
+}

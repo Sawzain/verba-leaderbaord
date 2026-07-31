@@ -28,7 +28,6 @@ export default function AuthPanel({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotBusy, setForgotBusy] = useState(false);
   const [forgotMessage, setForgotMessage] = useState(null);
@@ -91,6 +90,7 @@ export default function AuthPanel({
             </div>
           )}
           <button
+            className="verba-btn"
             onClick={submitForgot}
             disabled={forgotBusy}
             style={{
@@ -159,7 +159,6 @@ export default function AuthPanel({
       >
         Continue with Discord
       </a>
-
       <div
         style={{
           display: "flex",
@@ -174,7 +173,6 @@ export default function AuthPanel({
         or use email
         <div style={{ flex: 1, height: 1, background: CREAM_DARK }} />
       </div>
-
       <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
         <button
           onClick={() => switchMode("login")}
@@ -217,15 +215,16 @@ export default function AuthPanel({
           Create account
         </button>
       </div>
-
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {mode === "register" && (
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-            style={inputStyle}
-          />
+          <>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              style={inputStyle}
+            />
+          </>
         )}
         <input
           type="email"
@@ -262,7 +261,6 @@ export default function AuthPanel({
             {showPassword ? "🙈" : "👁"}
           </button>
         </div>
-
         {mode === "login" && (
           <button
             onClick={() => switchMode("forgot")}
@@ -281,12 +279,11 @@ export default function AuthPanel({
             Forgot password?
           </button>
         )}
-
         {authError && (
           <div style={{ fontSize: 13, color: "#a33" }}>{authError}</div>
         )}
-
         <button
+          className="verba-btn"
           onClick={submit}
           disabled={authBusy}
           style={{

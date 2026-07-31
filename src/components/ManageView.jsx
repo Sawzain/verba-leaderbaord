@@ -24,12 +24,26 @@ function AdminGate({ auth }) {
     return (
       <div style={{ padding: "32px 24px", textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
-        <div style={{ fontSize: 15, color: "#2d2d2d", marginBottom: 4, fontWeight: "bold" }}>
+        <div
+          style={{
+            fontSize: 15,
+            color: "#2d2d2d",
+            marginBottom: 4,
+            fontWeight: "bold",
+          }}
+        >
           Admin access required
         </div>
-        <div style={{ fontSize: 13, color: OLIVE_DARK, maxWidth: 320, margin: "0 auto" }}>
-          You're logged in as {auth.user?.name || "a member"}, but this account doesn't have
-          admin access yet. Ask an existing admin to grant it.
+        <div
+          style={{
+            fontSize: 13,
+            color: OLIVE_DARK,
+            maxWidth: 320,
+            margin: "0 auto",
+          }}
+        >
+          You're logged in as {auth.user?.name || "a member"}, but this account
+          doesn't have admin access yet. Ask an existing admin to grant it.
         </div>
       </div>
     );
@@ -39,7 +53,14 @@ function AdminGate({ auth }) {
     <div style={{ padding: "32px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
-        <div style={{ fontSize: 15, color: "#2d2d2d", marginBottom: 4, fontWeight: "bold" }}>
+        <div
+          style={{
+            fontSize: 15,
+            color: "#2d2d2d",
+            marginBottom: 4,
+            fontWeight: "bold",
+          }}
+        >
           Manage view is locked
         </div>
         <div style={{ fontSize: 13, color: OLIVE_DARK }}>
@@ -89,7 +110,11 @@ export default function ManageView({
   }
 
   const handleRemove = (id, name) => {
-    if (window.confirm(`Remove ${name} from the leaderboard? This can't be undone.`)) {
+    if (
+      window.confirm(
+        `Remove ${name} from the leaderboard? This can't be undone.`,
+      )
+    ) {
       removeMember(id);
     }
   };
@@ -115,6 +140,7 @@ export default function ManageView({
         >
           <span>{error}</span>
           <button
+            className="verba-btn"
             onClick={() => setError(null)}
             aria-label="Dismiss error"
             style={{
@@ -168,9 +194,8 @@ export default function ManageView({
             }}
           />
           <button
+            className="verba-btn"
             onClick={addMember}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
             style={{
               background: "#6B7A3A",
               color: CREAM,
@@ -221,7 +246,14 @@ export default function ManageView({
       </div>
 
       {loading && (
-        <div style={{ color: "#aaa", fontStyle: "italic", padding: "20px 0", textAlign: "center" }}>
+        <div
+          style={{
+            color: "#aaa",
+            fontStyle: "italic",
+            padding: "20px 0",
+            textAlign: "center",
+          }}
+        >
           Loading members…
         </div>
       )}
