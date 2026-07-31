@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET: one book with its full review list
+// GET: one book with its full review list, avgRating, and reviewCount
 router.get("/:id", async (req, res) => {
   try {
     const book = await Book.findById(req.params.id).lean();
@@ -55,15 +55,20 @@ router.get("/:id", async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
+    const totalRating = reviews.reduce((acc, r) => acc + r.rating, 0);
+    const avgRating = reviews.length
+      ? Math.round((totalRating / reviews.length) * 10) / 10
+      : null;
+
     res.json({
       ...book,
+      avgRating,
+      reviewCount: reviews.length,
       reviews: reviews.map((r) => ({
         id: r._id,
         rating: r.rating,
         text: r.text,
         createdAt: r.createdAt,
-        // Presence of updatedAt (only set on an actual edit) drives the
-        // "(edited)" badge in the UI.
         edited: Boolean(r.updatedAt),
         reviewer: r.user?.name || "Former member",
         userId: r.user?._id?.toString() || null,
@@ -103,6 +108,38 @@ router.post("/", requireApiKey, upload.single("cover"), async (req, res) => {
   }
 });
 
+// PUT: update a book (admin only), with optional cover image upload
+router.put("/:id", requireApiKey, upload.single("cover"), async (req, res) => {
+  const title = (req.body.title || "").trim();
+  const author = (req.body.author || "").trim();
+
+  if (!title) {
+    return res.status(400).json({ error: "Title is required" });
+  }
+
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ error: "Book not found" });
+
+    book.title = title;
+    book.author = author;
+
+    if (req.file) {
+      if (book.coverImage) {
+        deleteCoverAssets(book);
+      }
+      const uploaded = await saveCoverImage(req.file.buffer);
+      book.coverImage = uploaded.url;
+      book.coverPublicId = uploaded.publicId;
+    }
+
+    await book.save();
+    res.json(book);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update book" });
+  }
+});
+
 // DELETE: remove a book (admin only) — also clears its reviews and cover file
 router.delete("/:id", requireApiKey, async (req, res) => {
   try {
@@ -119,10 +156,7 @@ router.delete("/:id", requireApiKey, async (req, res) => {
   }
 });
 
-// PATCH: toggle a book's "current pick" status (admin only). Setting a
-// book as the current pick clears the flag on every other book first, so
-// exactly one (or zero) books can ever be the current pick. Calling this
-// again on the book that's already the current pick unsets it.
+// PATCH: toggle a book's "current pick" status (admin only)
 router.patch("/:id/current-pick", requireApiKey, async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -143,11 +177,7 @@ router.patch("/:id/current-pick", requireApiKey, async (req, res) => {
   }
 });
 
-// POST: add a review — requires a logged-in member; if REQUIRE_EMAIL_VERIFICATION
-// is enabled, their email must also be verified. The one-review-per-person
-// rule is enforced by the unique (book, user) index on Review, so this is
-// safe even against duplicate/concurrent submissions, not just a check done
-// in this handler.
+// POST: add a review
 router.post("/:id/reviews", requireAuth, async (req, res) => {
   const rating = Number(req.body.rating);
   const text = (req.body.text || "").trim();
@@ -194,38 +224,6 @@ router.post("/:id/reviews", requireAuth, async (req, res) => {
         .json({ error: "You've already reviewed this book" });
     }
     res.status(400).json({ error: "Invalid book id" });
-  }
-});
-// PUT: update a book (admin only), with optional new cover image upload
-router.put("/:id", requireApiKey, upload.single("cover"), async (req, res) => {
-  const title = (req.body.title || "").trim();
-  const author = (req.body.author || "").trim();
-
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
-  }
-
-  try {
-    const book = await Book.findById(req.params.id);
-    if (!book) return res.status(404).json({ error: "Book not found" });
-
-    book.title = title;
-    book.author = author;
-
-    // If a new cover image was uploaded, clean up the old one and save the new one
-    if (req.file) {
-      if (book.coverImage) {
-        deleteCoverAssets(book);
-      }
-      const uploaded = await saveCoverImage(req.file.buffer);
-      book.coverImage = uploaded.url;
-      book.coverPublicId = uploaded.publicId;
-    }
-
-    await book.save();
-    res.json(book);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to update book" });
   }
 });
 

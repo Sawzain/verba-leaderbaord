@@ -5,11 +5,6 @@ import AuthPanel from "./AuthPanel";
 import BookForm from "./BookForm";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
-// Shared with LandingPage.jsx's .verba-btn / .verba-btn-outline classes.
-// Inline style objects can't express :hover/:active, so interactive
-// buttons/links get a matching CSS class defined here alongside their
-// inline styles — colors and layout stay inline, this only adds
-// transition/hover/active behavior.
 const buttonInteractionStyles = `
   .verba-btn {
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease, color 0.15s ease;
@@ -66,6 +61,18 @@ export default function BookDetail({
 
   const [resendBusy, setResendBusy] = useState(false);
   const [resendMessage, setResendMessage] = useState(null);
+
+  // Safely derive reviews list, count, and average rating
+  const reviews = book?.reviews || [];
+  const bookId = book?._id || book?.id;
+  const reviewCount = book?.reviewCount ?? reviews.length;
+  const avgRating =
+    book?.avgRating ??
+    (reviews.length > 0
+      ? Math.round(
+          (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length) * 10,
+        ) / 10
+      : null);
 
   const handleRemoveReview = async (reviewId) => {
     if (!window.confirm("Remove this review? This can't be undone.")) return;
@@ -124,7 +131,7 @@ export default function BookDetail({
   };
 
   const myReview = auth.user
-    ? book.reviews.find((r) => r.userId === auth.user.id)
+    ? reviews.find((r) => r.userId === auth.user.id)
     : null;
 
   const submit = async () => {
@@ -135,7 +142,7 @@ export default function BookDetail({
     setSubmitting(true);
     setSubmitError(null);
     try {
-      await onSubmitReview(book._id, { rating, text: text.trim() });
+      await onSubmitReview(bookId, { rating, text: text.trim() });
       setJustSubmitted(true);
     } catch (err) {
       setSubmitError(err.message);
@@ -187,7 +194,7 @@ export default function BookDetail({
               coverImage: book.coverImage,
             }}
             onSubmit={async (payload) => {
-              await onEditBook(book._id, payload);
+              await onEditBook(bookId, payload);
               setEditingBook(false);
             }}
             onCancel={() => setEditingBook(false)}
@@ -257,7 +264,7 @@ export default function BookDetail({
                 {book.author}
               </div>
             )}
-            {book.avgRating ? (
+            {avgRating ? (
               <div
                 style={{
                   marginTop: 8,
@@ -266,10 +273,10 @@ export default function BookDetail({
                   gap: 6,
                 }}
               >
-                <StarDisplay value={book.avgRating} size={16} />
+                <StarDisplay value={avgRating} size={16} />
                 <span style={{ fontSize: 13, color: "#888" }}>
-                  {book.avgRating} · {book.reviewCount} review
-                  {book.reviewCount !== 1 ? "s" : ""}
+                  {avgRating} · {reviewCount} review
+                  {reviewCount !== 1 ? "s" : ""}
                 </span>
               </div>
             ) : (
@@ -598,25 +605,25 @@ export default function BookDetail({
         }}
       >
         Reviews{" "}
-        {book.reviews.length > 0 && (
+        {reviews.length > 0 && (
           <span style={{ fontSize: 15, fontWeight: "normal", color: "#888" }}>
-            ({book.reviews.length})
+            ({reviews.length})
           </span>
         )}
       </div>
 
-      {book.reviews.length === 0 && (
+      {reviews.length === 0 && (
         <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>
           No reviews yet.
         </div>
       )}
 
-      {book.reviews.map((r) => {
+      {reviews.map((r) => {
         const isMine = auth.user && r.userId === auth.user.id;
         const initial = (r.reviewer || "?").trim().charAt(0).toUpperCase();
         return (
           <div
-            key={r.id}
+            key={r.id || r._id}
             style={{
               display: "flex",
               gap: 12,

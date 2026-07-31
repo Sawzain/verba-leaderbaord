@@ -3,12 +3,6 @@ import { API_ROOT } from "./useMembers";
 
 const API_BASE = `${API_ROOT}/books`;
 
-// `enabled` lets callers (AppShell) defer fetching books until a tab that
-// actually needs them is active, instead of fetching on every /app/* mount
-// regardless of which tab you're on. Once loaded, `hasLoaded` keeps the
-// data cached so switching tabs back and forth doesn't refetch.
-// LandingPage calls this with no argument (enabled defaults to true) since
-// it always needs the book list for the "current pick" teaser.
 export default function useBooks(enabled = true) {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(enabled);
@@ -63,6 +57,7 @@ export default function useBooks(enabled = true) {
     setBooks((prev) => [{ ...body, avgRating: null, reviewCount: 0 }, ...prev]);
     return body;
   };
+
   const editBook = async (token, id, { title, author, file }) => {
     const form = new FormData();
     form.append("title", title);
@@ -77,9 +72,19 @@ export default function useBooks(enabled = true) {
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Couldn't save those changes");
 
-    setBooks((prev) => prev.map((b) => (b._id === id ? { ...b, ...body } : b)));
-    return body;
+    let updatedBook = body;
+    setBooks((prev) =>
+      prev.map((b) => {
+        if (b._id === id || b.id === id) {
+          updatedBook = { ...b, ...body };
+          return updatedBook;
+        }
+        return b;
+      }),
+    );
+    return updatedBook;
   };
+
   const removeBook = async (token, id) => {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: "DELETE",
@@ -89,13 +94,9 @@ export default function useBooks(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't remove that book");
     }
-    setBooks((prev) => prev.filter((b) => b._id !== id));
+    setBooks((prev) => prev.filter((b) => b._id !== id && b.id !== id));
   };
 
-  // Admin-only: mark a book as the manually-chosen "current pick" shown on
-  // the landing page. The server clears the flag on every other book when
-  // one is newly selected, so this mirrors that locally instead of
-  // re-fetching the whole list.
   const setCurrentPick = async (token, id) => {
     const res = await fetch(`${API_BASE}/${id}/current-pick`, {
       method: "PATCH",
@@ -107,7 +108,8 @@ export default function useBooks(enabled = true) {
 
     setBooks((prev) =>
       prev.map((b) => {
-        if (b._id === id) return { ...b, isCurrentPick: body.isCurrentPick };
+        if (b._id === id || b.id === id)
+          return { ...b, isCurrentPick: body.isCurrentPick };
         return body.isCurrentPick ? { ...b, isCurrentPick: false } : b;
       }),
     );
@@ -139,8 +141,6 @@ export default function useBooks(enabled = true) {
     }
   };
 
-  // Member removing their own review, authenticated with their login token
-  // instead of the admin key.
   const removeMyReview = async (token, reviewId) => {
     const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
       method: "DELETE",
