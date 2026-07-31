@@ -82,21 +82,21 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
       </div>
 
       {memberCount > 5 && (
-        <div style={{ padding: "12px 24px 0" }}>
+        <div style={{ padding: "12px 24px 14px" }}>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search readers…"
             style={{
               width: "100%",
-              padding: "8px 14px",
-              borderRadius: 10,
-              border: `1.5px solid ${CREAM_DARK}`,
-              fontSize: 14,
+              padding: "7px 12px",
+              borderRadius: 8,
+              border: "none",
+              fontSize: 13,
               fontFamily: "'Georgia', serif",
               outline: "none",
-              background: "#fff",
-              color: "#2d2d2d",
+              background: `${CREAM_DARK}55`,
+              color: "#3f4230",
               boxSizing: "border-box",
             }}
           />
