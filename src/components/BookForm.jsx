@@ -87,11 +87,11 @@ export default function BookForm({
   return (
     <div
       style={{
-        background: "#f6f3e8",
-        border: `1px solid ${CREAM_DARK}`,
+        background: mode === "edit" ? "#f6f3e8" : "transparent",
+        border: mode === "edit" ? `1px solid ${CREAM_DARK}` : "none",
         borderRadius: 14,
-        padding: "22px 20px",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        padding: mode === "edit" ? "22px 20px" : "16px 0",
+        boxShadow: mode === "edit" ? "0 1px 3px rgba(0,0,0,0.04)" : "none",
       }}
     >
       <div
@@ -245,7 +245,7 @@ export default function BookForm({
               ? "Add book"
               : "Save changes"}
         </button>
-        {mode === "edit" && onCancel && (
+        {onCancel && (
           <button
             onClick={onCancel}
             disabled={busy}

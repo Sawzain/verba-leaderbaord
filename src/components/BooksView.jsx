@@ -29,6 +29,7 @@ export default function BooksView({
   const [detailError, setDetailError] = useState(null);
   const [search, setSearch] = useState("");
   const showSlowHint = useSlowLoadHint(loading);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const visibleBooks = useMemo(() => {
     if (!search.trim()) return books;
@@ -169,10 +170,36 @@ export default function BooksView({
 
       {isAdminUnlocked && (
         <div style={{ marginBottom: 20 }}>
-          <BookForm
-            mode="add"
-            onSubmit={(payload) => addBook(adminKey, payload)}
-          />
+          {showAddForm ? (
+            <BookForm
+              mode="add"
+              onSubmit={async (payload) => {
+                await addBook(adminKey, payload);
+                setShowAddForm(false);
+              }}
+              onCancel={() => setShowAddForm(false)}
+            />
+          ) : (
+            <button
+              onClick={() => setShowAddForm(true)}
+              style={{
+                background: "none",
+                border: `1.5px dashed ${CREAM_DARK}`,
+                borderRadius: 10,
+                padding: "9px 18px",
+                fontSize: 14,
+                fontFamily: "'Georgia', serif",
+                color: OLIVE_DARK,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <span style={{ fontSize: 16, lineHeight: 1 }}>+</span>
+              Add a book
+            </button>
+          )}
         </div>
       )}
 
