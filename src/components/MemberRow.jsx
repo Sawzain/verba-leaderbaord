@@ -92,7 +92,7 @@ export default function MemberRow({
               height: 28,
               borderRadius: "50%",
               border: `1.5px solid ${CREAM_DARK}`,
-              background: CREAM,
+              background: "white",
               boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
               cursor: isSaving ? "default" : "pointer",
               fontSize: 16,
