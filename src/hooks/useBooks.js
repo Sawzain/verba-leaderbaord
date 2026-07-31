@@ -127,6 +127,9 @@ export default function useBooks(enabled = true) {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Couldn't submit your review");
+
+    // Refetch books so review count and average rating update in main state
+    await loadBooks();
     return body;
   };
 
@@ -139,6 +142,7 @@ export default function useBooks(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't remove that review");
     }
+    await loadBooks();
   };
 
   const removeMyReview = async (token, reviewId) => {
@@ -150,6 +154,7 @@ export default function useBooks(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't remove that review");
     }
+    await loadBooks();
   };
 
   const editReview = async (token, reviewId, { rating, text }) => {
@@ -163,6 +168,8 @@ export default function useBooks(enabled = true) {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Couldn't save your changes");
+
+    await loadBooks();
     return body;
   };
 

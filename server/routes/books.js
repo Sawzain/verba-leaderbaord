@@ -14,33 +14,39 @@ const { REQUIRE_EMAIL_VERIFICATION } = require("../config/env");
 
 const router = express.Router();
 
-// GET: all books, each with an average rating and review count
+/// GET: all books, each with an average rating and review count
 router.get("/", async (req, res) => {
   try {
-    const books = await Book.find().sort({ addedAt: -1 }).lean();
-    const summaries = await Review.aggregate([
+    const books = await Book.aggregate([
       {
-        $group: {
-          _id: "$book",
-          avgRating: { $avg: "$rating" },
-          count: { $sum: 1 },
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "book", // Updated to match your schema field
+          as: "reviews",
+        },
+      },
+      {
+        $addFields: {
+          reviewCount: { $size: "$reviews" },
+          avgRating: {
+            $cond: {
+              if: { $gt: [{ $size: "$reviews" }, 0] },
+              then: { $round: [{ $avg: "$reviews.rating" }, 1] },
+              else: null,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          reviews: 0, // exclude the full reviews array to keep the payload clean
         },
       },
     ]);
-    const summaryById = new Map(summaries.map((s) => [s._id.toString(), s]));
-
-    res.json(
-      books.map((b) => {
-        const s = summaryById.get(b._id.toString());
-        return {
-          ...b,
-          avgRating: s ? Math.round(s.avgRating * 10) / 10 : null,
-          reviewCount: s ? s.count : 0,
-        };
-      }),
-    );
+    res.json(books);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch books" });
+    res.status(500).json({ error: err.message });
   }
 });
 
