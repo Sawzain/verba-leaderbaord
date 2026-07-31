@@ -1,28 +1,23 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Header from "./components/Header";
 import TabSwitcher from "./components/TabSwitcher";
 import Footer from "./components/Footer";
 import useMembers from "./hooks/useMembers";
 import useBooks from "./hooks/useBooks";
 import { useAuthContext } from "./AuthContext";
-import { CREAM } from "./theme";
 
 // Owns auth/members/books state and lifts it to routed views via
-// <Outlet context={...}>, so switching tabs doesn't lose session state
-// or refetch already-loaded data.
+// <Outlet context={...}>, so switching tabs doesn't lose session state.
+// Both books and members load in parallel on mount rather than waiting
+// for their matching tab to be active — so switching tabs feels instant
+// instead of triggering a fresh fetch (and its full network latency)
+// the first time you land on each one.
 export default function AppShell() {
   const auth = useAuthContext();
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
-  const location = useLocation();
 
-  // Only fetch what the active tab needs; each hook caches once loaded.
-  const needsBooks = location.pathname.startsWith("/app/reviews");
-  const needsMembers =
-    location.pathname.startsWith("/app/leaderboard") ||
-    location.pathname.startsWith("/app/manage");
-
-  const booksState = useBooks(needsBooks);
-  const membersState = useMembers(auth.token, needsMembers);
+  const booksState = useBooks(true);
+  const membersState = useMembers(auth.token, true);
 
   const context = { auth, isAdmin, booksState, membersState };
 
@@ -44,7 +39,9 @@ export default function AppShell() {
         style={{
           width: "100%",
           maxWidth: 620,
-          background: CREAM,
+          background: "rgba(238,232,213,0.82)",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
           borderRadius: 20,
           overflow: "hidden",
           boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
