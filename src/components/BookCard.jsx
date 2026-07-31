@@ -29,7 +29,6 @@ export default function BookCard({
     >
       <div
         style={{
-          position: "relative",
           width: "100%",
           aspectRatio: "3 / 4",
           background: "#e4ddc7",
@@ -37,6 +36,7 @@ export default function BookCard({
           alignItems: "center",
           justifyContent: "center",
           overflow: "hidden",
+          position: "relative",
         }}
       >
         {book.coverImage ? (
@@ -103,20 +103,23 @@ export default function BookCard({
                   height: 26,
                   borderRadius: "50%",
                   border: "none",
-                  background: book.isCurrentPick ? OLIVE : CREAM,
-                  color: book.isCurrentPick ? CREAM : OLIVE_DARK,
+                  background: book.isCurrentPick
+                    ? OLIVE
+                    : "rgba(20,20,20,0.55)",
+                  color: CREAM,
                   cursor: "pointer",
                   fontSize: 13,
-                  lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                  backdropFilter: "blur(2px)",
                 }}
               >
-                <span style={{ transform: "translateY(0.5px)" }}>★</span>
+                ★
               </button>
             )}
+
             {canRemove && (
               <button
                 onClick={(e) => {
@@ -130,18 +133,18 @@ export default function BookCard({
                   height: 26,
                   borderRadius: "50%",
                   border: "none",
-                  background: CREAM,
-                  color: "#a33",
+                  background: "rgba(20,20,20,0.55)",
+                  color: "#ffb3b3",
                   cursor: "pointer",
                   fontSize: 12,
-                  lineHeight: 1,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                  backdropFilter: "blur(2px)",
                 }}
               >
-                <span style={{ transform: "translateY(1px)" }}>🗑</span>
+                🗑
               </button>
             )}
           </div>
@@ -166,6 +169,7 @@ export default function BookCard({
         >
           {book.title}
         </div>
+
         {book.author && (
           <div style={{ fontSize: 12, color: OLIVE_DARK, marginTop: 2 }}>
             {book.author}
