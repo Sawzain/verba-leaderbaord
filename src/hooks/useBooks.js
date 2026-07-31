@@ -28,7 +28,9 @@ export default function useBooks(enabled = true) {
         setHasLoaded(true);
       })
       .catch(() =>
-        setError("Couldn't reach the server. Check your connection and try again."),
+        setError(
+          "Couldn't reach the server. Check your connection and try again.",
+        ),
       )
       .finally(() => setLoading(false));
   }, []);
@@ -61,7 +63,23 @@ export default function useBooks(enabled = true) {
     setBooks((prev) => [{ ...body, avgRating: null, reviewCount: 0 }, ...prev]);
     return body;
   };
+  const editBook = async (token, id, { title, author, file }) => {
+    const form = new FormData();
+    form.append("title", title);
+    form.append("author", author);
+    if (file) form.append("cover", file);
 
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "Couldn't save those changes");
+
+    setBooks((prev) => prev.map((b) => (b._id === id ? { ...b, ...body } : b)));
+    return body;
+  };
   const removeBook = async (token, id) => {
     const res = await fetch(`${API_BASE}/${id}`, {
       method: "DELETE",
@@ -84,7 +102,8 @@ export default function useBooks(enabled = true) {
       headers: { Authorization: `Bearer ${token}` },
     });
     const body = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(body.error || "Couldn't update the current pick");
+    if (!res.ok)
+      throw new Error(body.error || "Couldn't update the current pick");
 
     setBooks((prev) =>
       prev.map((b) => {
@@ -154,6 +173,7 @@ export default function useBooks(enabled = true) {
     loadBooks,
     fetchBook,
     addBook,
+    editBook,
     removeBook,
     setCurrentPick,
     addReview,
