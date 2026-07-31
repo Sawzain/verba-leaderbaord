@@ -9,7 +9,6 @@ import {
   OLIVE_LIGHT,
   CREAM,
   CREAM_DARK,
-  WHITE,
   LOGO_SRC,
 } from "../theme";
 
@@ -242,7 +241,7 @@ export default function LandingPage() {
                 gap: 16,
                 textDecoration: "none",
                 color: "inherit",
-                background: WHITE,
+                background: "#f6f3e8",
                 border: `1px solid ${CREAM_DARK}`,
                 borderRadius: 12,
                 padding: 16,

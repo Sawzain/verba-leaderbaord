@@ -1,3 +1,5 @@
+// src/main.js
+
 import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
 import { StarDisplay } from "./StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
@@ -47,7 +49,6 @@ export default function BookCard({
         ) : (
           <span style={{ fontSize: 32, opacity: 0.4 }}>📖</span>
         )}
-
         {book.isCurrentPick && (
           <div
             style={{
@@ -70,7 +71,7 @@ export default function BookCard({
         )}
       </div>
 
-      <div
+      <style
         style={{
           padding: "10px 12px",
           flex: 1,
@@ -93,7 +94,6 @@ export default function BookCard({
             {book.author}
           </div>
         )}
-
         <div
           style={{
             marginTop: "auto",
@@ -117,72 +117,84 @@ export default function BookCard({
             </span>
           )}
         </div>
+      </style>
 
-        {(canManageCurrentPick || canRemove) && (
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            {canManageCurrentPick && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleCurrentPick();
-                }}
-                aria-label={
-                  book.isCurrentPick
-                    ? `Unset ${book.title} as current pick`
-                    : `Set ${book.title} as current pick`
-                }
-                title={
-                  book.isCurrentPick
-                    ? "Unset current pick"
-                    : "Set as current pick"
-                }
-                style={{
-                  width: 30,
-                  height: 30,
-                  flexShrink: 0,
-                  borderRadius: "50%",
-                  border: `1.5px solid ${book.isCurrentPick ? OLIVE : CREAM_DARK}`,
-                  background: book.isCurrentPick ? OLIVE : "white",
-                  color: book.isCurrentPick ? CREAM : OLIVE_DARK,
-                  cursor: "pointer",
-                  fontSize: 14,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                ★
-              </button>
-            )}
-            {canRemove && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove();
-                }}
-                aria-label={`Remove ${book.title}`}
-                title="Remove book"
-                style={{
-                  width: 30,
-                  height: 30,
-                  flexShrink: 0,
-                  borderRadius: "50%",
-                  border: `1.5px solid ${CREAM_DARK}`,
-                  background: "white",
-                  color: "#a33",
-                  cursor: "pointer",
-                  fontSize: 14,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                🗑
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+      {(canManageCurrentPick || canRemove) && (
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            zIndex: 2,
+          }}
+        >
+          {canManageCurrentPick && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleCurrentPick();
+              }}
+              aria-label={
+                book.isCurrentPick
+                  ? `Unset ${book.title} as current pick`
+                  : `Set ${book.title} as current pick`
+              }
+              title={
+                book.isCurrentPick
+                  ? "Unset current pick"
+                  : "Set as current pick"
+              }
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: "50%",
+                border: "none",
+                background: book.isCurrentPick ? OLIVE : "rgba(20,20,20,0.55)",
+                color: CREAM,
+                cursor: "pointer",
+                fontSize: 13,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                backdropFilter: "blur(2px)",
+              }}
+            >
+              ★
+            </button>
+          )}
+          {canRemove && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              aria-label={`Remove ${book.title}`}
+              title="Remove book"
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(20,20,20,0.55)",
+                color: "#ffb3b3",
+                cursor: "pointer",
+                fontSize: 12,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                backdropFilter: "blur(2px)",
+              }}
+            >
+              🗑
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
