@@ -131,16 +131,18 @@ export default function useMembers(token, enabled = true) {
   // on failure so the +/- buttons never silently lose the change.
   const adjustPoints = (id, delta) =>
     withAuthError(async () => {
-      let previousPoints;
+      // Read the current value synchronously from `members` — setMembers's
+      // updater function doesn't run until React's render phase, so a
+      // variable only assigned inside that updater isn't populated yet by
+      // the time the code right after setMembers() runs.
+      const current = members.find((m) => m._id === id);
+      const previousPoints = current ? current.points : 0;
+      const nextPoints = Math.max(0, previousPoints + delta);
+
       setMembers((prev) =>
-        prev.map((m) => {
-          if (m._id !== id) return m;
-          previousPoints = m.points;
-          return { ...m, points: Math.max(0, m.points + delta) };
-        }),
+        prev.map((m) => (m._id === id ? { ...m, points: nextPoints } : m)),
       );
 
-      const nextPoints = Math.max(0, (previousPoints ?? 0) + delta);
       setSavingId(id);
       try {
         const response = await fetch(`${API_BASE}/${id}`, {
@@ -182,6 +184,19 @@ export default function useMembers(token, enabled = true) {
   const saveEdit = (id) =>
     withAuthError(async () => {
       setSavingId(id);
+      const nextPoints = Math.max(0, Number(editPoints) || 0);
+
+      // Optimistic, same as adjustPoints — update immediately, roll back
+      // on failure so a rejected save doesn't leave a stale/unsaved number
+      // showing in the UI until the next refresh.
+      const current = members.find((m) => m._id === id);
+      const previousPoints = current ? current.points : 0;
+
+      setMembers((prev) =>
+        prev.map((m) => (m._id === id ? { ...m, points: nextPoints } : m)),
+      );
+      setEditingIndex(null);
+
       try {
         const response = await fetch(`${API_BASE}/${id}`, {
           method: "PUT",
@@ -189,7 +204,7 @@ export default function useMembers(token, enabled = true) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ score: Number(editPoints) || 0 }),
+          body: JSON.stringify({ score: nextPoints }),
         });
 
         if (response.status === 401 || response.status === 403) {
@@ -201,13 +216,15 @@ export default function useMembers(token, enabled = true) {
           throw new Error("Couldn't save that change.");
         }
 
+        setError(null);
+      } catch (err) {
+        // roll back the optimistic update
         setMembers((prev) =>
           prev.map((m) =>
-            m._id === id ? { ...m, points: Number(editPoints) || 0 } : m,
+            m._id === id ? { ...m, points: previousPoints } : m,
           ),
         );
-        setEditingIndex(null);
-        setError(null);
+        throw err;
       } finally {
         setSavingId(null);
       }
