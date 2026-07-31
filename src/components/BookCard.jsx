@@ -53,7 +53,7 @@ export default function BookCard({
           <div
             style={{
               position: "absolute",
-              top: 8,
+              bottom: 8,
               left: 8,
               background: OLIVE,
               color: CREAM,

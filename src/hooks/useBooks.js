@@ -98,22 +98,38 @@ export default function useBooks(enabled = true) {
   };
 
   const setCurrentPick = async (token, id) => {
-    const res = await fetch(`${API_BASE}/${id}/current-pick`, {
-      method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok)
-      throw new Error(body.error || "Couldn't update the current pick");
-
+    const previous = books;
+    // Optimistic: flip locally right away so the star responds instantly,
+    // instead of waiting on the round-trip to the DB.
     setBooks((prev) =>
       prev.map((b) => {
-        if (b._id === id || b.id === id)
-          return { ...b, isCurrentPick: body.isCurrentPick };
-        return body.isCurrentPick ? { ...b, isCurrentPick: false } : b;
+        const isTarget = b._id === id || b.id === id;
+        return { ...b, isCurrentPick: isTarget ? !b.isCurrentPick : false };
       }),
     );
-    return body;
+
+    try {
+      const res = await fetch(`${API_BASE}/${id}/current-pick`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok)
+        throw new Error(body.error || "Couldn't update the current pick");
+
+      // Reconcile with the server's actual result (in case of a race).
+      setBooks((prev) =>
+        prev.map((b) => {
+          if (b._id === id || b.id === id)
+            return { ...b, isCurrentPick: body.isCurrentPick };
+          return body.isCurrentPick ? { ...b, isCurrentPick: false } : b;
+        }),
+      );
+      return body;
+    } catch (err) {
+      setBooks(previous); // roll back
+      throw err;
+    }
   };
 
   const addReview = async (token, bookId, { rating, text }) => {
