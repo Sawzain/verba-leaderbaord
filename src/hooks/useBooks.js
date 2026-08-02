@@ -8,17 +8,21 @@ export default function useBooks(enabled = true) {
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState(null);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const loadBooks = useCallback(() => {
+  const loadBooks = useCallback((targetPage = 1) => {
     setLoading(true);
     setError(null);
-    return fetch(API_BASE)
+    return fetch(`${API_BASE}?page=${targetPage}&limit=24`)
       .then((res) => {
         if (!res.ok) throw new Error("Server responded with an error");
         return res.json();
       })
       .then((data) => {
-        setBooks(data);
+        setBooks(data.books);
+        setPage(data.page);
+        setTotalPages(data.totalPages);
         setHasLoaded(true);
       })
       .catch(() =>
@@ -30,7 +34,7 @@ export default function useBooks(enabled = true) {
   }, []);
 
   useEffect(() => {
-    if (enabled && !hasLoaded) loadBooks();
+    if (enabled && !hasLoaded) loadBooks(1);
   }, [enabled, hasLoaded, loadBooks]);
 
   const fetchBook = async (id) => {
@@ -54,7 +58,11 @@ export default function useBooks(enabled = true) {
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Couldn't add that book");
 
-    setBooks((prev) => [{ ...body, avgRating: null, reviewCount: 0 }, ...prev]);
+    // Refetch page 1 instead of prepending locally — books are sorted
+    // newest-first server-side, so the new book belongs on page 1, and a
+    // local splice would let this page silently exceed the page size and
+    // leave totalPages stale.
+    await loadBooks(1);
     return body;
   };
 
@@ -94,7 +102,10 @@ export default function useBooks(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't remove that book");
     }
-    setBooks((prev) => prev.filter((b) => b._id !== id && b.id !== id));
+    // Refetch the current page rather than filtering locally, so total/
+    // totalPages stay accurate and a now-short page can pull in the next
+    // book that would otherwise be stuck on the following page.
+    await loadBooks(page);
   };
 
   const setCurrentPick = async (token, id) => {
@@ -145,7 +156,7 @@ export default function useBooks(enabled = true) {
     if (!res.ok) throw new Error(body.error || "Couldn't submit your review");
 
     // Refetch books so review count and average rating update in main state
-    await loadBooks();
+    await loadBooks(page);
     return body;
   };
 
@@ -158,7 +169,7 @@ export default function useBooks(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't remove that review");
     }
-    await loadBooks();
+    await loadBooks(page);
   };
 
   const removeMyReview = async (token, reviewId) => {
@@ -170,7 +181,7 @@ export default function useBooks(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't remove that review");
     }
-    await loadBooks();
+    await loadBooks(page);
   };
 
   const editReview = async (token, reviewId, { rating, text }) => {
@@ -185,7 +196,7 @@ export default function useBooks(enabled = true) {
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Couldn't save your changes");
 
-    await loadBooks();
+    await loadBooks(page);
     return body;
   };
 
@@ -195,6 +206,9 @@ export default function useBooks(enabled = true) {
     error,
     loadBooks,
     fetchBook,
+    page,
+    totalPages,
+    goToPage: loadBooks,
     addBook,
     editBook,
     removeBook,

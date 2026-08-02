@@ -8,6 +8,9 @@ export default function ReviewsPage() {
       books={booksState.books}
       loading={booksState.loading}
       error={booksState.error}
+      page={booksState.page}
+      totalPages={booksState.totalPages}
+      goToPage={booksState.goToPage}
       isAdminUnlocked={isAdmin}
       adminKey={auth.token}
       addBook={booksState.addBook}

@@ -10,6 +10,9 @@ export default function BooksView({
   books,
   loading,
   error,
+  page,
+  totalPages,
+  goToPage,
   isAdminUnlocked,
   adminKey,
   addBook,
@@ -297,6 +300,59 @@ export default function BooksView({
           />
         ))}
       </div>
+
+      {/* Search only filters the currently loaded page, not the whole
+          shelf, so Prev/Next is hidden while searching to avoid implying
+          there might be more matches on other pages. */}
+      {!search.trim() && totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 16,
+            padding: "18px 0 4px",
+          }}
+        >
+          <button
+            onClick={() => goToPage(page - 1)}
+            disabled={page === 1 || loading}
+            className="verba-nav-btn"
+            style={{
+              background: "none",
+              border: `1.5px solid ${CREAM_DARK}`,
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontFamily: "'Georgia', serif",
+              color: page === 1 ? "#bbb" : OLIVE_DARK,
+              cursor: page === 1 || loading ? "default" : "pointer",
+            }}
+          >
+            ← Prev
+          </button>
+          <span style={{ fontSize: 13, color: "#888" }}>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => goToPage(page + 1)}
+            disabled={page === totalPages || loading}
+            className="verba-nav-btn"
+            style={{
+              background: "none",
+              border: `1.5px solid ${CREAM_DARK}`,
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontFamily: "'Georgia', serif",
+              color: page === totalPages ? "#bbb" : OLIVE_DARK,
+              cursor: page === totalPages || loading ? "default" : "pointer",
+            }}
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

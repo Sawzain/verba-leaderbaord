@@ -16,46 +16,54 @@ const router = express.Router();
 
 /// GET: all books, each with an average rating and review count
 router.get("/", async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 24));
+  const skip = (page - 1) * limit;
+
   try {
-    const books = await Book.aggregate([
-      {
-        $lookup: {
-          from: "reviews",
-          localField: "_id",
-          foreignField: "book", // Updated to match your schema field
-          as: "reviews",
+    const [books, total] = await Promise.all([
+      Book.aggregate([
+        { $sort: { addedAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: "reviews",
+            localField: "_id",
+            foreignField: "book",
+            as: "reviews",
+          },
         },
-      },
-      {
-        $addFields: {
-          reviewCount: { $size: "$reviews" },
-          avgRating: {
-            $cond: {
-              if: { $gt: [{ $size: "$reviews" }, 0] },
-              then: { $round: [{ $avg: "$reviews.rating" }, 1] },
-              else: null,
+        {
+          $addFields: {
+            reviewCount: { $size: "$reviews" },
+            avgRating: {
+              $cond: {
+                if: { $gt: [{ $size: "$reviews" }, 0] },
+                then: { $round: [{ $avg: "$reviews.rating" }, 1] },
+                else: null,
+              },
             },
           },
         },
-      },
-      {
-        $project: {
-          reviews: 0, // exclude the full reviews array to keep the payload clean
-        },
-      },
+        { $project: { reviews: 0 } },
+      ]),
+      Book.countDocuments(),
     ]);
-    res.json(books);
+
+    res.json({
+      books,
+      total,
+      page,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 // GET: one book with its full review list, avgRating, and reviewCount
 router.get("/:id", async (req, res) => {
   try {
-    // These two queries don't depend on each other — Review only needs
-    // req.params.id, not the fetched book doc — so run them in parallel
-    // instead of paying two sequential round-trips to Mongo.
     const [book, reviews] = await Promise.all([
       Book.findById(req.params.id).lean(),
       Review.find({ book: req.params.id })
