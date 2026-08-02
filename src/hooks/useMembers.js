@@ -62,7 +62,9 @@ export default function useMembers(token, enabled = true) {
     const list = q
       ? members.filter((m) => m.name.toLowerCase().includes(q))
       : members;
-    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+    return [...list].sort(
+      (a, b) => b.points - a.points || a.name.localeCompare(b.name),
+    );
   }, [members, search]);
 
   const withAuthError = async (fn) => {

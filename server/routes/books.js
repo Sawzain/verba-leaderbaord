@@ -53,13 +53,18 @@ router.get("/", async (req, res) => {
 // GET: one book with its full review list, avgRating, and reviewCount
 router.get("/:id", async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).lean();
-    if (!book) return res.status(404).json({ error: "Book not found" });
+    // These two queries don't depend on each other — Review only needs
+    // req.params.id, not the fetched book doc — so run them in parallel
+    // instead of paying two sequential round-trips to Mongo.
+    const [book, reviews] = await Promise.all([
+      Book.findById(req.params.id).lean(),
+      Review.find({ book: req.params.id })
+        .populate("user", "name")
+        .sort({ createdAt: -1 })
+        .lean(),
+    ]);
 
-    const reviews = await Review.find({ book: book._id })
-      .populate("user", "name")
-      .sort({ createdAt: -1 })
-      .lean();
+    if (!book) return res.status(404).json({ error: "Book not found" });
 
     const totalRating = reviews.reduce((acc, r) => acc + r.rating, 0);
     const avgRating = reviews.length
