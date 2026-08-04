@@ -9,37 +9,60 @@
 //
 // npm install @supabase/supabase-js  (add to server/package.json)
 
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_CONFIGURED } = require('../config/env');
+const express = require("express");
+const { createClient } = require("@supabase/supabase-js");
+const {
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY,
+  SUPABASE_CONFIGURED,
+} = require("../config/env");
 
 const router = express.Router();
 
 if (!SUPABASE_CONFIGURED) {
-  console.warn('[quotes route] Supabase env vars missing — /api/quotes will error until set.');
+  console.warn(
+    "[quotes route] Supabase env vars missing — /api/quotes will error until set.",
+  );
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY); // service role, read-only usage here
+// Lazy singleton: only construct the client the first time a request
+// actually needs it, so simply requiring this file (e.g. in tests, or
+// anywhere SUPABASE_* isn't set) never crashes the process.
+let _supabase = null;
+function getSupabase() {
+  if (!SUPABASE_CONFIGURED) return null;
+  if (!_supabase) {
+    _supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+  }
+  return _supabase;
+}
 
 // Mounted at /api/quotes in app.js, so this is the root: GET /api/quotes
 // e.g. /api/quotes?book=<title>&featured=true&limit=30&offset=0
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return res
+      .status(503)
+      .json({ error: "Quotes are not configured on this server yet." });
+  }
+
   const { book, featured, limit = 30, offset = 0 } = req.query;
 
   let query = supabase
-    .from('quotes')
-    .select('*', { count: 'exact' })
-    .order('created_at', { ascending: false })
+    .from("quotes")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
     .range(Number(offset), Number(offset) + Number(limit) - 1);
 
-  if (book) query = query.eq('book_title', book);
-  if (featured === 'true') query = query.eq('is_featured', true);
+  if (book) query = query.eq("book_title", book);
+  if (featured === "true") query = query.eq("is_featured", true);
 
   const { data, error, count } = await query;
 
   if (error) {
-    console.error('[quotes route] error:', error.message);
-    return res.status(500).json({ error: 'Failed to fetch quotes' });
+    console.error("[quotes route] error:", error.message);
+    return res.status(500).json({ error: "Failed to fetch quotes" });
   }
 
   res.json({ quotes: data, total: count });
