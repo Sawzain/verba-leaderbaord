@@ -9,6 +9,7 @@ const authRouter = require("./routes/auth");
 const adminRouter = require("./routes/admin");
 const booksRouter = require("./routes/books");
 const reviewsRouter = require("./routes/reviews");
+const quotesRouter = require("./routes/quotes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(
   express.static(uploadsDir, { maxAge: "7d", immutable: true }),
 );
 
+app.use("/api/quotes", quotesRouter);
 app.use("/api/members", membersRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);

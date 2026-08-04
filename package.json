@@ -12,6 +12,7 @@
     "test": "jest --runInBand"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.0",
     "axios": "^1.18.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
