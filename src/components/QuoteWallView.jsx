@@ -8,6 +8,30 @@ import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK } from "../theme";
 // toggle rather than living on separate tabs. Sort order (newest first)
 // comes from the backend — this component just renders what it's given.
 
+// Pasted quotes often already come wrapped in their own quotation marks
+// (straight or curly) from Discord. Since this component adds its own
+// wrapping quotes when rendering, strip any pre-existing leading/trailing
+// quote characters first so we don't end up with doubled marks like ""text"".
+const stripOuterQuotes = (text = "") =>
+  text.trim().replace(/^["“”'‘’]+/, "").replace(/["“”'‘’]+$/, "");
+
+// Builds a compact page list with ellipsis gaps, e.g. [1, "…", 4, 5, 6, 7, 8, "…", 24]
+// Always keeps first, last, and a small window around the current page so it
+// stays readable even with dozens of pages.
+function getPageNumbers(current, total, siblings = 1) {
+  const pages = [];
+  const start = Math.max(2, current - siblings);
+  const end = Math.min(total - 1, current + siblings);
+
+  pages.push(1);
+  if (start > 2) pages.push("…");
+  for (let p = start; p <= end; p++) pages.push(p);
+  if (end < total - 1) pages.push("…");
+  if (total > 1) pages.push(total);
+
+  return pages;
+}
+
 const LeafMark = ({ size = 16, color = OLIVE_LIGHT }) => (
   <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden="true">
     <path
@@ -178,7 +202,7 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  "{featured.quote_text}"
+                  "{stripOuterQuotes(featured.quote_text)}"
                 </p>
                 <QuoteMeta quote={featured} />
               </div>
@@ -205,7 +229,7 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  "{q.quote_text}"
+                  "{stripOuterQuotes(q.quote_text)}"
                 </p>
                 <QuoteMeta quote={q} />
               </div>
@@ -218,8 +242,9 @@ export default function QuoteWallView({
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                gap: 16,
+                gap: 6,
                 marginTop: 24,
+                flexWrap: "wrap",
               }}
             >
               <button
@@ -229,9 +254,31 @@ export default function QuoteWallView({
               >
                 ← Prev
               </button>
-              <span style={{ fontSize: 12.5, color: OLIVE }}>
-                Page {page} of {totalPages}
-              </span>
+
+              {getPageNumbers(page, totalPages).map((p, i) =>
+                p === "…" ? (
+                  <span
+                    key={`ellipsis-${i}`}
+                    style={{
+                      padding: "0 4px",
+                      fontSize: 12.5,
+                      color: OLIVE_LIGHT,
+                    }}
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => goToPage(p)}
+                    disabled={p === page}
+                    style={pageNumberStyle(p === page)}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+
               <button
                 onClick={() => goToPage(page + 1)}
                 disabled={page >= totalPages}
@@ -302,6 +349,24 @@ function pageButtonStyle(disabled) {
     fontFamily: "'Georgia', serif",
     cursor: disabled ? "default" : "pointer",
     opacity: disabled ? 0.5 : 1,
+  };
+}
+
+// Small round number buttons; the current page reads as a filled/disabled
+// chip so it's visually distinct without looking like a dead end.
+function pageNumberStyle(isCurrent) {
+  return {
+    minWidth: 28,
+    height: 28,
+    padding: "0 6px",
+    borderRadius: 999,
+    border: `1px solid ${isCurrent ? OLIVE_DARK : OLIVE_LIGHT}`,
+    background: isCurrent ? OLIVE_DARK : "transparent",
+    color: isCurrent ? CREAM : OLIVE_DARK,
+    fontSize: 12.5,
+    fontWeight: isCurrent ? "bold" : "normal",
+    fontFamily: "'Georgia', serif",
+    cursor: isCurrent ? "default" : "pointer",
   };
 }
 
