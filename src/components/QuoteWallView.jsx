@@ -13,7 +13,26 @@ import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK } from "../theme";
 // wrapping quotes when rendering, strip any pre-existing leading/trailing
 // quote characters first so we don't end up with doubled marks like ""text"".
 const stripOuterQuotes = (text = "") =>
-  text.trim().replace(/^["“”'‘’]+/, "").replace(/["“”'‘’]+$/, "");
+  text
+    .trim()
+    .replace(/^["“”'‘’]+/, "")
+    .replace(/["“”'‘’]+$/, "");
+
+// Some pasted quotes have the attribution (Author, Book) baked into
+// quote_text itself as a second line, rather than living only in the
+// separate book_title/display_name fields. If we wrap the whole string in
+// quotes, the closing mark lands after the attribution instead of after the
+// actual quoted sentence. This splits the first line (the real quote) from
+// any trailing lines (the embedded attribution) so we can quote only the
+// former and render the rest plainly underneath.
+const splitQuoteAndAttribution = (text = "") => {
+  const cleaned = stripOuterQuotes(text);
+  const [firstLine, ...rest] = cleaned.split("\n");
+  return {
+    quote: firstLine.trim(),
+    attribution: rest.join(" ").trim(),
+  };
+};
 
 // Builds a compact page list with ellipsis gaps, e.g. [1, "…", 4, 5, 6, 7, 8, "…", 24]
 // Always keeps first, last, and a small window around the current page so it
@@ -202,7 +221,22 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  "{stripOuterQuotes(featured.quote_text)}"
+                  "{splitQuoteAndAttribution(featured.quote_text).quote}"
+                  {splitQuoteAndAttribution(featured.quote_text)
+                    .attribution && (
+                    <span
+                      style={{
+                        display: "block",
+                        fontStyle: "normal",
+                        marginTop: 4,
+                      }}
+                    >
+                      {
+                        splitQuoteAndAttribution(featured.quote_text)
+                          .attribution
+                      }
+                    </span>
+                  )}
                 </p>
                 <QuoteMeta quote={featured} />
               </div>
@@ -229,7 +263,18 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  "{stripOuterQuotes(q.quote_text)}"
+                  "{splitQuoteAndAttribution(q.quote_text).quote}"
+                  {splitQuoteAndAttribution(q.quote_text).attribution && (
+                    <span
+                      style={{
+                        display: "block",
+                        fontStyle: "normal",
+                        marginTop: 4,
+                      }}
+                    >
+                      {splitQuoteAndAttribution(q.quote_text).attribution}
+                    </span>
+                  )}
                 </p>
                 <QuoteMeta quote={q} />
               </div>
@@ -276,7 +321,7 @@ export default function QuoteWallView({
                   >
                     {p}
                   </button>
-                )
+                ),
               )}
 
               <button
