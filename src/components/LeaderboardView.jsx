@@ -11,6 +11,12 @@ import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 const PAGE_SIZE = 10;
 
+// Same translucent off-white used for cards on the Quote Wall (CARD_BG in
+// QuoteWallView.jsx), so leaderboard rows and quote cards read as one
+// consistent visual language.
+const ROW_BG = "rgba(255,255,255,0.4)";
+const ROW_BG_FIRST = "rgba(255,255,255,0.6)"; // slightly stronger for 1st place
+
 export default function LeaderboardView({ sorted, memberCount, loading }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -170,7 +176,7 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
               alignItems: "center",
               padding: "16px 24px",
               borderBottom: `1px solid ${CREAM}`,
-              background: isFirstPlace ? `${CREAM}55` : "transparent",
+              background: isFirstPlace ? ROW_BG_FIRST : ROW_BG,
               transition: "background 0.2s",
             }}
           >
