@@ -1,4 +1,11 @@
-import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK, WHITE } from "../theme";
+import {
+  OLIVE,
+  OLIVE_DARK,
+  OLIVE_LIGHT,
+  CREAM,
+  CREAM_DARK,
+  WHITE,
+} from "../theme";
 
 // Lives inside AppShell's 620px cream card, so no full-page background here —
 // just content styled to match Leaderboard/Reviews. Georgia serif throughout,
@@ -46,9 +53,11 @@ export default function QuoteWallView({
             letterSpacing: "0.5px",
           }}
         >
-          Quote Wall
+          Verba Wall
         </h2>
-        <p style={{ margin: 0, fontStyle: "italic", color: OLIVE, fontSize: 14 }}>
+        <p
+          style={{ margin: 0, fontStyle: "italic", color: OLIVE, fontSize: 14 }}
+        >
           Words worth pressing between pages
         </p>
       </div>
@@ -125,8 +134,8 @@ export default function QuoteWallView({
           {sourceFilter === "poetry-corner"
             ? "No poems pressed yet — drop one in #poetry-corner and it'll show up here."
             : sourceFilter === "quotes-highlights"
-            ? "No quotes pressed yet — drop a line in #quotes-highlights and it'll show up here."
-            : "Nothing pressed yet — post in #quotes-highlights or #poetry-corner and it'll show up here."}
+              ? "No quotes pressed yet — drop a line in #quotes-highlights and it'll show up here."
+              : "Nothing pressed yet — post in #quotes-highlights or #poetry-corner and it'll show up here."}
         </p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -219,7 +228,11 @@ function QuoteMeta({ quote }) {
         href={quote.discord_message_url}
         target="_blank"
         rel="noreferrer"
-        style={{ color: OLIVE_DARK, textDecoration: "none", fontWeight: "bold" }}
+        style={{
+          color: OLIVE_DARK,
+          textDecoration: "none",
+          fontWeight: "bold",
+        }}
       >
         View →
       </a>

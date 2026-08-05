@@ -4,7 +4,7 @@ import { OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
 const TABS = [
   { to: "/app/leaderboard", label: "Leaderboard" },
   { to: "/app/reviews", label: "Book Review" },
-  { to: "/app/quotes", label: "Quote Wall" },
+  { to: "/app/quotes", label: "Verba Wall" },
   { to: "/app/manage", label: "Manage" },
 ];
 
