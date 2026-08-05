@@ -35,6 +35,16 @@ with Discord"), then rate and review books on the shelf. One review per
 member per book. Admins can add books with a cover image, remove books,
 and mark one book as the "current pick" shown on the public landing page.
 
+**Verba Wall** — a scrollable, paginated wall of quotes and poems pulled
+from the club's `#quotes-highlights` and `#poetry-corner` Discord channels.
+Content is captured automatically by the Twig Discord bot (a separate
+project) and written to a shared Supabase table; this app only reads from
+it via `GET /api/quotes`. A toggle switches between Quotes, Poems, and All,
+and posts can optionally be filtered by book. See `SUPABASE_URL` /
+`SUPABASE_SERVICE_ROLE_KEY` below for the required env vars — without
+them, the Verba Wall tab still renders but shows a "not configured" error
+instead of content.
+
 **Accounts & admin access** — there's no separate admin key to type in
 anymore. Admin access is an `isAdmin` flag on a normal member account. Log
 in on the Manage tab like any other member; if your account has the flag,
@@ -53,6 +63,25 @@ restart. Create a free account at [cloudinary.com](https://cloudinary.com),
 then copy the "API Environment variable" from your dashboard (it looks like
 `cloudinary://<api_key>:<api_secret>@<cloud_name>`) into `CLOUDINARY_URL`.
 The server refuses to start without it, the same way it does for `MONGO_URI`.
+
+## Verba Wall (Supabase)
+
+Quotes and poems live in a separate Supabase project (the same one used by
+the Twig Discord bot) rather than MongoDB, since Twig already writes there.
+This app only needs read access:
+
+1. In the Supabase dashboard for that project, go to **Settings → API**.
+2. Copy the **Project URL** into `SUPABASE_URL`.
+3. Copy the **`service_role`** key (not `anon`) into
+   `SUPABASE_SERVICE_ROLE_KEY`.
+
+Unlike `MONGO_URI` and `CLOUDINARY_URL`, the server does **not** refuse to
+start if these are missing — `GET /api/quotes` just returns a 503 with a
+"not configured" message until they're set, so local development without
+Supabase access still works for everything else.
+
+The `quotes` table itself, and the Twig-side capture logic, live in the
+verba-bot repo, not here.
 
 ## Email verification (optional)
 
@@ -80,18 +109,18 @@ email/password login keeps working either way.
 ## Project structure
 
 src/ React frontend (Vite)
-hooks/ data-fetching hooks (useAuth, useMembers, useBooks)
-components/ presentational components
-pages/ route-level components
+hooks/ data-fetching hooks (useAuth, useMembers, useBooks, useQuotes)
+components/ presentational components (..., QuoteWallView)
+pages/ route-level components (..., QuotesPage — "Verba Wall" tab)
 
 server/
 app.js Express app: middleware + route mounting (no listen())
 server.js startup: env checks, DB connect, listen()
-routes/ one file per resource (members, auth, admin, books, reviews)
+routes/ one file per resource (members, auth, admin, books, reviews, quotes)
 middleware/ auth, admin-key, rate limiting
-config/ env constants, Cloudinary, Resend
+config/ env constants (incl. Supabase), Cloudinary, Resend
 utils/ tokens, review-points logic
-models/ Mongoose schemas
+models/ Mongoose schemas (Verba Wall content lives in Supabase, not here)
 tests/ Jest + Supertest, run against an in-memory MongoDB
 
 
@@ -103,7 +132,10 @@ npm test
 
 Runs against an in-memory MongoDB (`mongodb-memory-server`), so no real
 database connection is needed. CI (`.github/workflows/ci.yml`) runs this
-plus a frontend build on every push and PR.
+plus a frontend build on every push and PR. The `quotes` route's Supabase
+client is constructed lazily (only on first request, not at import time),
+so tests run fine even without `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`
+set.
 
 ## Building for production
 

@@ -12,6 +12,9 @@ export default function QuotesPage() {
       setBookFilter={quotesState.setBookFilter}
       sourceFilter={quotesState.sourceFilter}
       setSourceFilter={quotesState.setSourceFilter}
+      page={quotesState.page}
+      totalPages={quotesState.totalPages}
+      goToPage={quotesState.goToPage}
     />
   );
 }

@@ -38,7 +38,7 @@ function getSupabase() {
 }
 
 // Mounted at /api/quotes in app.js, so this is the root: GET /api/quotes
-// e.g. /api/quotes?book=<title>&featured=true&limit=30&offset=0
+// e.g. /api/quotes?book=<title>&source=poetry-corner&featured=true&limit=30&offset=0
 router.get("/", async (req, res) => {
   const supabase = getSupabase();
   if (!supabase) {
@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
       .json({ error: "Quotes are not configured on this server yet." });
   }
 
-  const { book, featured, limit = 30, offset = 0 } = req.query;
+  const { book, source, featured, limit = 30, offset = 0 } = req.query;
 
   let query = supabase
     .from("quotes")
@@ -56,6 +56,7 @@ router.get("/", async (req, res) => {
     .range(Number(offset), Number(offset) + Number(limit) - 1);
 
   if (book) query = query.eq("book_title", book);
+  if (source) query = query.eq("source_channel", source); // 'quotes-highlights' | 'poetry-corner'
   if (featured === "true") query = query.eq("is_featured", true);
 
   const { data, error, count } = await query;
