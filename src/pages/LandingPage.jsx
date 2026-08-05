@@ -98,7 +98,7 @@ export default function LandingPage() {
           style={{
             fontSize: 34,
             fontWeight: "bold",
-            color: "#2d2d2d",
+            color: OLIVE_DARK,
             marginBottom: 6,
           }}
         >
@@ -121,7 +121,7 @@ export default function LandingPage() {
           <p
             style={{
               fontSize: 16,
-              color: "#3f4230",
+              color: OLIVE_DARK,
               lineHeight: 1.7,
               marginBottom: 12,
               marginTop: 0,
@@ -135,7 +135,7 @@ export default function LandingPage() {
           <p
             style={{
               fontSize: 16,
-              color: "#3f4230",
+              color: OLIVE_DARK,
               lineHeight: 1.7,
               margin: 0,
             }}
@@ -179,7 +179,7 @@ export default function LandingPage() {
           <p
             style={{
               fontSize: 15,
-              color: "#3f4230",
+              color: OLIVE_DARK,
               lineHeight: 1.7,
               margin: 0,
             }}
@@ -221,12 +221,16 @@ export default function LandingPage() {
         <div style={{ padding: "28px 32px" }}>
           <div style={sectionHeading}>Current pick</div>
           {loading && (
-            <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>
+            <div
+              style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}
+            >
               Loading…
             </div>
           )}
           {!loading && !currentPick && (
-            <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>
+            <div
+              style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}
+            >
               {books.length === 0
                 ? "Nothing on the shelf yet — check back soon."
                 : "No current pick chosen yet — check back soon."}
@@ -241,7 +245,7 @@ export default function LandingPage() {
                 gap: 16,
                 textDecoration: "none",
                 color: "inherit",
-                background: "#f6f3e8",
+                background: `${CREAM_DARK}66`,
                 border: `1px solid ${CREAM_DARK}`,
                 borderRadius: 12,
                 padding: 16,
@@ -254,7 +258,7 @@ export default function LandingPage() {
                   flexShrink: 0,
                   borderRadius: 8,
                   overflow: "hidden",
-                  background: "#e4ddc7",
+                  background: `${OLIVE_LIGHT}33`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -276,7 +280,11 @@ export default function LandingPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
-                  style={{ fontSize: 17, fontWeight: "bold", color: "#2d2d2d" }}
+                  style={{
+                    fontSize: 17,
+                    fontWeight: "bold",
+                    color: OLIVE_DARK,
+                  }}
                 >
                   {currentPick.title}
                 </div>
@@ -298,7 +306,7 @@ export default function LandingPage() {
                   {currentPick.avgRating ? (
                     <>
                       <StarDisplay value={currentPick.avgRating} size={13} />
-                      <span style={{ fontSize: 12, color: "#888" }}>
+                      <span style={{ fontSize: 12, color: OLIVE }}>
                         {currentPick.avgRating} · {currentPick.reviewCount}{" "}
                         review
                         {currentPick.reviewCount !== 1 ? "s" : ""}
@@ -308,7 +316,7 @@ export default function LandingPage() {
                     <span
                       style={{
                         fontSize: 12,
-                        color: "#aaa",
+                        color: OLIVE_LIGHT,
                         fontStyle: "italic",
                       }}
                     >
