@@ -5,6 +5,7 @@ import AppShell from "./AppShell";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import ReviewsPage from "./pages/ReviewsPage";
 import ManagePage from "./pages/ManagePage";
+import QuotesPage from "./pages/QuotesPage";
 import useAuth from "./hooks/useAuth";
 import { AuthContext } from "./AuthContext";
 
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/app" element={<AppShell />}>
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="reviews" element={<ReviewsPage />} />
+          <Route path="quotes" element={<QuotesPage />} />
           <Route path="manage" element={<ManagePage />} />
         </Route>
       </Routes>

@@ -4,6 +4,7 @@ import TabSwitcher from "./components/TabSwitcher";
 import Footer from "./components/Footer";
 import useMembers from "./hooks/useMembers";
 import useBooks from "./hooks/useBooks";
+import useQuotes from "./hooks/useQuotes";
 import { useAuthContext } from "./AuthContext";
 
 // Owns auth/members/books state and lifts it to routed views via
@@ -18,8 +19,9 @@ export default function AppShell() {
 
   const booksState = useBooks(true);
   const membersState = useMembers(auth.token, true);
+  const quotesState = useQuotes(true);
 
-  const context = { auth, isAdmin, booksState, membersState };
+  const context = { auth, isAdmin, booksState, membersState, quotesState };
 
   return (
     <div
