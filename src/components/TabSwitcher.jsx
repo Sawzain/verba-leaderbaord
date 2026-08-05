@@ -18,6 +18,9 @@ export default function TabSwitcher() {
         background: OLIVE_DARK,
         padding: "4px",
         borderRadius: 12,
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
       }}
     >
       {TABS.map(({ to, label }) => (
@@ -43,6 +46,7 @@ export default function TabSwitcher() {
             justifyContent: "center",
             textAlign: "center",
             whiteSpace: "nowrap",
+            flexShrink: 0,
           })}
         >
           {label}
