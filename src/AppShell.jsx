@@ -32,10 +32,15 @@ export default function AppShell() {
         flexDirection: "column",
         alignItems: "center",
         padding: "32px 16px",
+        overflowX: "hidden",
+        width: "100%",
+        boxSizing: "border-box",
       }}
     >
       <Header />
-      <TabSwitcher />
+      <div style={{ width: "100%", maxWidth: 620 }}>
+        <TabSwitcher />
+      </div>
 
       <div
         style={{
