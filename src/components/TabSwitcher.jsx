@@ -21,6 +21,8 @@ export default function TabSwitcher() {
         overflowX: "auto",
         WebkitOverflowScrolling: "touch",
         scrollbarWidth: "none",
+        maxWidth: "100%",
+        minWidth: 0,
       }}
     >
       {TABS.map(({ to, label }) => (

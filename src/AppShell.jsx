@@ -38,7 +38,14 @@ export default function AppShell() {
       }}
     >
       <Header />
-      <div style={{ width: "100%", maxWidth: 620 }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 620,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
         <TabSwitcher />
       </div>
 
