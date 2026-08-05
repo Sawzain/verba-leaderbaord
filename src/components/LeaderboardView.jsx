@@ -197,7 +197,7 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
               <div
                 style={{
                   fontSize: 17,
-                  color: "#2d2d2d",
+                  color: OLIVE_DARK,
                   fontFamily: "'Georgia', serif",
                   fontWeight: isFirstPlace ? "bold" : "normal",
                 }}
