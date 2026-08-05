@@ -20,17 +20,16 @@ const stripOuterQuotes = (text = "") =>
 
 // Some pasted quotes have the attribution (Author, Book) baked into
 // quote_text itself as a second line, rather than living only in the
-// separate book_title/display_name fields. If we wrap the whole string in
-// quotes, the closing mark lands after the attribution instead of after the
-// actual quoted sentence. This splits the first line (the real quote) from
-// any trailing lines (the embedded attribution) so we can quote only the
-// former and render the rest plainly underneath.
+// separate book_title/display_name fields — and the quote line itself often
+// already carries its own leading/trailing quote marks. This splits off the
+// first line (the real quote) from any trailing lines (the attribution) and
+// strips quote marks from each independently, so wrapping the quote in our
+// own quotes doesn't double up.
 const splitQuoteAndAttribution = (text = "") => {
-  const cleaned = stripOuterQuotes(text);
-  const [firstLine, ...rest] = cleaned.split("\n");
+  const [firstLine, ...rest] = text.trim().split("\n");
   return {
-    quote: firstLine.trim(),
-    attribution: rest.join(" ").trim(),
+    quote: stripOuterQuotes(firstLine),
+    attribution: stripOuterQuotes(rest.join(" ")),
   };
 };
 
