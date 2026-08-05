@@ -58,6 +58,7 @@ router.get("/", async (req, res) => {
   if (book) query = query.eq("book_title", book);
   if (source) query = query.eq("source_channel", source); // 'quotes-highlights' | 'poetry-corner'
   if (featured === "true") query = query.eq("is_featured", true);
+  query = query.eq("is_approved", true); // never show unapproved content publicly
 
   const { data, error, count } = await query;
 
