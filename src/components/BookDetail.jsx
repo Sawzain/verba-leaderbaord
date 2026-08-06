@@ -12,6 +12,7 @@ import AuthPanel from "./AuthPanel";
 import BookForm from "./BookForm";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import EmptyState from "./EmptyState";
+import RatingSummary from "./RatingSummary";
 
 const buttonInteractionStyles = `
   .verba-btn {
@@ -273,33 +274,14 @@ export default function BookDetail({
                 {book.author}
               </div>
             )}
-            {avgRating ? (
-              <div
-                style={{
-                  marginTop: 8,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <StarDisplay value={avgRating} size={16} />
-                <span style={{ fontSize: 13, color: OLIVE }}>
-                  {avgRating} · {reviewCount} review
-                  {reviewCount !== 1 ? "s" : ""}
-                </span>
-              </div>
-            ) : (
-              <div
-                style={{
-                  marginTop: 8,
-                  fontSize: 13,
-                  color: OLIVE_LIGHT,
-                  fontStyle: "italic",
-                }}
-              >
-                No reviews yet — be the first
-              </div>
-            )}
+            <RatingSummary
+              rating={avgRating}
+              count={reviewCount}
+              starSize={16}
+              textSize={13}
+              emptyMessage="No reviews yet — be the first"
+              wrapperStyle={{ marginTop: 8 }}
+            />
           </div>
         </div>
       )}
