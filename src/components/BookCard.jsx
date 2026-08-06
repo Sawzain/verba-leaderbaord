@@ -43,6 +43,8 @@ export default function BookCard({
           <img
             src={resolveCoverUrl(book.coverImage)}
             alt={book.title}
+            loading="lazy"
+            decoding="async"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         ) : (

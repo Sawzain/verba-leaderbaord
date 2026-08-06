@@ -83,6 +83,8 @@ export default function LandingPage() {
         <img
           src={LOGO_SRC}
           alt="Verba Book Club"
+          fetchPriority="high"
+          decoding="async"
           style={{
             width: 140,
             height: 140,
@@ -221,16 +223,12 @@ export default function LandingPage() {
         <div style={{ padding: "28px 32px" }}>
           <div style={sectionHeading}>Current pick</div>
           {loading && (
-            <div
-              style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}
-            >
+            <div style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}>
               Loading…
             </div>
           )}
           {!loading && !currentPick && (
-            <div
-              style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}
-            >
+            <div style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}>
               {books.length === 0
                 ? "Nothing on the shelf yet — check back soon."
                 : "No current pick chosen yet — check back soon."}
@@ -268,6 +266,8 @@ export default function LandingPage() {
                   <img
                     src={resolveCoverUrl(currentPick.coverImage)}
                     alt={currentPick.title}
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       width: "100%",
                       height: "100%",
@@ -280,11 +280,7 @@ export default function LandingPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div
-                  style={{
-                    fontSize: 17,
-                    fontWeight: "bold",
-                    color: OLIVE_DARK,
-                  }}
+                  style={{ fontSize: 17, fontWeight: "bold", color: OLIVE_DARK }}
                 >
                   {currentPick.title}
                 </div>

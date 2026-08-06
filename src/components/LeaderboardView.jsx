@@ -7,6 +7,7 @@ import {
   CREAM_DARK,
   medals,
 } from "../theme";
+import Pagination from "./Pagination";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 const PAGE_SIZE = 10;
@@ -225,56 +226,7 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
         );
       })}
 
-      {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 16,
-            padding: "14px 24px",
-            borderTop: `1px solid ${CREAM_DARK}`,
-          }}
-        >
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={safePage === 1}
-            className="verba-nav-btn"
-            style={{
-              background: "none",
-              border: `1.5px solid ${CREAM_DARK}`,
-              borderRadius: 8,
-              padding: "6px 14px",
-              fontSize: 13,
-              fontFamily: "'Georgia', serif",
-              color: safePage === 1 ? "#bbb" : OLIVE_DARK,
-              cursor: safePage === 1 ? "default" : "pointer",
-            }}
-          >
-            ← Prev
-          </button>
-          <span style={{ fontSize: 13, color: "#888" }}>
-            Page {safePage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={safePage === totalPages}
-            className="verba-nav-btn"
-            style={{
-              background: "none",
-              border: `1.5px solid ${CREAM_DARK}`,
-              borderRadius: 8,
-              padding: "6px 14px",
-              fontSize: 13,
-              fontFamily: "'Georgia', serif",
-              color: safePage === totalPages ? "#bbb" : OLIVE_DARK,
-              cursor: safePage === totalPages ? "default" : "pointer",
-            }}
-          >
-            Next →
-          </button>
-        </div>
-      )}
+      <Pagination page={safePage} totalPages={totalPages} goToPage={setPage} />
 
       <div
         style={{
