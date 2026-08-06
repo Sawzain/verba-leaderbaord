@@ -11,6 +11,7 @@ import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
 import BookForm from "./BookForm";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
+import EmptyState from "./EmptyState";
 
 const buttonInteractionStyles = `
   .verba-btn {
@@ -216,7 +217,7 @@ export default function BookDetail({
               flexShrink: 0,
               borderRadius: 8,
               overflow: "hidden",
-              background: "#e4ddc7",
+              background: `${OLIVE_LIGHT}33`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -456,7 +457,7 @@ export default function BookDetail({
         {auth.isLoggedIn && myReview && editingReviewId === myReview.id && (
           <div
             style={{
-              background: "#f6f3e8",
+              background: `${CREAM_DARK}66`,
               border: `1px solid ${CREAM_DARK}`,
               borderRadius: 12,
               padding: "16px",
@@ -495,7 +496,7 @@ export default function BookDetail({
                 disabled={editSubmitting}
                 className="verba-btn"
                 style={{
-                  background: "#6B7A3A",
+                  background: OLIVE,
                   color: CREAM,
                   border: "none",
                   borderRadius: 10,
@@ -532,7 +533,7 @@ export default function BookDetail({
         {auth.isLoggedIn && !myReview && !justSubmitted && (
           <div
             style={{
-              background: "#f6f3e8",
+              background: `${CREAM_DARK}66`,
               border: `1px solid ${CREAM_DARK}`,
               borderRadius: 12,
               padding: "16px",
@@ -571,7 +572,7 @@ export default function BookDetail({
               className="verba-btn"
               style={{
                 marginTop: 10,
-                background: "#6B7A3A",
+                background: OLIVE,
                 color: CREAM,
                 border: "none",
                 borderRadius: 10,
@@ -620,11 +621,7 @@ export default function BookDetail({
         )}
       </div>
 
-      {reviews.length === 0 && (
-        <div style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}>
-          No reviews yet.
-        </div>
-      )}
+      {reviews.length === 0 && <EmptyState message={"No reviews yet."} />}
 
       {reviews.map((r) => {
         const isMine = auth.user && r.userId === auth.user.id;

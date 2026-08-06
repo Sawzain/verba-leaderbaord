@@ -5,6 +5,7 @@ import BookCard from "./BookCard";
 import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
 import AccountBar from "./AccountBar";
+import EmptyState from "./EmptyState";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 export default function BooksView({
@@ -115,18 +116,7 @@ export default function BooksView({
 
   if (selectedId) {
     if (detailLoading) {
-      return (
-        <div
-          style={{
-            padding: 40,
-            textAlign: "center",
-            color: OLIVE_LIGHT,
-            fontStyle: "italic",
-          }}
-        >
-          Loading book…
-        </div>
-      );
+      return <EmptyState message="Loading book…" />;
     }
     if (detailError || !selectedBook) {
       return (
@@ -236,16 +226,7 @@ export default function BooksView({
       )}
 
       {!loading && books.length === 0 && (
-        <div
-          style={{
-            padding: 20,
-            textAlign: "center",
-            color: OLIVE_LIGHT,
-            fontStyle: "italic",
-          }}
-        >
-          No books yet.
-        </div>
+        <EmptyState message="No books yet." padding={20} />
       )}
 
       {!loading && books.length > 5 && (
@@ -270,16 +251,7 @@ export default function BooksView({
       )}
 
       {!loading && books.length > 0 && visibleBooks.length === 0 && (
-        <div
-          style={{
-            padding: 20,
-            textAlign: "center",
-            color: OLIVE_LIGHT,
-            fontStyle: "italic",
-          }}
-        >
-          No books match "{search}".
-        </div>
+        <EmptyState message={`No books match "${search}".`} padding={20} />
       )}
 
       <div

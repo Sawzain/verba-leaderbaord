@@ -9,6 +9,7 @@ import {
 } from "../theme";
 import Pagination from "./Pagination";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
+import EmptyState from "./EmptyState";
 
 const PAGE_SIZE = 10;
 
@@ -139,29 +140,11 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
       )}
 
       {!loading && sorted.length === 0 && (
-        <div
-          style={{
-            padding: 40,
-            textAlign: "center",
-            color: "#aaa",
-            fontStyle: "italic",
-          }}
-        >
-          No members yet. Add some in Manage!
-        </div>
+        <EmptyState message="No members yet. Add some in Manage!" />
       )}
 
       {!loading && sorted.length > 0 && visible.length === 0 && (
-        <div
-          style={{
-            padding: 40,
-            textAlign: "center",
-            color: "#aaa",
-            fontStyle: "italic",
-          }}
-        >
-          No readers match "{search}".
-        </div>
+        <EmptyState message={`No readers match "${search}".`} />
       )}
 
       {pageItems.map((member) => {
