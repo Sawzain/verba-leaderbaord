@@ -1,4 +1,4 @@
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
+import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, OLIVE_LIGHT } from "../theme";
 import { StarDisplay } from "./StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
@@ -163,7 +163,7 @@ export default function BookCard({
           style={{
             fontSize: 14,
             fontWeight: "bold",
-            color: "#2d2d2d",
+            color: OLIVE_DARK,
             lineHeight: 1.3,
           }}
         >
@@ -188,13 +188,15 @@ export default function BookCard({
           {book.avgRating ? (
             <>
               <StarDisplay value={book.avgRating} size={12} />
-              <span style={{ fontSize: 11, color: "#888" }}>
+              <span style={{ fontSize: 11, color: OLIVE }}>
                 {book.avgRating} · {book.reviewCount} review
                 {book.reviewCount !== 1 ? "s" : ""}
               </span>
             </>
           ) : (
-            <span style={{ fontSize: 11, color: "#aaa", fontStyle: "italic" }}>
+            <span
+              style={{ fontSize: 11, color: OLIVE_LIGHT, fontStyle: "italic" }}
+            >
               No reviews yet
             </span>
           )}

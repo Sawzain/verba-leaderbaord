@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
+import {
+  OLIVE,
+  OLIVE_DARK,
+  CREAM,
+  CREAM_DARK,
+  WHITE,
+  OLIVE_LIGHT,
+} from "../theme";
 import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
 import BookForm from "./BookForm";
@@ -235,7 +242,7 @@ export default function BookDetail({
               }}
             >
               <div
-                style={{ fontSize: 19, fontWeight: "bold", color: "#2d2d2d" }}
+                style={{ fontSize: 19, fontWeight: "bold", color: OLIVE_DARK }}
               >
                 {book.title}
               </div>
@@ -274,7 +281,7 @@ export default function BookDetail({
                 }}
               >
                 <StarDisplay value={avgRating} size={16} />
-                <span style={{ fontSize: 13, color: "#888" }}>
+                <span style={{ fontSize: 13, color: OLIVE }}>
                   {avgRating} · {reviewCount} review
                   {reviewCount !== 1 ? "s" : ""}
                 </span>
@@ -284,7 +291,7 @@ export default function BookDetail({
                 style={{
                   marginTop: 8,
                   fontSize: 13,
-                  color: "#aaa",
+                  color: OLIVE_LIGHT,
                   fontStyle: "italic",
                 }}
               >
@@ -300,7 +307,7 @@ export default function BookDetail({
         <div
           style={{
             fontSize: 11,
-            color: "#9a9578",
+            color: OLIVE,
             letterSpacing: "1px",
             textTransform: "uppercase",
             marginBottom: 8,
@@ -471,7 +478,7 @@ export default function BookDetail({
                 fontFamily: "'Georgia', serif",
                 outline: "none",
                 background: WHITE,
-                color: "#2d2d2d",
+                color: OLIVE_DARK,
                 boxSizing: "border-box",
                 resize: "vertical",
               }}
@@ -512,7 +519,7 @@ export default function BookDetail({
                   fontSize: 14,
                   cursor: "pointer",
                   fontFamily: "'Georgia', serif",
-                  color: "#2d2d2d",
+                  color: OLIVE_DARK,
                 }}
               >
                 Cancel
@@ -547,7 +554,7 @@ export default function BookDetail({
                 fontFamily: "'Georgia', serif",
                 outline: "none",
                 background: WHITE,
-                color: "#2d2d2d",
+                color: OLIVE_DARK,
                 boxSizing: "border-box",
                 resize: "vertical",
               }}
@@ -600,20 +607,20 @@ export default function BookDetail({
         style={{
           fontSize: 20,
           fontWeight: "bold",
-          color: "#2d2d2d",
+          color: OLIVE_DARK,
           marginBottom: 14,
         }}
       >
         Reviews{" "}
         {reviews.length > 0 && (
-          <span style={{ fontSize: 15, fontWeight: "normal", color: "#888" }}>
+          <span style={{ fontSize: 15, fontWeight: "normal", color: OLIVE }}>
             ({reviews.length})
           </span>
         )}
       </div>
 
       {reviews.length === 0 && (
-        <div style={{ color: "#aaa", fontStyle: "italic", fontSize: 14 }}>
+        <div style={{ color: OLIVE_LIGHT, fontStyle: "italic", fontSize: 14 }}>
           No reviews yet.
         </div>
       )}
@@ -660,7 +667,11 @@ export default function BookDetail({
                 }}
               >
                 <span
-                  style={{ fontSize: 14, fontWeight: "bold", color: "#2d2d2d" }}
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "bold",
+                    color: OLIVE_DARK,
+                  }}
                 >
                   {r.reviewer}
                 </span>
@@ -725,7 +736,7 @@ export default function BookDetail({
                   style={{
                     marginTop: 6,
                     fontSize: 14,
-                    color: "#444",
+                    color: OLIVE_DARK,
                     lineHeight: 1.5,
                   }}
                 >
@@ -735,7 +746,7 @@ export default function BookDetail({
                       style={{
                         marginLeft: 8,
                         fontSize: 11,
-                        color: "#aaa",
+                        color: OLIVE_LIGHT,
                         fontStyle: "italic",
                       }}
                     >

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { OLIVE, OLIVE_DARK, CREAM_DARK, WHITE } from "../theme";
+import { OLIVE, OLIVE_DARK, CREAM_DARK, WHITE, OLIVE_LIGHT } from "../theme";
 import BookCard from "./BookCard";
 import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
@@ -119,7 +119,7 @@ export default function BooksView({
           style={{
             padding: 40,
             textAlign: "center",
-            color: "#aaa",
+            color: OLIVE_LIGHT,
             fontStyle: "italic",
           }}
         >
@@ -239,7 +239,7 @@ export default function BooksView({
           style={{
             padding: 20,
             textAlign: "center",
-            color: "#aaa",
+            color: OLIVE_LIGHT,
             fontStyle: "italic",
           }}
         >
@@ -261,7 +261,7 @@ export default function BooksView({
             fontFamily: "'Georgia', serif",
             outline: "none",
             background: WHITE,
-            color: "#2d2d2d",
+            color: OLIVE_DARK,
             boxSizing: "border-box",
             marginBottom: 16,
           }}
@@ -273,7 +273,7 @@ export default function BooksView({
           style={{
             padding: 20,
             textAlign: "center",
-            color: "#aaa",
+            color: OLIVE_LIGHT,
             fontStyle: "italic",
           }}
         >
@@ -331,7 +331,7 @@ export default function BooksView({
           >
             ← Prev
           </button>
-          <span style={{ fontSize: 13, color: "#888" }}>
+          <span style={{ fontSize: 13, color: OLIVE }}>
             Page {page} of {totalPages}
           </span>
           <button
