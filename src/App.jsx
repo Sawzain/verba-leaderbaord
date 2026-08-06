@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import AppShell from "./AppShell";
 import useAuth from "./hooks/useAuth";
 import { AuthContext } from "./AuthContext";
+import { buttonInteractionStyles } from "./styles/buttonInteractions";
 
 // Route-level code splitting: each page only downloads its JS when the
 // user actually navigates there, instead of all pages bundling into the
@@ -21,6 +22,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={auth}>
+      <style>{buttonInteractionStyles}</style>
       <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<LandingPage />} />

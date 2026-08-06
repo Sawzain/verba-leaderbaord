@@ -13,33 +13,7 @@ import BookForm from "./BookForm";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import EmptyState from "./EmptyState";
 import RatingSummary from "./RatingSummary";
-
-const buttonInteractionStyles = `
-  .verba-btn {
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, opacity 0.15s ease, color 0.15s ease;
-  }
-  .verba-btn:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.06);
-  }
-  .verba-btn:active {
-    transform: translateY(0);
-    filter: brightness(0.96);
-  }
-  .verba-btn:disabled {
-    transform: none;
-    filter: none;
-  }
-  .verba-link-btn {
-    transition: opacity 0.15s ease, color 0.15s ease;
-  }
-  .verba-link-btn:hover {
-    opacity: 0.7;
-  }
-  .verba-link-btn:active {
-    opacity: 0.5;
-  }
-`;
+import { buttonInteractionStyles } from "../styles/buttonInteractions";
 
 export default function BookDetail({
   book,
@@ -175,8 +149,6 @@ export default function BookDetail({
 
   return (
     <div style={{ padding: "20px 24px" }}>
-      <style>{buttonInteractionStyles}</style>
-
       <button
         onClick={onBack}
         className="verba-link-btn"
