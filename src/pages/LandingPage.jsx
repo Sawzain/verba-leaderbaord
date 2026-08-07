@@ -40,7 +40,7 @@ const ctaButtonStyle = {
 // then scales fluidly with viewport width above that, capped at 1000px
 // on very wide screens. Inline styles can't do media queries, but
 // clamp() gives the same effect without needing an injected <style> block.
-const CARD_MAX_WIDTH = "clamp(720px, 37.5vw, 1000px)";
+const CARD_MAX_WIDTH = "clamp(720px, 37.5vw, 950px)";
 
 // Inline style objects can't express :hover/:active, so interactive buttons
 // get a matching CSS class (defined in the <style> block below) alongside

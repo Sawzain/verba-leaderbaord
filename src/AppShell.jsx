@@ -18,7 +18,7 @@ import { useAuthContext } from "./AuthContext";
 // fluidly with viewport width above that, capped at 900px on very wide
 // screens. Inline styles can't do media queries, but clamp() gives the
 // same effect without needing an injected <style> block.
-const PANEL_MAX_WIDTH = "clamp(620px, 32vw, 900px)";
+const PANEL_MAX_WIDTH = "clamp(620px, 32vw, 820px)";
 
 export default function AppShell() {
   const auth = useAuthContext();
