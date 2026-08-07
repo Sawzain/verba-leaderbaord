@@ -9,17 +9,9 @@ import Pagination from "./Pagination";
 // toggle rather than living on separate tabs. Sort order (newest first)
 // comes from the backend — this component just renders what it's given.
 
-// Pasted quotes often already come wrapped in their own quotation marks
-// (straight or curly) from Discord. Strip any leading/trailing quote
-// characters so we're not left with a stray mark at the start/end when we
-// render the text as-is (no hardcoded wrapping quotes, no quote/attribution
-// split — quotes and poems both just render their raw text, line breaks
-// preserved via the paragraph's whiteSpace: "pre-line").
-const formatEntryText = (text = "") =>
-  text
-    .trim()
-    .replace(/^["“”'‘’]+/, "")
-    .replace(/["“”'‘’]+$/, "");
+// quote_text is rendered exactly as pasted from Discord — no stripping,
+// no added quote marks, no reformatting. Line breaks are preserved via the
+// paragraph's whiteSpace: "pre-line".
 
 // Always keeps first, last, and a small window around the current page so it
 // stays readable even with dozens of pages.
@@ -194,7 +186,7 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  {formatEntryText(featured.quote_text)}
+                  {featured.quote_text}
                 </p>
                 <QuoteMeta quote={featured} />
               </div>
@@ -221,7 +213,7 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  {formatEntryText(q.quote_text)}
+                  {q.quote_text}
                 </p>
                 <QuoteMeta quote={q} />
               </div>
