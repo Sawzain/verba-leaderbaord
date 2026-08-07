@@ -36,6 +36,12 @@ const ctaButtonStyle = {
   boxShadow: "0 8px 30px rgba(45, 60, 45, 0.08)",
 };
 
+// Main content card width: fixed at 720px through 1080p (clamp floor),
+// then scales fluidly with viewport width above that, capped at 1000px
+// on very wide screens. Inline styles can't do media queries, but
+// clamp() gives the same effect without needing an injected <style> block.
+const CARD_MAX_WIDTH = "clamp(720px, 37.5vw, 1000px)";
+
 // Inline style objects can't express :hover/:active, so interactive buttons
 // get a matching CSS class (defined in the <style> block below) alongside
 // their inline styles. The class only carries hover/active/transition
@@ -139,7 +145,7 @@ export default function LandingPage() {
       <div
         style={{
           width: "100%",
-          maxWidth: 720,
+          maxWidth: CARD_MAX_WIDTH,
           background: CREAM,
           borderRadius: 20,
           overflow: "hidden",

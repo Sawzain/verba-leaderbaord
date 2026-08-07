@@ -13,6 +13,13 @@ import { useAuthContext } from "./AuthContext";
 // for their matching tab to be active — so switching tabs feels instant
 // instead of triggering a fresh fetch (and its full network latency)
 // the first time you land on each one.
+//
+// Panel width: fixed at 620px through 1080p (clamp floor), then scales
+// fluidly with viewport width above that, capped at 900px on very wide
+// screens. Inline styles can't do media queries, but clamp() gives the
+// same effect without needing an injected <style> block.
+const PANEL_MAX_WIDTH = "clamp(620px, 32vw, 900px)";
+
 export default function AppShell() {
   const auth = useAuthContext();
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
@@ -41,7 +48,7 @@ export default function AppShell() {
       <div
         style={{
           width: "100%",
-          maxWidth: 620,
+          maxWidth: PANEL_MAX_WIDTH,
           display: "flex",
           justifyContent: "center",
         }}
@@ -52,7 +59,7 @@ export default function AppShell() {
       <div
         style={{
           width: "100%",
-          maxWidth: 620,
+          maxWidth: PANEL_MAX_WIDTH,
           background: "rgba(238,232,213,0.82)",
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
@@ -64,7 +71,7 @@ export default function AppShell() {
         <Outlet context={context} />
       </div>
 
-      <Footer maxWidth={620} />
+      <Footer maxWidth={PANEL_MAX_WIDTH} />
     </div>
   );
 }
