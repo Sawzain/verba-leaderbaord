@@ -59,7 +59,7 @@ export default function LandingPage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "48px 20px 24px",
+        padding: "48px 24px 24px",
       }}
     >
       {/* Hero */}
@@ -70,8 +70,8 @@ export default function LandingPage() {
           fetchPriority="high"
           decoding="async"
           style={{
-            width: 140,
-            height: 140,
+            width: "clamp(90px, 24vw, 140px)",
+            height: "clamp(90px, 24vw, 140px)",
             objectFit: "cover",
             borderRadius: 16,
             display: "block",
@@ -82,7 +82,7 @@ export default function LandingPage() {
         />
         <div
           style={{
-            fontSize: 34,
+            fontSize: "clamp(24px, 7vw, 34px)",
             fontWeight: "bold",
             color: OLIVE_DARK,
             marginBottom: 6,
@@ -92,7 +92,7 @@ export default function LandingPage() {
         </div>
         <div
           style={{
-            fontSize: 15,
+            fontSize: "clamp(13px, 3.5vw, 15px)",
             color: OLIVE_DARK,
             letterSpacing: "1px",
             fontStyle: "italic",
@@ -106,7 +106,7 @@ export default function LandingPage() {
         <div style={{ marginBottom: 28 }}>
           <p
             style={{
-              fontSize: 16,
+              fontSize: "clamp(14px, 4vw, 16px)",
               color: OLIVE_DARK,
               lineHeight: 1.7,
               marginBottom: 12,
@@ -120,7 +120,7 @@ export default function LandingPage() {
           </p>
           <p
             style={{
-              fontSize: 16,
+              fontSize: "clamp(14px, 4vw, 16px)",
               color: OLIVE_DARK,
               lineHeight: 1.7,
               margin: 0,

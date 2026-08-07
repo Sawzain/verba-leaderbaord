@@ -38,7 +38,7 @@ export default function AppShell() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "32px 16px",
+        padding: "32px 24px",
         overflowX: "hidden",
         width: "100%",
         boxSizing: "border-box",

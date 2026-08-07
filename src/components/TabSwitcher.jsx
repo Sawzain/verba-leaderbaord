@@ -13,10 +13,10 @@ export default function TabSwitcher() {
     <div
       style={{
         display: "flex",
-        gap: 8,
-        marginBottom: 24,
+        gap: 6,
+        marginBottom: 20,
         background: OLIVE_DARK,
-        padding: "4px",
+        padding: "3px",
         borderRadius: 12,
         overflowX: "auto",
         WebkitOverflowScrolling: "touch",
@@ -30,11 +30,11 @@ export default function TabSwitcher() {
           key={to}
           to={to}
           style={({ isActive }) => ({
-            padding: "8px 16px",
+            padding: "6px 12px",
             borderRadius: 8,
             border: "none",
             cursor: "pointer",
-            fontSize: 13,
+            fontSize: 12,
             letterSpacing: "1px",
             textTransform: "uppercase",
             fontFamily: "'Georgia', serif",
