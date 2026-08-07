@@ -10,8 +10,50 @@ import Pagination from "./Pagination";
 // comes from the backend — this component just renders what it's given.
 
 // quote_text is rendered exactly as pasted from Discord — no stripping,
-// no added quote marks, no reformatting. Line breaks are preserved via the
-// paragraph's whiteSpace: "pre-line".
+// no added quote marks, no other reformatting. The one exception: Discord's
+// own inline markdown (**bold**, *italic*/_italic_, __underline__,
+// ~~strikethrough~~, `code`) is parsed into real formatting instead of
+// showing the literal asterisks/underscores, since that's how the text
+// appeared in Discord itself. Line breaks are preserved by splitting on
+// "\n" and inserting <br /> between lines (rather than CSS
+// whiteSpace: "pre-line", which only works on plain strings, not the
+// mixed text/element arrays this produces).
+const INLINE_MARKDOWN =
+  /(\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|\*[^*]+\*|_[^_]+_|`[^`]+`)/g;
+
+const parseInlineMarkdown = (line, lineKey) =>
+  line
+    .split(INLINE_MARKDOWN)
+    .filter((part) => part !== "")
+    .map((part, i) => {
+      const key = `${lineKey}-${i}`;
+      if (/^\*\*[^*]+\*\*$/.test(part)) {
+        return <strong key={key}>{part.slice(2, -2)}</strong>;
+      }
+      if (/^__[^_]+__$/.test(part)) {
+        return <u key={key}>{part.slice(2, -2)}</u>;
+      }
+      if (/^~~[^~]+~~$/.test(part)) {
+        return <s key={key}>{part.slice(2, -2)}</s>;
+      }
+      if (/^\*[^*]+\*$/.test(part) || /^_[^_]+_$/.test(part)) {
+        return <em key={key}>{part.slice(1, -1)}</em>;
+      }
+      if (/^`[^`]+`$/.test(part)) {
+        return <code key={key}>{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
+
+const renderDiscordText = (text = "") => {
+  const lines = text.split("\n");
+  return lines.map((line, i) => (
+    <span key={i}>
+      {parseInlineMarkdown(line, i)}
+      {i < lines.length - 1 && <br />}
+    </span>
+  ));
+};
 
 // Always keeps first, last, and a small window around the current page so it
 // stays readable even with dozens of pages.
@@ -183,10 +225,9 @@ export default function QuoteWallView({
                     fontSize: 17,
                     lineHeight: 1.5,
                     margin: "8px 0 10px",
-                    whiteSpace: "pre-line",
                   }}
                 >
-                  {featured.quote_text}
+                  {renderDiscordText(featured.quote_text)}
                 </p>
                 <QuoteMeta quote={featured} />
               </div>
@@ -210,10 +251,9 @@ export default function QuoteWallView({
                     fontSize: 15.5,
                     lineHeight: 1.5,
                     margin: "6px 0 10px",
-                    whiteSpace: "pre-line",
                   }}
                 >
-                  {q.quote_text}
+                  {renderDiscordText(q.quote_text)}
                 </p>
                 <QuoteMeta quote={q} />
               </div>
