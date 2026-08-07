@@ -35,10 +35,24 @@ const splitQuoteAndAttribution = (text = "") => {
 };
 
 // Poems shouldn't be wrapped in quotation marks the way quotes are — a poem
-// isn't a quoted line, it's a titled piece. Source tells us which channel an
-// entry came from ("poetry-corner" vs "quotes-highlights"), so we use that
-// to decide whether to add the wrapping quotes.
-const isPoem = (quote) => quote.source === "poetry-corner";
+// isn't a quoted line, it's a titled piece. source_channel tells us which
+// Discord channel an entry came from ("poetry-corner" vs
+// "quotes-highlights"), so we use that to decide how to render it.
+const isPoem = (quote) => quote.source_channel === "poetry-corner";
+
+// For poems, quote_text is the whole piece: title on the first line, the
+// stanzas after it — not "quote line + attribution line" like the
+// quotes-highlights format splitQuoteAndAttribution handles. This just
+// separates the title from the body and keeps the body's internal line
+// breaks intact (joined with "\n", not " ") so stanzas still render as
+// stanzas via the existing whiteSpace: "pre-line" styling.
+const splitPoemTitleAndBody = (text = "") => {
+  const [firstLine, ...rest] = text.trim().split("\n");
+  return {
+    title: firstLine.trim(),
+    body: rest.join("\n").trim(),
+  };
+};
 
 // Always keeps first, last, and a small window around the current page so it
 // stays readable even with dozens of pages.
@@ -203,35 +217,60 @@ export default function QuoteWallView({
                   Featured
                 </div>
                 <LeafMark size={18} />
-                <p
-                  style={{
-                    fontStyle: "italic",
-                    color: OLIVE_DARK,
-                    fontSize: 17,
-                    lineHeight: 1.5,
-                    margin: "8px 0 10px",
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  {isPoem(featured)
-                    ? splitQuoteAndAttribution(featured.quote_text).quote
-                    : `"${splitQuoteAndAttribution(featured.quote_text).quote}"`}
-                  {splitQuoteAndAttribution(featured.quote_text)
-                    .attribution && (
-                    <span
-                      style={{
-                        display: "block",
-                        fontStyle: "normal",
-                        marginTop: 4,
-                      }}
-                    >
-                      {
-                        splitQuoteAndAttribution(featured.quote_text)
-                          .attribution
-                      }
+                {isPoem(featured) ? (
+                  <p
+                    style={{
+                      color: OLIVE_DARK,
+                      fontSize: 17,
+                      lineHeight: 1.5,
+                      margin: "8px 0 10px",
+                    }}
+                  >
+                    <span style={{ fontStyle: "italic", fontWeight: "bold" }}>
+                      {splitPoemTitleAndBody(featured.quote_text).title}
                     </span>
-                  )}
-                </p>
+                    {splitPoemTitleAndBody(featured.quote_text).body && (
+                      <span
+                        style={{
+                          display: "block",
+                          fontStyle: "normal",
+                          marginTop: 8,
+                          whiteSpace: "pre-line",
+                        }}
+                      >
+                        {splitPoemTitleAndBody(featured.quote_text).body}
+                      </span>
+                    )}
+                  </p>
+                ) : (
+                  <p
+                    style={{
+                      fontStyle: "italic",
+                      color: OLIVE_DARK,
+                      fontSize: 17,
+                      lineHeight: 1.5,
+                      margin: "8px 0 10px",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    "{splitQuoteAndAttribution(featured.quote_text).quote}"
+                    {splitQuoteAndAttribution(featured.quote_text)
+                      .attribution && (
+                      <span
+                        style={{
+                          display: "block",
+                          fontStyle: "normal",
+                          marginTop: 4,
+                        }}
+                      >
+                        {
+                          splitQuoteAndAttribution(featured.quote_text)
+                            .attribution
+                        }
+                      </span>
+                    )}
+                  </p>
+                )}
                 <QuoteMeta quote={featured} />
               </div>
             )}
@@ -247,31 +286,56 @@ export default function QuoteWallView({
                 }}
               >
                 <LeafMark size={15} />
-                <p
-                  style={{
-                    fontStyle: "italic",
-                    color: OLIVE_DARK,
-                    fontSize: 15.5,
-                    lineHeight: 1.5,
-                    margin: "6px 0 10px",
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  {isPoem(q)
-                    ? splitQuoteAndAttribution(q.quote_text).quote
-                    : `"${splitQuoteAndAttribution(q.quote_text).quote}"`}
-                  {splitQuoteAndAttribution(q.quote_text).attribution && (
-                    <span
-                      style={{
-                        display: "block",
-                        fontStyle: "normal",
-                        marginTop: 4,
-                      }}
-                    >
-                      {splitQuoteAndAttribution(q.quote_text).attribution}
+                {isPoem(q) ? (
+                  <p
+                    style={{
+                      color: OLIVE_DARK,
+                      fontSize: 15.5,
+                      lineHeight: 1.5,
+                      margin: "6px 0 10px",
+                    }}
+                  >
+                    <span style={{ fontStyle: "italic", fontWeight: "bold" }}>
+                      {splitPoemTitleAndBody(q.quote_text).title}
                     </span>
-                  )}
-                </p>
+                    {splitPoemTitleAndBody(q.quote_text).body && (
+                      <span
+                        style={{
+                          display: "block",
+                          fontStyle: "normal",
+                          marginTop: 8,
+                          whiteSpace: "pre-line",
+                        }}
+                      >
+                        {splitPoemTitleAndBody(q.quote_text).body}
+                      </span>
+                    )}
+                  </p>
+                ) : (
+                  <p
+                    style={{
+                      fontStyle: "italic",
+                      color: OLIVE_DARK,
+                      fontSize: 15.5,
+                      lineHeight: 1.5,
+                      margin: "6px 0 10px",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    "{splitQuoteAndAttribution(q.quote_text).quote}"
+                    {splitQuoteAndAttribution(q.quote_text).attribution && (
+                      <span
+                        style={{
+                          display: "block",
+                          fontStyle: "normal",
+                          marginTop: 4,
+                        }}
+                      >
+                        {splitQuoteAndAttribution(q.quote_text).attribution}
+                      </span>
+                    )}
+                  </p>
+                )}
                 <QuoteMeta quote={q} />
               </div>
             ))}
