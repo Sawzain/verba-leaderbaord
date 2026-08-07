@@ -120,11 +120,11 @@ export default function QuoteWallView({
       <div
         style={{
           display: "flex",
-          gap: 4,
+          gap: 6,
           justifyContent: "center",
           marginBottom: 16,
           background: OLIVE_DARK,
-          padding: 4,
+          padding: 3,
           borderRadius: 10,
           maxWidth: 280,
           margin: "0 auto 16px",
@@ -136,11 +136,11 @@ export default function QuoteWallView({
             onClick={() => setSourceFilter(value)}
             style={{
               flex: 1,
-              padding: "6px 10px",
+              padding: "6px 12px",
               borderRadius: 7,
               border: "none",
               cursor: "pointer",
-              fontSize: 12.5,
+              fontSize: 12,
               fontFamily: "'Georgia', serif",
               background: sourceFilter === value ? CREAM : "transparent",
               color: sourceFilter === value ? OLIVE_DARK : CREAM_DARK,
