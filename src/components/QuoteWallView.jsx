@@ -34,6 +34,12 @@ const splitQuoteAndAttribution = (text = "") => {
   };
 };
 
+// Poems shouldn't be wrapped in quotation marks the way quotes are — a poem
+// isn't a quoted line, it's a titled piece. Source tells us which channel an
+// entry came from ("poetry-corner" vs "quotes-highlights"), so we use that
+// to decide whether to add the wrapping quotes.
+const isPoem = (quote) => quote.source === "poetry-corner";
+
 // Always keeps first, last, and a small window around the current page so it
 // stays readable even with dozens of pages.
 
@@ -207,7 +213,9 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  "{splitQuoteAndAttribution(featured.quote_text).quote}"
+                  {isPoem(featured)
+                    ? splitQuoteAndAttribution(featured.quote_text).quote
+                    : `"${splitQuoteAndAttribution(featured.quote_text).quote}"`}
                   {splitQuoteAndAttribution(featured.quote_text)
                     .attribution && (
                     <span
@@ -249,7 +257,9 @@ export default function QuoteWallView({
                     whiteSpace: "pre-line",
                   }}
                 >
-                  "{splitQuoteAndAttribution(q.quote_text).quote}"
+                  {isPoem(q)
+                    ? splitQuoteAndAttribution(q.quote_text).quote
+                    : `"${splitQuoteAndAttribution(q.quote_text).quote}"`}
                   {splitQuoteAndAttribution(q.quote_text).attribution && (
                     <span
                       style={{
