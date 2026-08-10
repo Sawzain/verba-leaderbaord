@@ -72,6 +72,7 @@ router.post("/", requireApiKey, async (req, res) => {
     await newEntry.save();
     res.json(newEntry);
   } catch (err) {
+    console.error("POST /api/members failed:", err);
     res.status(500).json({ error: "Failed to add entry" });
   }
 });
