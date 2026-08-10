@@ -38,6 +38,7 @@ export default function useMembers(token, enabled = true) {
             points: m.score,
             _id: m._id,
             userId: m.userId || null,
+            latestActivity: m.latestActivity || null,
           })),
         );
         setHasLoaded(true);

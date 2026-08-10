@@ -3,14 +3,43 @@ const Score = require("../Score");
 const requireApiKey = require("../middleware/apiKey");
 const ActivityLog = require("../models/ActivityLog");
 const User = require("../models/User");
+const Book = require("../models/Book");
 
 const router = express.Router();
 
-// GET: Fetch all members
+// GET: Fetch all members, each enriched with their most recent activity
+// (book finished or review written) so the leaderboard can show a small
+// line of "what they've been up to" under their name.
 router.get("/", async (req, res) => {
   try {
     const scores = await Score.find();
-    res.json(scores);
+
+    const latestByScore = await ActivityLog.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $group: { _id: "$scoreId", doc: { $first: "$$ROOT" } } },
+    ]);
+
+    const bookIds = latestByScore.map((e) => e.doc.bookId).filter(Boolean);
+    const books = await Book.find({ _id: { $in: bookIds } }, "title").lean();
+    const bookTitleById = new Map(books.map((b) => [String(b._id), b.title]));
+
+    const activityByScoreId = new Map(
+      latestByScore.map((e) => [
+        String(e._id),
+        {
+          type: e.doc.type,
+          bookTitle: bookTitleById.get(String(e.doc.bookId)) || null,
+        },
+      ]),
+    );
+
+    const enriched = scores.map((s) => {
+      const obj = s.toObject();
+      obj.latestActivity = activityByScoreId.get(String(s._id)) || null;
+      return obj;
+    });
+
+    res.json(enriched);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch data" });
   }

@@ -24,6 +24,8 @@ export default function LeaderboardView({
   memberCount,
   loading,
   activity = [],
+  totalBooksRead = 0,
+  totalQuotes = 0,
 }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -91,6 +93,32 @@ export default function LeaderboardView({
         </span>
         <span style={{ fontSize: 13, color: CREAM, fontStyle: "italic" }}>
           1 pt per book read
+        </span>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 20,
+          padding: "12px 24px",
+          fontSize: 13,
+          color: OLIVE_DARK,
+          borderBottom: `1px solid ${CREAM_DARK}`,
+          flexWrap: "wrap",
+        }}
+      >
+        <span>
+          <strong>{memberCount}</strong> reader{memberCount !== 1 ? "s" : ""}
+        </span>
+        <span>·</span>
+        <span>
+          <strong>{totalBooksRead}</strong> book
+          {totalBooksRead !== 1 ? "s" : ""} read
+        </span>
+        <span>·</span>
+        <span>
+          <strong>{totalQuotes}</strong> quote{totalQuotes !== 1 ? "s" : ""} on
+          the Wall
         </span>
       </div>
 
@@ -193,6 +221,21 @@ export default function LeaderboardView({
               >
                 {member.name}
               </div>
+              {member.latestActivity && (
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "#8a8a72",
+                    fontStyle: "italic",
+                    marginTop: 2,
+                  }}
+                >
+                  {member.latestActivity.type === "review"
+                    ? "✍️ reviewed "
+                    : "📖 finished "}
+                  {member.latestActivity.bookTitle || "a book"}
+                </div>
+              )}
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -217,7 +260,13 @@ export default function LeaderboardView({
       <Pagination page={safePage} totalPages={totalPages} goToPage={setPage} />
       {activity.length > 0 && (
         <div
-          style={{ padding: "16px 24px", borderTop: `1px solid ${CREAM_DARK}` }}
+          style={{
+            margin: "16px 24px",
+            background: CREAM,
+            borderRadius: 12,
+            padding: "16px 18px",
+            border: `1px solid ${CREAM_DARK}`,
+          }}
         >
           <div
             style={{
@@ -226,9 +275,10 @@ export default function LeaderboardView({
               letterSpacing: "1px",
               textTransform: "uppercase",
               marginBottom: 10,
+              fontWeight: "bold",
             }}
           >
-            Recent Activity
+            ✨ Recent Activity
           </div>
           {activity.map((a, i) => (
             <div
@@ -236,7 +286,7 @@ export default function LeaderboardView({
               style={{
                 fontSize: 14,
                 color: "#3f4230",
-                padding: "6px 0",
+                padding: "5px 0",
                 fontFamily: "'Georgia', serif",
               }}
             >

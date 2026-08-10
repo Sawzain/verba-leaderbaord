@@ -16,7 +16,7 @@ export default function useQuotes(enabled = true) {
   const [bookFilter, setBookFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState(""); // "" | "quotes-highlights" | "poetry-corner"
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const fetchQuotes = useCallback(
     async (book = "", source = "", targetPage = 1) => {
@@ -35,6 +35,7 @@ export default function useQuotes(enabled = true) {
         setQuotes(data.quotes ?? []);
         setPage(targetPage);
         setTotalPages(Math.max(1, Math.ceil((data.total ?? 0) / PAGE_SIZE)));
+        setTotal(data.total ?? 0);
       } catch (err) {
         setError(err.message || "Failed to load quotes");
       } finally {
@@ -62,6 +63,7 @@ export default function useQuotes(enabled = true) {
     setSourceFilter,
     page,
     totalPages,
+    total,
     goToPage,
     refetch: () => fetchQuotes(bookFilter, sourceFilter, page),
   };
