@@ -134,6 +134,15 @@ router.get("/unlinked-users", requireApiKey, async (req, res) => {
   res.json(users);
 });
 
+// GET: count of distinct books the club has collectively finished
+// (not total points — 10 people reading the same book counts as 1).
+router.get("/stats", async (req, res) => {
+  const distinctBooks = await ActivityLog.distinct("bookId", {
+    type: "book_read",
+    bookId: { $ne: null },
+  });
+  res.json({ booksRead: distinctBooks.length });
+});
 // PUT: Update score (and optionally name) by id
 router.put("/:id", requireApiKey, async (req, res) => {
   try {

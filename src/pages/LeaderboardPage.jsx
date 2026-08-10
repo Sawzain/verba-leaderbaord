@@ -5,15 +5,13 @@ export default function LeaderboardPage() {
   const { membersState, activityState, quotesState } = useOutletContext();
   const { sorted, members, loading } = membersState;
 
-  const totalBooksRead = members.reduce((sum, m) => sum + (m.points || 0), 0);
-
   return (
     <LeaderboardView
       sorted={sorted}
       memberCount={members.length}
       loading={loading}
       activity={activityState.activity}
-      totalBooksRead={totalBooksRead}
+      totalBooksRead={activityState.booksRead}
       totalQuotes={quotesState.total}
     />
   );

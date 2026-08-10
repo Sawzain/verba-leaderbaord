@@ -117,7 +117,7 @@ export default function LeaderboardView({
         </span>
         <span>·</span>
         <span>
-          <strong>{totalQuotes}</strong> quote{totalQuotes !== 1 ? "s" : ""} on
+          <strong>{totalQuotes}</strong> verse{totalQuotes !== 1 ? "s" : ""} on
           the Wall
         </span>
       </div>
