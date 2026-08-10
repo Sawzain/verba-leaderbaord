@@ -100,82 +100,99 @@ export default function LeaderboardView({
         style={{
           display: "flex",
           justifyContent: "center",
+          alignItems: "center",
           gap: 10,
           padding: "8px 24px",
           fontSize: 11,
           color: OLIVE_DARK,
           borderBottom: `1px solid ${CREAM_DARK}`,
           whiteSpace: "nowrap",
-          overflowX: "auto",
-          scrollbarWidth: "none",
         }}
       >
-        <span>
-          <strong>{memberCount}</strong> reader{memberCount !== 1 ? "s" : ""}
-        </span>
-        <span>·</span>
-        <span>
-          <strong>{totalBooksRead}</strong> book
-          {totalBooksRead !== 1 ? "s" : ""} read
-        </span>
-        <span>·</span>
-        <span>
-          <strong>{totalQuotes}</strong> verse{totalQuotes !== 1 ? "s" : ""} on
-          the Wall
-        </span>
-      </div>
-
-      {memberCount > 5 && (
         <div
           style={{
-            padding: "8px 24px 12px",
             display: "flex",
-            justifyContent: searchOpen ? "stretch" : "flex-end",
+            gap: 10,
+            overflowX: "auto",
+            scrollbarWidth: "none",
           }}
         >
-          {searchOpen ? (
-            <input
-              autoFocus
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onBlur={() => {
-                if (!search.trim()) setSearchOpen(false);
-              }}
-              placeholder="Search readers…"
-              style={{
-                width: "100%",
-                padding: "7px 12px",
-                borderRadius: 8,
-                border: `1px solid ${CREAM_DARK}`,
-                fontSize: 13,
-                fontFamily: "'Georgia', serif",
-                outline: "none",
-                background: "rgba(255,255,255,0.75)",
-                color: "#3f4230",
-                boxSizing: "border-box",
-              }}
-            />
-          ) : (
-            <button
-              onClick={() => setSearchOpen(true)}
-              aria-label="Search readers"
-              style={{
-                background: "rgba(255,255,255,0.6)",
-                border: `1px solid ${CREAM_DARK}`,
-                borderRadius: 8,
-                width: 32,
-                height: 32,
-                cursor: "pointer",
-                fontSize: 14,
-                color: "#3f4230",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              🔍
-            </button>
-          )}
+          <span>
+            <strong>{memberCount}</strong> reader
+            {memberCount !== 1 ? "s" : ""}
+          </span>
+          <span>·</span>
+          <span>
+            <strong>{totalBooksRead}</strong> book
+            {totalBooksRead !== 1 ? "s" : ""} read
+          </span>
+          <span>·</span>
+          <span>
+            <strong>{totalQuotes}</strong> verse
+            {totalQuotes !== 1 ? "s" : ""} on the Wall
+          </span>
+        </div>
+
+        {memberCount > 5 && !searchOpen && (
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search readers"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 2,
+              display: "flex",
+              alignItems: "center",
+              flexShrink: 0,
+              marginLeft: "auto",
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+                stroke={OLIVE_DARK}
+                strokeWidth="2"
+              />
+              <line
+                x1="16.5"
+                y1="16.5"
+                x2="21"
+                y2="21"
+                stroke={OLIVE_DARK}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {memberCount > 5 && searchOpen && (
+        <div style={{ padding: "0 24px 12px" }}>
+          <input
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onBlur={() => {
+              if (!search.trim()) setSearchOpen(false);
+            }}
+            placeholder="Search readers…"
+            style={{
+              width: "100%",
+              padding: "7px 12px",
+              borderRadius: 8,
+              border: `1px solid ${CREAM_DARK}`,
+              fontSize: 13,
+              fontFamily: "'Georgia', serif",
+              outline: "none",
+              background: "rgba(255,255,255,0.75)",
+              color: "#3f4230",
+              boxSizing: "border-box",
+            }}
+          />
         </div>
       )}
 
