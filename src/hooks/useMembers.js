@@ -18,7 +18,6 @@ export default function useMembers(token, enabled = true) {
   const [search, setSearch] = useState("");
 
   const [newName, setNewName] = useState("");
-  const [newPoints, setNewPoints] = useState(0);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editPoints, setEditPoints] = useState(0);
   const [savingId, setSavingId] = useState(null);
@@ -68,9 +67,11 @@ export default function useMembers(token, enabled = true) {
     const list = q
       ? members.filter((m) => m.name.toLowerCase().includes(q))
       : members;
-    return [...list].sort(
-      (a, b) => b.points - a.points || a.name.localeCompare(b.name),
-    );
+    // Manage view intentionally does NOT sort by points — admins are
+    // editing scores here, and re-sorting on every +/- would make rows
+    // jump around mid-edit. Stable alphabetical order instead. The
+    // points-sorted view for the public Leaderboard is `sorted`, above.
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
   }, [members, search]);
 
   const withAuthError = async (fn) => {
@@ -93,7 +94,7 @@ export default function useMembers(token, enabled = true) {
         },
         body: JSON.stringify({
           username: newName.trim(),
-          score: Number(newPoints) || 0,
+          score: 0,
         }),
       });
 
@@ -113,7 +114,6 @@ export default function useMembers(token, enabled = true) {
         { name: saved.username, points: saved.score, _id: saved._id },
       ]);
       setNewName("");
-      setNewPoints(0);
       setError(null);
     });
 
@@ -329,8 +329,6 @@ export default function useMembers(token, enabled = true) {
     savingId,
     newName,
     setNewName,
-    newPoints,
-    setNewPoints,
     editingIndex,
     setEditingIndex,
     editPoints,

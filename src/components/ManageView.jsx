@@ -91,8 +91,6 @@ export default function ManageView({
   savingId,
   newName,
   setNewName,
-  newPoints,
-  setNewPoints,
   addMember,
   editingIndex,
   setEditingIndex,
@@ -183,22 +181,8 @@ export default function ManageView({
             placeholder="Name"
             style={{ ...inputStyle, flex: 2, minWidth: 140 }}
           />
-          <input
-            type="number"
-            min={0}
-            value={newPoints}
-            onChange={(e) => setNewPoints(e.target.value)}
-            placeholder="Pts"
-            style={{
-              ...inputStyle,
-              flex: 1,
-              minWidth: 60,
-              maxWidth: 80,
-              padding: "10px 10px",
-              textAlign: "center",
-            }}
-          />
-          <button
+
+            <button
             className="verba-btn"
             onClick={addMember}
             style={{
