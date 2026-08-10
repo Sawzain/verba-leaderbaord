@@ -131,7 +131,7 @@ export default function MemberRow({
               }}
             >
               {member.points} book{member.points !== 1 ? "s" : ""}
-              {member.points} pt
+              {/* {member.points} pt */}
             </div>
 
             {showBookPicker && onMarkRead ? (
