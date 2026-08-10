@@ -2,30 +2,18 @@ import { useOutletContext } from "react-router-dom";
 import ManageView from "../components/ManageView";
 
 export default function ManagePage() {
-  const { auth, membersState } = useOutletContext();
+  const { auth, membersState, booksState, unlinkedUsersState } = useOutletContext();
   const {
-    members,
-    filteredMembers,
-    search,
-    setSearch,
-    loading,
-    error,
-    setError,
-    savingId,
-    newName,
-    setNewName,
-    newPoints,
-    setNewPoints,
-    editingIndex,
-    setEditingIndex,
-    editPoints,
-    setEditPoints,
-    addMember,
-    removeMember,
-    adjustPoints,
-    startEdit,
-    saveEdit,
+    members, filteredMembers, search, setSearch, loading, error, setError,
+    savingId, newName, setNewName, newPoints, setNewPoints,
+    editingIndex, setEditingIndex, editPoints, setEditPoints,
+    addMember, removeMember, adjustPoints, startEdit, saveEdit,
+    markRead, linkAccount,
   } = membersState;
+
+  const { books } = booksState;
+  const currentPickId = books.find((b) => b.isCurrentPick)?._id;
+  const { unlinkedUsers } = unlinkedUsersState;
 
   return (
     <ManageView
@@ -51,6 +39,11 @@ export default function ManagePage() {
       saveEdit={saveEdit}
       adjustPoints={adjustPoints}
       removeMember={removeMember}
+      markRead={markRead}
+      linkAccount={linkAccount}
+      books={books}
+      currentPickId={currentPickId}
+      unlinkedUsers={unlinkedUsers}
     />
   );
 }

@@ -1,6 +1,8 @@
 const express = require("express");
 const Score = require("../Score");
 const requireApiKey = require("../middleware/apiKey");
+const ActivityLog = require("../models/ActivityLog");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -56,6 +58,39 @@ router.delete("/:id", requireApiKey, async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Invalid member id" });
   }
+});
+router.post("/:id/mark-read", requireApiKey, async (req, res) => {
+  const score = await Score.findById(req.params.id);
+  if (!score) return res.status(404).json({ error: "Member not found" });
+  score.score = (score.score || 0) + 1;
+  await score.save();
+  await ActivityLog.create({
+    scoreId: score._id,
+    type: "book_read",
+    bookId: req.body.bookId,
+  });
+  res.json(score);
+});
+
+router.post("/:id/link", requireApiKey, async (req, res) => {
+  const score = await Score.findByIdAndUpdate(
+    req.params.id,
+    { userId: req.body.userId },
+    { new: true },
+  );
+  if (!score) return res.status(404).json({ error: "Member not found" });
+  res.json(score);
+});
+
+router.get("/unlinked-users", requireApiKey, async (req, res) => {
+  const linkedIds = await Score.find({ userId: { $ne: null } }).distinct(
+    "userId",
+  );
+  const users = await User.find(
+    { discordId: { $ne: null }, _id: { $nin: linkedIds } },
+    "name discordId",
+  );
+  res.json(users);
 });
 
 // PUT: Update score (and optionally name) by id

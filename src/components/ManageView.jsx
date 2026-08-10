@@ -102,6 +102,11 @@ export default function ManageView({
   saveEdit,
   adjustPoints,
   removeMember,
+  markRead, // NEW — from useMembers
+  linkAccount, // NEW — from useMembers
+  books, // NEW — from useBooks(), for the mark-read dropdown
+  currentPickId, // NEW — from useBooks(), dropdown default
+  unlinkedUsers, // NEW — unlinked Discord accounts, for the link dropdown
 }) {
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
 
@@ -297,6 +302,11 @@ export default function ManageView({
           onSaveEdit={saveEdit}
           onAdjustPoints={adjustPoints}
           onRemove={() => handleRemove(member._id, member.name)}
+          onMarkRead={markRead}
+          onLinkAccount={linkAccount}
+          books={books}
+          currentPickId={currentPickId}
+          unlinkedUsers={unlinkedUsers}
         />
       ))}
     </div>

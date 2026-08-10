@@ -33,7 +33,12 @@ export default function useMembers(token, enabled = true) {
       })
       .then((data) => {
         setMembers(
-          data.map((m) => ({ name: m.username, points: m.score, _id: m._id })),
+          data.map((m) => ({
+            name: m.username,
+            points: m.score,
+            _id: m._id,
+            userId: m.userId || null,
+          })),
         );
         setHasLoaded(true);
       })
@@ -179,6 +184,78 @@ export default function useMembers(token, enabled = true) {
         setSavingId(null);
       }
     });
+  const markRead = (id, bookId) =>
+    withAuthError(async () => {
+      const current = members.find((m) => m._id === id);
+      const previousPoints = current ? current.points : 0;
+      const nextPoints = previousPoints + 1;
+
+      setMembers((prev) =>
+        prev.map((m) => (m._id === id ? { ...m, points: nextPoints } : m)),
+      );
+
+      setSavingId(id);
+      try {
+        const response = await fetch(`${API_BASE}/${id}/mark-read`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ bookId }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(
+            "Your admin session was rejected. Please log in again.",
+          );
+        }
+        if (!response.ok) {
+          throw new Error("Couldn't mark that book as read.");
+        }
+        setError(null);
+      } catch (err) {
+        setMembers((prev) =>
+          prev.map((m) =>
+            m._id === id ? { ...m, points: previousPoints } : m,
+          ),
+        );
+        throw err;
+      } finally {
+        setSavingId(null);
+      }
+    });
+
+  const linkAccount = (id, userId) =>
+    withAuthError(async () => {
+      setSavingId(id);
+      try {
+        const response = await fetch(`${API_BASE}/${id}/link`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(
+            "Your admin session was rejected. Please log in again.",
+          );
+        }
+        if (!response.ok) {
+          throw new Error("Couldn't link that account.");
+        }
+
+        setMembers((prev) =>
+          prev.map((m) => (m._id === id ? { ...m, userId } : m)),
+        );
+        setError(null);
+      } finally {
+        setSavingId(null);
+      }
+    });
 
   const startEdit = (member) => {
     setEditingIndex(member._id);
@@ -257,6 +334,8 @@ export default function useMembers(token, enabled = true) {
     adjustPoints,
     startEdit,
     saveEdit,
+    markRead, 
+    linkAccount,
     reload: loadMembers,
   };
 }
