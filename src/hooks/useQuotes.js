@@ -16,6 +16,7 @@ export default function useQuotes(enabled = true) {
   const [bookFilter, setBookFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState(""); // "" | "quotes-highlights" | "poetry-corner"
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
   const fetchQuotes = useCallback(
