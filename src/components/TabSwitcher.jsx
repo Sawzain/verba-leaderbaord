@@ -10,21 +10,21 @@ const TABS = [
 
 export default function TabSwitcher() {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: 6,
-        marginBottom: 20,
-        background: OLIVE_DARK,
-        padding: "6px",
-        borderRadius: 12,
-        overflowX: "auto",
-        WebkitOverflowScrolling: "touch",
-        scrollbarWidth: "none",
-        maxWidth: "100%",
-        minWidth: 0,
-      }}
-    >
+    <div style={{ position: "relative", width: "100%", marginBottom: 20 }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 6,
+          background: OLIVE_DARK,
+          padding: "6px",
+          borderRadius: 12,
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          maxWidth: "100%",
+          minWidth: 0,
+        }}
+      >
       {TABS.map(({ to, label }) => (
         <NavLink
           key={to}
@@ -54,6 +54,22 @@ export default function TabSwitcher() {
           {label}
         </NavLink>
       ))}
+      </div>
+      {/* Fades the right edge so a scrollable tab bar (e.g. "Manage" cut
+          off on narrow phones) visually hints there's more to scroll to,
+          without needing JS scroll-position tracking. */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: 28,
+          borderRadius: "0 12px 12px 0",
+          background: `linear-gradient(to right, transparent, ${OLIVE_DARK})`,
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 }

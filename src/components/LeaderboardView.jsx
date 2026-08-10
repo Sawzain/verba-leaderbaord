@@ -205,6 +205,8 @@ export default function LeaderboardView({
                 color: isTop3 ? OLIVE : OLIVE_DARK,
                 fontWeight: "bold",
                 flexShrink: 0,
+                alignSelf: "flex-start",
+                paddingTop: 2,
               }}
             >
               {isTop3 ? medals[displayRank - 1] || displayRank : displayRank}

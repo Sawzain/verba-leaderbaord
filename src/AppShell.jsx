@@ -78,7 +78,6 @@ export default function AppShell() {
           borderRadius: 20,
           overflow: "hidden",
           boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
-          border: "1px solid rgba(79,90,40,0.12)",
         }}
       >
         <Outlet context={context} />
