@@ -19,7 +19,12 @@ const PAGE_SIZE = 10;
 const ROW_BG = "rgba(255,255,255,0.4)";
 const ROW_BG_FIRST = "rgba(255,255,255,0.6)"; // slightly stronger for 1st place
 
-export default function LeaderboardView({ sorted, memberCount, loading }) {
+export default function LeaderboardView({
+  sorted,
+  memberCount,
+  loading,
+  activity = [],
+}) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const showSlowHint = useSlowLoadHint(loading);
@@ -210,6 +215,37 @@ export default function LeaderboardView({ sorted, memberCount, loading }) {
       })}
 
       <Pagination page={safePage} totalPages={totalPages} goToPage={setPage} />
+      {activity.length > 0 && (
+        <div
+          style={{ padding: "16px 24px", borderTop: `1px solid ${CREAM_DARK}` }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              color: OLIVE_DARK,
+              letterSpacing: "1px",
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
+          >
+            Recent Activity
+          </div>
+          {activity.map((a, i) => (
+            <div
+              key={i}
+              style={{
+                fontSize: 14,
+                color: "#3f4230",
+                padding: "6px 0",
+                fontFamily: "'Georgia', serif",
+              }}
+            >
+              📖 <strong>{a.memberName}</strong> finished{" "}
+              <em>{a.bookTitle || "a book"}</em>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div
         style={{

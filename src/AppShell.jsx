@@ -7,6 +7,7 @@ import useBooks from "./hooks/useBooks";
 import useQuotes from "./hooks/useQuotes";
 import { useAuthContext } from "./AuthContext";
 import useUnlinkedUsers from "./hooks/useUnlinkedUsers";
+import useActivity from "./hooks/useActivity";
 
 // Owns auth/members/books state and lifts it to routed views via
 // <Outlet context={...}>, so switching tabs doesn't lose session state.
@@ -28,16 +29,10 @@ export default function AppShell() {
   const booksState = useBooks(true);
   const membersState = useMembers(auth.token, true);
   const quotesState = useQuotes(true);
-  const unlinkedUsersState = useUnlinkedUsers(auth.token, isAdmin); 
+  const unlinkedUsersState = useUnlinkedUsers(auth.token, isAdmin);
+  const activityState = useActivity(true);
 
-  const context = {
-    auth,
-    isAdmin,
-    booksState,
-    membersState,
-    quotesState,
-    unlinkedUsersState,
-  };
+ const context = { auth, isAdmin, booksState, membersState, quotesState, unlinkedUsersState, activityState };
 
   return (
     <div

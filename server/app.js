@@ -10,6 +10,7 @@ const adminRouter = require("./routes/admin");
 const booksRouter = require("./routes/books");
 const reviewsRouter = require("./routes/reviews");
 const quotesRouter = require("./routes/quotes");
+const activityRouter = require("./routes/activity");
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/books", booksRouter);
 app.use("/api/reviews", reviewsRouter);
+app.use("/api/activity", activityRouter);
 
 // Turns multer/upload errors (bad file type, too large) into clean JSON
 // instead of Express's default HTML error page.
