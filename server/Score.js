@@ -6,7 +6,6 @@ const scoreSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    default: null,
     sparse: true,
     unique: true,
   },
