@@ -28,6 +28,7 @@ export default function LeaderboardView({
   totalQuotes = 0,
 }) {
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [page, setPage] = useState(1);
   const showSlowHint = useSlowLoadHint(loading);
 
@@ -99,12 +100,14 @@ export default function LeaderboardView({
         style={{
           display: "flex",
           justifyContent: "center",
-          gap: 20,
-          padding: "12px 24px",
-          fontSize: 13,
+          gap: 10,
+          padding: "8px 24px",
+          fontSize: 11,
           color: OLIVE_DARK,
           borderBottom: `1px solid ${CREAM_DARK}`,
-          flexWrap: "wrap",
+          whiteSpace: "nowrap",
+          overflowX: "auto",
+          scrollbarWidth: "none",
         }}
       >
         <span>
@@ -123,24 +126,56 @@ export default function LeaderboardView({
       </div>
 
       {memberCount > 5 && (
-        <div style={{ padding: "12px 24px 14px" }}>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search readers…"
-            style={{
-              width: "100%",
-              padding: "7px 12px",
-              borderRadius: 8,
-              border: `1px solid ${CREAM_DARK}`,
-              fontSize: 13,
-              fontFamily: "'Georgia', serif",
-              outline: "none",
-              background: "rgba(255,255,255,0.75)",
-              color: "#3f4230",
-              boxSizing: "border-box",
-            }}
-          />
+        <div
+          style={{
+            padding: "8px 24px 12px",
+            display: "flex",
+            justifyContent: searchOpen ? "stretch" : "flex-end",
+          }}
+        >
+          {searchOpen ? (
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onBlur={() => {
+                if (!search.trim()) setSearchOpen(false);
+              }}
+              placeholder="Search readers…"
+              style={{
+                width: "100%",
+                padding: "7px 12px",
+                borderRadius: 8,
+                border: `1px solid ${CREAM_DARK}`,
+                fontSize: 13,
+                fontFamily: "'Georgia', serif",
+                outline: "none",
+                background: "rgba(255,255,255,0.75)",
+                color: "#3f4230",
+                boxSizing: "border-box",
+              }}
+            />
+          ) : (
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search readers"
+              style={{
+                background: "rgba(255,255,255,0.6)",
+                border: `1px solid ${CREAM_DARK}`,
+                borderRadius: 8,
+                width: 32,
+                height: 32,
+                cursor: "pointer",
+                fontSize: 14,
+                color: "#3f4230",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              🔍
+            </button>
+          )}
         </div>
       )}
 
@@ -226,15 +261,15 @@ export default function LeaderboardView({
               {member.latestActivity && (
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 11,
                     color: "#8a8a72",
                     fontStyle: "italic",
-                    marginTop: 2,
+                    marginTop: 1,
                   }}
                 >
                   {member.latestActivity.type === "review"
-                    ? "✍️ reviewed "
-                    : "📖 finished "}
+                    ? "reviewed "
+                    : "finished "}
                   {member.latestActivity.bookTitle || "a book"}
                 </div>
               )}
@@ -263,10 +298,10 @@ export default function LeaderboardView({
       {activity.length > 0 && (
         <div
           style={{
-            margin: "16px 24px",
+            margin: "12px 24px",
             background: CREAM,
             borderRadius: 12,
-            padding: "16px 18px",
+            padding: "12px 16px",
             border: `1px solid ${CREAM_DARK}`,
           }}
         >
@@ -276,23 +311,23 @@ export default function LeaderboardView({
               color: OLIVE_DARK,
               letterSpacing: "1px",
               textTransform: "uppercase",
-              marginBottom: 10,
+              marginBottom: 6,
               fontWeight: "bold",
             }}
           >
-            ✨ Recent Activity
+            Recent Activity
           </div>
-          {activity.map((a, i) => (
+          {activity.slice(0, 3).map((a, i) => (
             <div
               key={i}
               style={{
-                fontSize: 14,
+                fontSize: 13,
                 color: "#3f4230",
-                padding: "5px 0",
+                padding: "3px 0",
                 fontFamily: "'Georgia', serif",
               }}
             >
-              📖 <strong>{a.memberName}</strong> finished{" "}
+              <strong>{a.memberName}</strong> finished{" "}
               <em>{a.bookTitle || "a book"}</em>
             </div>
           ))}
