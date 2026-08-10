@@ -147,17 +147,34 @@ router.get("/stats", async (req, res) => {
 // PUT: Update score (and optionally name) by id
 router.put("/:id", requireApiKey, async (req, res) => {
   try {
+    const current = await Score.findById(req.params.id);
+    if (!current) {
+      return res.status(404).json({ error: "Member not found" });
+    }
+
     const update = {};
     if (req.body.score !== undefined) update.score = req.body.score;
     if (req.body.username !== undefined) update.username = req.body.username;
 
+    // If this update is lowering the score (the "−" button), also remove
+    // the most recent book_read activity entry, so the "already read"
+    // block on the + button clears in sync with the point being undone.
+    if (
+      req.body.score !== undefined &&
+      Number(req.body.score) < current.score
+    ) {
+      const lastRead = await ActivityLog.findOne({
+        scoreId: current._id,
+        type: "book_read",
+      }).sort({ createdAt: -1 });
+      if (lastRead) {
+        await ActivityLog.deleteOne({ _id: lastRead._id });
+      }
+    }
+
     const updated = await Score.findByIdAndUpdate(req.params.id, update, {
       new: true,
     });
-
-    if (!updated) {
-      return res.status(404).json({ error: "Member not found" });
-    }
 
     res.json(updated);
   } catch (err) {
