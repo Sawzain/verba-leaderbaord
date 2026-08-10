@@ -25,8 +25,8 @@ export default function Header() {
       style={{
         // Fixed 140px through 1080p-equivalent widths; scales down on
         // narrow phone viewports so the logo doesn't dominate the screen.
-        width: "clamp(90px, 24vw, 140px)",
-        height: "clamp(90px, 24vw, 140px)",
+        width: "clamp(70px, 18vw, 100px)",
+        height: "clamp(70px, 18vw, 100px)",
         objectFit: "cover",
         borderRadius: "16px",
         display: "block",
@@ -37,7 +37,7 @@ export default function Header() {
   );
 
   return (
-    <div style={{ textAlign: "center", marginBottom: 32 }}>
+    <div style={{ textAlign: "center", marginBottom: 20 }}>
       {location.pathname === "/" ? (
         logoImg
       ) : (

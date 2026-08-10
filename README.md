@@ -30,6 +30,15 @@ Open the URL Vite prints (usually http://localhost:5173).
 by hand in the Manage tab, or (optionally) automatically when a member
 submits a review — see `AUTO_AWARD_REVIEW_POINTS` below.
 
+The public leaderboard page also shows:
+
+- A **pulse strip** at the top with reader count, distinct books read, and
+  total "verses on the Wall" (quotes + poems from the Verba Wall/Twig bot).
+- A small italic line under each member's name showing the book they most
+  recently finished.
+- A **Recent Activity** panel below the ranked list, listing the most
+  recent "finished [book]" entries across all members.
+
 **Book reviews** — members create an account (email/password or "Continue
 with Discord"), then rate and review books on the shelf. One review per
 member per book. Admins can add books with a cover image, remove books,
@@ -122,7 +131,6 @@ config/ env constants (incl. Supabase), Cloudinary, Resend
 utils/ tokens, review-points logic
 models/ Mongoose schemas (Verba Wall content lives in Supabase, not here)
 tests/ Jest + Supertest, run against an in-memory MongoDB
-
 
 ## Tests
 

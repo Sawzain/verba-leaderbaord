@@ -16,7 +16,7 @@ export default function TabSwitcher() {
         gap: 6,
         marginBottom: 20,
         background: OLIVE_DARK,
-        padding: "3px",
+        padding: "6px",
         borderRadius: 12,
         overflowX: "auto",
         WebkitOverflowScrolling: "touch",

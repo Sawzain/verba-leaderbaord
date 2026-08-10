@@ -132,11 +132,11 @@ export default function LeaderboardView({
               width: "100%",
               padding: "7px 12px",
               borderRadius: 8,
-              border: "none",
+              border: `1px solid ${CREAM_DARK}`,
               fontSize: 13,
               fontFamily: "'Georgia', serif",
               outline: "none",
-              background: `${CREAM_DARK}55`,
+              background: "rgba(255,255,255,0.75)",
               color: "#3f4230",
               boxSizing: "border-box",
             }}
@@ -200,9 +200,9 @@ export default function LeaderboardView({
             <div
               style={{
                 width: 36,
-                fontSize: isTop3 ? 22 : 14,
+                fontSize: isTop3 ? 22 : 16,
                 textAlign: "center",
-                color: OLIVE,
+                color: isTop3 ? OLIVE : OLIVE_DARK,
                 fontWeight: "bold",
                 flexShrink: 0,
               }}
