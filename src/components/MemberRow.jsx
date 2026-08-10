@@ -130,6 +130,7 @@ export default function MemberRow({
                 cursor: "pointer",
               }}
             >
+              {member.points} book{member.points !== 1 ? "s" : ""}
               {member.points} pt
             </div>
 
@@ -164,7 +165,9 @@ export default function MemberRow({
             ) : (
               <button
                 onClick={() =>
-                  onMarkRead ? setShowBookPicker(true) : onAdjustPoints(member._id, 1)
+                  onMarkRead
+                    ? setShowBookPicker(true)
+                    : onAdjustPoints(member._id, 1)
                 }
                 disabled={isSaving}
                 aria-label={`Mark ${member.name} as finished a book`}

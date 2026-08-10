@@ -62,6 +62,18 @@ router.delete("/:id", requireApiKey, async (req, res) => {
 router.post("/:id/mark-read", requireApiKey, async (req, res) => {
   const score = await Score.findById(req.params.id);
   if (!score) return res.status(404).json({ error: "Member not found" });
+
+  const already = await ActivityLog.findOne({
+    scoreId: score._id,
+    bookId: req.body.bookId,
+    type: "book_read",
+  });
+  if (already) {
+    return res
+      .status(409)
+      .json({ error: "Already marked as read for this member" });
+  }
+
   score.score = (score.score || 0) + 1;
   await score.save();
   await ActivityLog.create({

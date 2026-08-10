@@ -2,8 +2,11 @@ const express = require("express");
 const Book = require("../models/Book");
 const Review = require("../models/Review");
 const User = require("../models/User");
+const Score = require("../Score");
+const ActivityLog = require("../models/ActivityLog");
 const requireApiKey = require("../middleware/apiKey");
 const requireAuth = require("../middleware/auth");
+
 const {
   upload,
   saveCoverImage,
@@ -226,6 +229,17 @@ router.post("/:id/reviews", requireAuth, async (req, res) => {
     });
 
     await awardReviewPoints(req.userName);
+    // Log to activity feed if this reviewer's account is linked to a
+    // leaderboard entry. Silently skipped if not linked — reviews from
+    // unlinked members just won't show in the feed yet.
+    const linkedScore = await Score.findOne({ userId: req.userId });
+    if (linkedScore) {
+      await ActivityLog.create({
+        scoreId: linkedScore._id,
+        type: "review",
+        bookId: book._id,
+      });
+    }
 
     res.json({
       id: review._id,

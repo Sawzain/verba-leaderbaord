@@ -211,6 +211,11 @@ export default function useMembers(token, enabled = true) {
           );
         }
         if (!response.ok) {
+          if (response.status === 409) {
+            throw new Error(
+              "This member is already marked as having read that book.",
+            );
+          }
           throw new Error("Couldn't mark that book as read.");
         }
         setError(null);
@@ -334,7 +339,7 @@ export default function useMembers(token, enabled = true) {
     adjustPoints,
     startEdit,
     saveEdit,
-    markRead, 
+    markRead,
     linkAccount,
     reload: loadMembers,
   };

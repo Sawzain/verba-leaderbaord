@@ -207,7 +207,7 @@ export default function LeaderboardView({
                   letterSpacing: "0.5px",
                 }}
               >
-                {member.points} pt{member.points !== 1 ? "s" : ""}
+                {member.points} book{member.points !== 1 ? "s" : ""} read
               </div>
             </div>
           </div>
