@@ -68,6 +68,10 @@ export default function AppShell() {
       >
         <TabSwitcher />
       </div>
+      {/* Reserves space for the sticky bar once it's fixed to the top, so
+          it stops floating over list content underneath it (poems, member
+          rows, etc.) — TabSwitcher toggles this via a body class. */}
+      <div id="verba-sticky-spacer" style={{ height: 0 }} />
 
       <div
         style={{

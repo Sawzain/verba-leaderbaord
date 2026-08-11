@@ -13,6 +13,7 @@ const tabPillStyle = ({ isActive }) => ({
   padding: "6px 12px",
   borderRadius: 8,
   border: "none",
+  outline: "none",
   cursor: "pointer",
   fontSize: 12,
   letterSpacing: "1px",
@@ -72,6 +73,12 @@ export default function TabSwitcher() {
 
   return (
     <>
+      {/* Reserves the sticky bar's height in normal flow once it's fixed,
+          so it stops floating over content underneath instead of pushing
+          nothing out of the way. */}
+      <div
+        style={{ height: stuck ? 68 : 0, transition: "height 0.15s ease" }}
+      />
       <div
         style={{
           position: "fixed",
