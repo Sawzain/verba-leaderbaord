@@ -10,6 +10,7 @@ import {
 import Pagination from "./Pagination";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 import EmptyState from "./EmptyState";
+import { Link } from "react-router-dom";
 
 const PAGE_SIZE = 10;
 
@@ -265,16 +266,18 @@ export default function LeaderboardView({
             </div>
 
             <div style={{ flex: 1, paddingLeft: 12 }}>
-              <div
+              <Link
+                to={`/app/members/${member._id}`}
                 style={{
                   fontSize: "clamp(15px, 4.2vw, 17px)",
                   color: OLIVE_DARK,
                   fontFamily: "'Georgia', serif",
                   fontWeight: isFirstPlace ? "bold" : "normal",
+                  textDecoration: "none",
                 }}
               >
                 {member.name}
-              </div>
+              </Link>
               {member.latestActivity && (
                 <div
                   style={{

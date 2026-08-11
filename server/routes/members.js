@@ -1,9 +1,12 @@
 const express = require("express");
 const Score = require("../Score");
 const requireApiKey = require("../middleware/apiKey");
+const requireAuth = require("../middleware/requireAuth");
 const ActivityLog = require("../models/ActivityLog");
 const User = require("../models/User");
 const Book = require("../models/Book");
+const Review = require("../models/Review");
+const GENRES = require("../config/genres");
 
 const router = express.Router();
 
@@ -135,6 +138,12 @@ router.get("/unlinked-users", requireApiKey, async (req, res) => {
   res.json(users);
 });
 
+// GET: the fixed list of selectable genre tags, so the client doesn't
+// hardcode a copy that can drift from server/config/genres.js.
+router.get("/genres", (req, res) => {
+  res.json(GENRES);
+});
+
 // GET: count of distinct books the club has collectively finished
 // (not total points — 10 people reading the same book counts as 1).
 router.get("/stats", async (req, res) => {
@@ -179,6 +188,92 @@ router.put("/:id", requireApiKey, async (req, res) => {
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: "Invalid member id" });
+  }
+});
+
+// GET: a single member's public profile. If they've linked a Discord
+// account, also include their bio, favorite genres, and reviews — those
+// live on the User account, not the Score entry itself, so they're only
+// available once the two are connected (see the decision in this
+// session: unlinked members get stats-only, no reviews/bio/genres).
+router.get("/:id/profile", async (req, res) => {
+  try {
+    const score = await Score.findById(req.params.id);
+    if (!score) return res.status(404).json({ error: "Member not found" });
+
+    const base = {
+      id: score._id,
+      name: score.username,
+      points: score.score,
+      memberSince: score.date,
+      linked: Boolean(score.userId),
+    };
+
+    if (!score.userId) {
+      return res.json(base);
+    }
+
+    const user = await User.findById(score.userId, "bio favoriteGenres");
+    const reviews = await Review.find({ user: score.userId })
+      .populate("book", "title")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      ...base,
+      // Exposed so the client can compare against auth.user.id and decide
+      // whether to show the edit form — not sensitive, already used for
+      // the admin /link route.
+      userId: score.userId,
+      bio: user?.bio || "",
+      favoriteGenres: user?.favoriteGenres || [],
+      reviews: reviews.map((r) => ({
+        id: r._id,
+        bookTitle: r.book?.title || "a book",
+        rating: r.rating,
+        text: r.text,
+        createdAt: r.createdAt,
+      })),
+      // Discord role tiers aren't wired up yet — placeholder until the
+      // Twig-side Supabase sync exists.
+      discordRoles: null,
+    });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid member id" });
+  }
+});
+
+// PUT: update your own bio/favorite genres. Self-only — the logged-in
+// account must be the same User linked to this Score entry.
+router.put("/:id/profile", requireAuth, async (req, res) => {
+  try {
+    const score = await Score.findById(req.params.id);
+    if (!score) return res.status(404).json({ error: "Member not found" });
+    if (!score.userId || score.userId.toString() !== req.userId) {
+      return res
+        .status(403)
+        .json({ error: "You can only edit your own profile" });
+    }
+
+    const update = {};
+    if (req.body.bio !== undefined) {
+      update.bio = String(req.body.bio).trim().slice(0, 200);
+    }
+    if (req.body.favoriteGenres !== undefined) {
+      const genres = Array.isArray(req.body.favoriteGenres)
+        ? req.body.favoriteGenres
+        : [];
+      update.favoriteGenres = genres.filter((g) => GENRES.includes(g));
+    }
+
+    const updated = await User.findByIdAndUpdate(score.userId, update, {
+      new: true,
+    });
+    res.json({
+      bio: updated.bio,
+      favoriteGenres: updated.favoriteGenres,
+    });
+  } catch (err) {
+    res.status(400).json({ error: "Failed to update profile" });
   }
 });
 

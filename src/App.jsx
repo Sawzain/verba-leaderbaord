@@ -16,6 +16,7 @@ const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const ReviewsPage = lazy(() => import("./pages/ReviewsPage"));
 const ManagePage = lazy(() => import("./pages/ManagePage"));
 const QuotesPage = lazy(() => import("./pages/QuotesPage"));
+const MemberProfilePage = lazy(() => import("./pages/MemberProfilePage"));
 
 export default function App() {
   const auth = useAuth();
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/app" element={<AppShell />}>
             <Route path="leaderboard" element={<LeaderboardPage />} />
+            <Route path="members/:id" element={<MemberProfilePage />} />
             <Route path="reviews" element={<ReviewsPage />} />
             <Route path="quotes" element={<QuotesPage />} />
             <Route path="manage" element={<ManagePage />} />
