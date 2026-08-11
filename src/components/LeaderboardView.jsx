@@ -267,7 +267,7 @@ export default function LeaderboardView({
             <div style={{ flex: 1, paddingLeft: 12 }}>
               <div
                 style={{
-                  fontSize: 17,
+                  fontSize: "clamp(15px, 4.2vw, 17px)",
                   color: OLIVE_DARK,
                   fontFamily: "'Georgia', serif",
                   fontWeight: isFirstPlace ? "bold" : "normal",
@@ -304,7 +304,7 @@ export default function LeaderboardView({
                   letterSpacing: "0.5px",
                 }}
               >
-                {member.points} book{member.points !== 1 ? "s" : ""} read
+                {member.points} book{member.points !== 1 ? "s" : ""}
               </div>
             </div>
           </div>

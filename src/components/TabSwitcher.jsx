@@ -73,47 +73,60 @@ export default function TabSwitcher() {
         <div
           style={{
             position: "fixed",
-            top: 12,
+            top: 20,
             left: 0,
             right: 0,
             zIndex: 100,
             display: "flex",
             justifyContent: "center",
-            alignItems: "center",
-            gap: 8,
             pointerEvents: "none",
           }}
         >
-          <Link
-            to="/"
-            aria-label="Back to Verba Book Club home"
-            style={{ pointerEvents: "auto" }}
-          >
-            <img
-              src={LOGO_SRC}
-              alt="Verba Book Club"
-              style={{
-                width: 30,
-                height: 30,
-                objectFit: "cover",
-                borderRadius: 8,
-                display: "block",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-              }}
-            />
-          </Link>
           <div
             style={{
-              ...pillWrapStyle,
-              boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: OLIVE_DARK,
+              padding: "8px 10px",
+              borderRadius: 16,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
               pointerEvents: "auto",
             }}
           >
-            {TABS.map(({ to, label }) => (
-              <NavLink key={to} to={to} style={tabPillStyle}>
-                {label}
-              </NavLink>
-            ))}
+            <Link
+              to="/"
+              aria-label="Back to Verba Book Club home"
+              style={{ display: "flex" }}
+            >
+              <img
+                src={LOGO_SRC}
+                alt="Verba Book Club"
+                style={{
+                  width: 40,
+                  height: 40,
+                  objectFit: "cover",
+                  borderRadius: 10,
+                  display: "block",
+                }}
+              />
+            </Link>
+            <div
+              style={{
+                display: "flex",
+                gap: 6,
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: "none",
+                minWidth: 0,
+              }}
+            >
+              {TABS.map(({ to, label }) => (
+                <NavLink key={to} to={to} style={tabPillStyle}>
+                  {label}
+                </NavLink>
+              ))}
+            </div>
           </div>
         </div>
       )}
