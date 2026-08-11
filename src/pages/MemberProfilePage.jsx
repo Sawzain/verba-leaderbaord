@@ -2,7 +2,55 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
 import useMemberProfile from "../hooks/useMemberProfile";
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
+import {
+  OLIVE,
+  OLIVE_DARK,
+  OLIVE_LIGHT,
+  CREAM,
+  CREAM_DARK,
+  WHITE,
+} from "../theme";
+
+// Same deterministic initials-avatar approach used nowhere else yet in the
+// app, but matches the palette — a stable color per name (via a simple
+// hash) so the same person always gets the same avatar color.
+const AVATAR_COLORS = [OLIVE, OLIVE_DARK, OLIVE_LIGHT, "#8a6a3a", "#5a7a6a"];
+function avatarColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+function initials(name) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+}
+
+const primaryBtn = {
+  background: OLIVE,
+  color: CREAM,
+  border: "none",
+  borderRadius: 10,
+  padding: "8px 18px",
+  fontSize: 14,
+  cursor: "pointer",
+  fontFamily: "'Georgia', serif",
+};
+
+const secondaryBtn = {
+  background: "transparent",
+  color: OLIVE_DARK,
+  border: `1.5px solid ${CREAM_DARK}`,
+  borderRadius: 10,
+  padding: "8px 18px",
+  fontSize: 14,
+  cursor: "pointer",
+  fontFamily: "'Georgia', serif",
+};
 
 export default function MemberProfilePage() {
   const { id } = useParams();
@@ -14,10 +62,28 @@ export default function MemberProfilePage() {
   const [draftGenres, setDraftGenres] = useState([]);
 
   if (loading)
-    return <div style={{ padding: 40, textAlign: "center" }}>Loading…</div>;
+    return (
+      <div
+        style={{
+          padding: 40,
+          textAlign: "center",
+          color: "#aaa",
+          fontStyle: "italic",
+        }}
+      >
+        Loading…
+      </div>
+    );
   if (error || !profile)
     return (
-      <div style={{ padding: 40, textAlign: "center" }}>
+      <div
+        style={{
+          padding: 40,
+          textAlign: "center",
+          color: "#aaa",
+          fontStyle: "italic",
+        }}
+      >
         {error || "Not found."}
       </div>
     );
@@ -44,22 +110,59 @@ export default function MemberProfilePage() {
     );
 
   return (
-    <div style={{ padding: 24, maxWidth: 640, margin: "0 auto" }}>
-      <Link to="/app/leaderboard" style={{ color: OLIVE_DARK, fontSize: 13 }}>
+    <div style={{ padding: "24px" }}>
+      <Link
+        to="/app/leaderboard"
+        style={{
+          color: OLIVE_DARK,
+          fontSize: 13,
+          textDecoration: "underline",
+        }}
+      >
         ← Back to leaderboard
       </Link>
 
-      <h1
+      <div
         style={{
-          fontFamily: "'Georgia', serif",
-          color: OLIVE_DARK,
-          marginTop: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          margin: "18px 0 20px",
         }}
       >
-        {profile.name}
-      </h1>
-      <div style={{ color: "#8a8a72", marginBottom: 20 }}>
-        {profile.points} book{profile.points !== 1 ? "s" : ""} read
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            background: avatarColor(profile.name),
+            color: CREAM,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 20,
+            fontWeight: "bold",
+            fontFamily: "'Georgia', serif",
+            flexShrink: 0,
+          }}
+        >
+          {initials(profile.name)}
+        </div>
+        <div>
+          <h1
+            style={{
+              fontFamily: "'Georgia', serif",
+              color: OLIVE_DARK,
+              margin: 0,
+              fontSize: 24,
+            }}
+          >
+            {profile.name}
+          </h1>
+          <div style={{ color: "#8a8a72", fontSize: 13, marginTop: 2 }}>
+            {profile.points} book{profile.points !== 1 ? "s" : ""} read
+          </div>
+        </div>
       </div>
 
       {!profile.linked && (
@@ -68,9 +171,10 @@ export default function MemberProfilePage() {
             background: CREAM,
             border: `1px solid ${CREAM_DARK}`,
             borderRadius: 12,
-            padding: 16,
+            padding: "14px 16px",
             color: OLIVE_DARK,
             fontStyle: "italic",
+            fontSize: 14,
           }}
         >
           Link your Discord account to unlock your full profile — bio, favorite
@@ -80,14 +184,26 @@ export default function MemberProfilePage() {
 
       {profile.linked && !editing && (
         <>
-          {profile.bio && <p style={{ color: "#3f4230" }}>{profile.bio}</p>}
+          {profile.bio && (
+            <p
+              style={{
+                color: "#3f4230",
+                fontSize: 15,
+                lineHeight: 1.5,
+                marginTop: 0,
+              }}
+            >
+              {profile.bio}
+            </p>
+          )}
+
           {profile.favoriteGenres?.length > 0 && (
             <div
               style={{
                 display: "flex",
                 flexWrap: "wrap",
                 gap: 6,
-                marginBottom: 16,
+                marginBottom: 18,
               }}
             >
               {profile.favoriteGenres.map((g) => (
@@ -97,8 +213,9 @@ export default function MemberProfilePage() {
                     background: OLIVE,
                     color: CREAM,
                     borderRadius: 20,
-                    padding: "3px 10px",
+                    padding: "4px 12px",
                     fontSize: 12,
+                    fontFamily: "'Georgia', serif",
                   }}
                 >
                   {g}
@@ -108,29 +225,78 @@ export default function MemberProfilePage() {
           )}
 
           {isOwner && (
-            <button onClick={startEditing} style={{ marginBottom: 20 }}>
+            <button
+              className="verba-btn"
+              onClick={startEditing}
+              style={{ ...secondaryBtn, marginBottom: 22 }}
+            >
               Edit profile
             </button>
           )}
 
-          <h3 style={{ color: OLIVE_DARK, fontFamily: "'Georgia', serif" }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: OLIVE,
+              letterSpacing: "1px",
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
+          >
             Reviews
-          </h3>
+          </div>
+
           {(!profile.reviews || profile.reviews.length === 0) && (
-            <div style={{ color: "#aaa", fontStyle: "italic" }}>
+            <div
+              style={{
+                color: "#aaa",
+                fontStyle: "italic",
+                padding: "16px 0",
+              }}
+            >
               No reviews yet.
             </div>
           )}
+
           {profile.reviews?.map((r) => (
             <div
               key={r.id}
               style={{
-                padding: "10px 0",
-                borderBottom: `1px solid ${CREAM_DARK}`,
+                background: WHITE,
+                border: `1px solid ${CREAM_DARK}`,
+                borderRadius: 12,
+                padding: "12px 16px",
+                marginBottom: 10,
               }}
             >
-              <strong>{r.bookTitle}</strong> — {"★".repeat(r.rating)}
-              <p style={{ margin: "4px 0 0", color: "#3f4230" }}>{r.text}</p>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  gap: 8,
+                }}
+              >
+                <strong
+                  style={{ fontFamily: "'Georgia', serif", color: "#2d2d2d" }}
+                >
+                  {r.bookTitle}
+                </strong>
+                <span style={{ color: "#d4a017", fontSize: 13, flexShrink: 0 }}>
+                  {"★".repeat(r.rating)}
+                </span>
+              </div>
+              {r.text && (
+                <p
+                  style={{
+                    margin: "6px 0 0",
+                    color: "#3f4230",
+                    fontSize: 14,
+                  }}
+                >
+                  {r.text}
+                </p>
+              )}
             </div>
           ))}
         </>
@@ -143,28 +309,56 @@ export default function MemberProfilePage() {
             onChange={(e) => setDraftBio(e.target.value.slice(0, 200))}
             maxLength={200}
             rows={4}
-            style={{ width: "100%", boxSizing: "border-box", marginBottom: 8 }}
+            placeholder="A line or two about you…"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              marginBottom: 6,
+              padding: "10px 14px",
+              borderRadius: 10,
+              border: `1.5px solid ${CREAM_DARK}`,
+              fontSize: 14,
+              fontFamily: "'Georgia', serif",
+              outline: "none",
+              resize: "vertical",
+              background: WHITE,
+              color: "#2d2d2d",
+            }}
           />
-          <div style={{ fontSize: 12, color: "#8a8a72", marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: "#8a8a72", marginBottom: 14 }}>
             {draftBio.length}/200
+          </div>
+
+          <div
+            style={{
+              fontSize: 13,
+              color: OLIVE_DARK,
+              letterSpacing: "1px",
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
+          >
+            Favorite genres
           </div>
           <div
             style={{
               display: "flex",
               flexWrap: "wrap",
               gap: 6,
-              marginBottom: 16,
+              marginBottom: 22,
             }}
           >
             {genres.map((g) => (
               <button
                 key={g}
+                className="verba-btn"
                 onClick={() => toggleGenre(g)}
                 style={{
                   borderRadius: 20,
-                  padding: "4px 12px",
+                  padding: "5px 14px",
                   fontSize: 12,
-                  border: `1px solid ${OLIVE}`,
+                  fontFamily: "'Georgia', serif",
+                  border: `1.5px solid ${OLIVE}`,
                   background: draftGenres.includes(g) ? OLIVE : "transparent",
                   color: draftGenres.includes(g) ? CREAM : OLIVE_DARK,
                   cursor: "pointer",
@@ -174,12 +368,24 @@ export default function MemberProfilePage() {
               </button>
             ))}
           </div>
-          <button onClick={save} disabled={saving}>
-            {saving ? "Saving…" : "Save"}
-          </button>
-          <button onClick={() => setEditing(false)} style={{ marginLeft: 8 }}>
-            Cancel
-          </button>
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              className="verba-btn"
+              onClick={save}
+              disabled={saving}
+              style={{ ...primaryBtn, opacity: saving ? 0.7 : 1 }}
+            >
+              {saving ? "Saving…" : "Save"}
+            </button>
+            <button
+              className="verba-btn"
+              onClick={() => setEditing(false)}
+              style={secondaryBtn}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
     </div>
