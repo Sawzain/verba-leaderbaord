@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { OLIVE, OLIVE_DARK, CREAM_DARK, WHITE, OLIVE_LIGHT } from "../theme";
 import Pagination from "./Pagination";
 import BookCard from "./BookCard";
@@ -27,7 +28,9 @@ export default function BooksView({
   removeMyReview,
   editReview,
   auth,
+  initialBookId,
 }) {
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -35,6 +38,20 @@ export default function BooksView({
   const [search, setSearch] = useState("");
   const showSlowHint = useSlowLoadHint(loading);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // The URL is the source of truth for which book (if any) is open —
+  // /app/reviews/:bookId. This effect keeps local selection state in sync
+  // with it, so a direct link, a browser back/forward, or a Link from
+  // another page all open (or close) the right book on mount.
+  useEffect(() => {
+    if (initialBookId) {
+      openBook(initialBookId);
+    } else {
+      setSelectedId(null);
+      setSelectedBook(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialBookId]);
 
   const visibleBooks = useMemo(() => {
     if (!search.trim()) return books;
@@ -60,6 +77,12 @@ export default function BooksView({
       setDetailLoading(false);
     }
   };
+
+  // Grid cards navigate to the book's URL rather than opening it directly —
+  // the effect above reacts to that URL change and does the actual fetch.
+  // This keeps the URL as the single source of truth for what's open.
+  const goToBook = (id) => navigate(`/app/reviews/${id}`);
+  const closeBook = () => navigate("/app/reviews");
 
   const refreshSelected = async () => {
     if (!selectedId) return;
@@ -98,8 +121,7 @@ export default function BooksView({
     try {
       await removeBook(adminKey, id);
       if (selectedId === id) {
-        setSelectedId(null);
-        setSelectedBook(null);
+        closeBook();
       }
     } catch (err) {
       window.alert(err.message || "Couldn't remove that book.");
@@ -125,7 +147,7 @@ export default function BooksView({
             {detailError || "Couldn't load that book."}
           </div>
           <button
-            onClick={() => setSelectedId(null)}
+            onClick={closeBook}
             style={{
               background: "none",
               border: "none",
@@ -146,7 +168,7 @@ export default function BooksView({
         <BookDetail
           book={selectedBook}
           auth={auth}
-          onBack={() => setSelectedId(null)}
+          onBack={closeBook}
           onSubmitReview={handleSubmitReview}
           isAdminUnlocked={isAdminUnlocked}
           onRemoveReview={handleRemoveReview}
@@ -265,7 +287,7 @@ export default function BooksView({
           <BookCard
             key={book._id}
             book={book}
-            onOpen={() => openBook(book._id)}
+            onOpen={() => goToBook(book._id)}
             canRemove={isAdminUnlocked}
             onRemove={() => handleRemove(book._id, book.title)}
             canManageCurrentPick={isAdminUnlocked}

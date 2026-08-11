@@ -224,7 +224,7 @@ export default function LandingPage() {
           )}
           {!loading && currentPick && (
             <Link
-              to="/app/reviews"
+              to={`/app/reviews/${currentPick._id}`}
               className="verba-btn"
               style={{
                 display: "flex",

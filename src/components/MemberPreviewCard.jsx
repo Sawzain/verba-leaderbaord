@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 
 const AVATAR_COLORS = [OLIVE, OLIVE_DARK, "#8a9a4a", "#8a6a3a", "#5a7a6a"];
@@ -26,7 +27,9 @@ export default function MemberPreviewCard({ profile, loading }) {
         top: "calc(100% + 8px)",
         left: 0,
         zIndex: 50,
-        background: WHITE,
+        background: "rgba(255,255,255,0.6)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         border: `1px solid ${CREAM_DARK}`,
         borderRadius: 14,
         boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
@@ -86,9 +89,16 @@ export default function MemberPreviewCard({ profile, loading }) {
               >
                 {profile.name}
               </div>
-              <div style={{ fontSize: 12, color: "#8a8a72" }}>
+              <Link
+                to={`/app/members/${profile.id}`}
+                style={{
+                  fontSize: 12,
+                  color: "#8a8a72",
+                  textDecoration: "underline",
+                }}
+              >
                 {profile.points} book{profile.points !== 1 ? "s" : ""}
-              </div>
+              </Link>
             </div>
           </div>
 

@@ -32,6 +32,7 @@ export default function App() {
             <Route path="leaderboard" element={<LeaderboardPage />} />
             <Route path="members/:id" element={<MemberProfilePage />} />
             <Route path="reviews" element={<ReviewsPage />} />
+            <Route path="reviews/:bookId" element={<ReviewsPage />} />
             <Route path="quotes" element={<QuotesPage />} />
             <Route path="manage" element={<ManagePage />} />
           </Route>

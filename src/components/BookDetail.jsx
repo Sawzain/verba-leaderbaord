@@ -633,33 +633,70 @@ export default function BookDetail({
                     <>
                       <button
                         onClick={() => startEditReview(r)}
-                        className="verba-link-btn"
+                        className="verba-btn"
+                        aria-label="Edit review"
                         style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 26,
+                          height: 26,
                           background: "transparent",
-                          border: "none",
+                          border: `1.5px solid ${CREAM_DARK}`,
+                          borderRadius: 8,
                           color: OLIVE_DARK,
-                          fontSize: 11,
                           cursor: "pointer",
                           padding: 0,
                         }}
                       >
-                        Edit
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
                       </button>
                       <button
                         onClick={() => handleRemoveMyReview(r.id)}
                         disabled={removingId === r.id}
-                        className="verba-link-btn"
+                        className="verba-btn"
+                        aria-label="Delete review"
                         style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 26,
+                          height: 26,
                           background: "transparent",
-                          border: "none",
+                          border: "1.5px solid #e3c2c2",
+                          borderRadius: 8,
                           color: "#a33",
-                          fontSize: 11,
                           cursor: removingId === r.id ? "default" : "pointer",
                           opacity: removingId === r.id ? 0.6 : 1,
                           padding: 0,
                         }}
                       >
-                        {removingId === r.id ? "Deleting…" : "Delete"}
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                        </svg>
                       </button>
                     </>
                   )}
@@ -667,18 +704,37 @@ export default function BookDetail({
                     <button
                       onClick={() => handleRemoveReview(r.id)}
                       disabled={removingId === r.id}
-                      className="verba-link-btn"
+                      className="verba-btn"
+                      aria-label="Remove review"
                       style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 26,
+                        height: 26,
                         background: "transparent",
-                        border: "none",
+                        border: "1.5px solid #e3c2c2",
+                        borderRadius: 8,
                         color: "#a33",
-                        fontSize: 11,
                         cursor: removingId === r.id ? "default" : "pointer",
                         opacity: removingId === r.id ? 0.6 : 1,
                         padding: 0,
                       }}
                     >
-                      {removingId === r.id ? "Removing…" : "Remove"}
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                      </svg>
                     </button>
                   )}
                 </div>

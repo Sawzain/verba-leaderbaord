@@ -201,12 +201,32 @@ router.get("/:id/profile", async (req, res) => {
     const score = await Score.findById(req.params.id);
     if (!score) return res.status(404).json({ error: "Member not found" });
 
+    // Books read is tied to the Score entry (via ActivityLog), not the
+    // linked User account, so it's available for every member regardless
+    // of Discord-link status.
+    const readLogs = await ActivityLog.find(
+      { scoreId: score._id, type: "book_read" },
+      "bookId createdAt",
+    ).sort({ createdAt: -1 });
+    const readBookIds = readLogs.map((l) => l.bookId).filter(Boolean);
+    const readBooks = await Book.find(
+      { _id: { $in: readBookIds } },
+      "title",
+    ).lean();
+    const readTitleById = new Map(
+      readBooks.map((b) => [String(b._id), b.title]),
+    );
+    const booksRead = readLogs
+      .map((l) => readTitleById.get(String(l.bookId)))
+      .filter(Boolean);
+
     const base = {
       id: score._id,
       name: score.username,
       points: score.score,
       memberSince: score.date,
       linked: Boolean(score.userId),
+      booksRead,
     };
 
     if (!score.userId) {
@@ -232,6 +252,7 @@ router.get("/:id/profile", async (req, res) => {
       avatarUrl: user?.avatarUrl || "",
       reviews: reviews.map((r) => ({
         id: r._id,
+        bookId: r.book?._id || null,
         bookTitle: r.book?.title || "a book",
         rating: r.rating,
         text: r.text,

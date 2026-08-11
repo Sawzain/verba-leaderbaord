@@ -1,10 +1,12 @@
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import BooksView from "../components/BooksView";
 
 export default function ReviewsPage() {
   const { auth, isAdmin, booksState } = useOutletContext();
+  const { bookId } = useParams();
   return (
     <BooksView
+      initialBookId={bookId}
       books={booksState.books}
       loading={booksState.loading}
       error={booksState.error}

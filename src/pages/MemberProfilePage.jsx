@@ -179,6 +179,58 @@ export default function MemberProfilePage() {
         </div>
       </div>
 
+      <div
+        style={{
+          fontSize: 13,
+          color: OLIVE,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+          marginBottom: 10,
+        }}
+      >
+        Books Read
+      </div>
+
+      {(!profile.booksRead || profile.booksRead.length === 0) && (
+        <div
+          style={{
+            color: "#aaa",
+            fontStyle: "italic",
+            fontSize: 14,
+            marginBottom: 22,
+          }}
+        >
+          No books read yet.
+        </div>
+      )}
+
+      {profile.booksRead?.length > 0 && (
+        <ul
+          style={{
+            listStyle: "none",
+            margin: "0 0 22px",
+            padding: 0,
+          }}
+        >
+          {profile.booksRead.map((title, i) => (
+            <li
+              key={`${title}-${i}`}
+              style={{
+                padding: "9px 4px",
+                borderBottom:
+                  i < profile.booksRead.length - 1
+                    ? `1px solid ${CREAM_DARK}`
+                    : "none",
+                color: "#3f4230",
+                fontSize: 14,
+              }}
+            >
+              {title}
+            </li>
+          ))}
+        </ul>
+      )}
+
       {!profile.linked && (
         <div
           style={{
@@ -273,9 +325,13 @@ export default function MemberProfilePage() {
           )}
 
           {profile.reviews?.map((r) => (
-            <div
+            <Link
               key={r.id}
+              to={r.bookId ? `/app/reviews/${r.bookId}` : "/app/reviews"}
               style={{
+                display: "block",
+                textDecoration: "none",
+                color: "inherit",
                 background: WHITE,
                 border: `1px solid ${CREAM_DARK}`,
                 borderRadius: 12,
@@ -311,7 +367,7 @@ export default function MemberProfilePage() {
                   {r.text}
                 </p>
               )}
-            </div>
+            </Link>
           ))}
         </>
       )}
