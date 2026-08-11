@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   bio: { type: String, trim: true, maxlength: 200, default: "" },
   favoriteGenres: { type: [String], default: [] },
+  avatarUrl: { type: String, default: "" },
   // Discord accounts are trusted as verified (Discord already confirmed the
   // email on their end); email/password accounts start false until they
   // click the link sent to their inbox.

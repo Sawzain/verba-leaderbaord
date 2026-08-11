@@ -2,6 +2,7 @@ const express = require("express");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Score = require("../Score");
 const requireAuth = require("../middleware/auth");
 const { authLimiter } = require("../middleware/rateLimiters");
 const { signToken } = require("../utils/tokens");
@@ -333,20 +334,45 @@ router.get("/discord/callback", async (req, res) => {
     const discordId = profile.id;
     const name = profile.global_name || profile.username || "Discord member";
     const email = profile.email ? profile.email.trim().toLowerCase() : "";
+    // Discord's CDN needs the hash extension to differ for animated
+    // avatars (a_-prefixed hash = gif), otherwise a static png request
+    // for an animated avatar just 404s.
+    const avatarUrl = profile.avatar
+      ? `https://cdn.discordapp.com/avatars/${discordId}/${profile.avatar}.${
+          profile.avatar.startsWith("a_") ? "gif" : "png"
+        }`
+      : "";
 
     let user = await User.findOne({ discordId });
     if (!user && email) {
       user = await User.findOne({ email });
     }
     if (!user) {
-      user = new User({ name, discordId, emailVerified: true });
+      user = new User({ name, discordId, emailVerified: true, avatarUrl });
       if (email) user.email = email;
     } else {
       user.discordId = discordId;
       user.name = name;
       user.emailVerified = true;
+      if (avatarUrl) user.avatarUrl = avatarUrl;
     }
     await user.save();
+
+    // Auto-link: if there's a leaderboard entry with this exact name (case-
+    // insensitive) that isn't linked to anyone yet, connect it to this
+    // account automatically — saves an admin from doing it by hand for the
+    // common case of an exact name match. Anything that doesn't match
+    // exactly still needs the manual "Link Discord account" flow in Manage.
+    if (!(await Score.findOne({ userId: user._id }))) {
+      const escaped = user.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      await Score.updateOne(
+        {
+          username: new RegExp(`^${escaped}$`, "i"),
+          userId: { $in: [null, undefined] },
+        },
+        { userId: user._id },
+      );
+    }
 
     const jwtToken = signToken(user);
     res.redirect(`${FRONTEND_REDIRECT}?token=${encodeURIComponent(jwtToken)}`);

@@ -213,7 +213,10 @@ router.get("/:id/profile", async (req, res) => {
       return res.json(base);
     }
 
-    const user = await User.findById(score.userId, "bio favoriteGenres");
+    const user = await User.findById(
+      score.userId,
+      "bio favoriteGenres avatarUrl",
+    );
     const reviews = await Review.find({ user: score.userId })
       .populate("book", "title")
       .sort({ createdAt: -1 });
@@ -226,6 +229,7 @@ router.get("/:id/profile", async (req, res) => {
       userId: score.userId,
       bio: user?.bio || "",
       favoriteGenres: user?.favoriteGenres || [],
+      avatarUrl: user?.avatarUrl || "",
       reviews: reviews.map((r) => ({
         id: r._id,
         bookTitle: r.book?.title || "a book",

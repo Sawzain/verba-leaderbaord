@@ -130,24 +130,38 @@ export default function MemberProfilePage() {
           margin: "18px 0 20px",
         }}
       >
-        <div
-          style={{
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            background: avatarColor(profile.name),
-            color: CREAM,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 20,
-            fontWeight: "bold",
-            fontFamily: "'Georgia', serif",
-            flexShrink: 0,
-          }}
-        >
-          {initials(profile.name)}
-        </div>
+        {profile.avatarUrl ? (
+          <img
+            src={profile.avatarUrl}
+            alt={profile.name}
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              objectFit: "cover",
+              flexShrink: 0,
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: avatarColor(profile.name),
+              color: CREAM,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              fontWeight: "bold",
+              fontFamily: "'Georgia', serif",
+              flexShrink: 0,
+            }}
+          >
+            {initials(profile.name)}
+          </div>
+        )}
         <div>
           <h1
             style={{
