@@ -97,7 +97,7 @@ export default function TabSwitcher() {
             <Link
               to="/"
               aria-label="Back to Verba Book Club home"
-              style={{ display: "flex" }}
+              style={{ display: "flex", flexShrink: 0 }}
             >
               <img
                 src={LOGO_SRC}
