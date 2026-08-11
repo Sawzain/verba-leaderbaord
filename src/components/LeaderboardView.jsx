@@ -10,7 +10,9 @@ import {
 import Pagination from "./Pagination";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 import EmptyState from "./EmptyState";
+import MemberPreviewCard from "./MemberPreviewCard";
 import { Link } from "react-router-dom";
+import { API_ROOT } from "../hooks/useMembers";
 
 const PAGE_SIZE = 10;
 
@@ -32,6 +34,21 @@ export default function LeaderboardView({
   const [searchOpen, setSearchOpen] = useState(false);
   const [page, setPage] = useState(1);
   const showSlowHint = useSlowLoadHint(loading);
+
+  // Hover (desktop) / tap (mobile) preview card. previewCache avoids
+  // refetching the same member's profile on repeated hovers within a
+  // session — profile.jsx already handles the authoritative page view.
+  const [previewId, setPreviewId] = useState(null);
+  const [previewCache, setPreviewCache] = useState({});
+  const fetchPreview = (id) => {
+    if (previewCache[id]) return;
+    fetch(`${API_ROOT}/members/${id}/profile`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setPreviewCache((prev) => ({ ...prev, [id]: data }));
+      })
+      .catch(() => {});
+  };
 
   const visible = useMemo(() => {
     if (!search.trim()) return sorted;
@@ -266,9 +283,24 @@ export default function LeaderboardView({
               {isTop3 ? medals[displayRank - 1] || displayRank : displayRank}
             </div>
 
-            <div style={{ flex: 1, paddingLeft: 12 }}>
+            <div style={{ flex: 1, paddingLeft: 12, position: "relative" }}>
               <Link
                 to={`/app/members/${member._id}`}
+                onMouseEnter={() => {
+                  setPreviewId(member._id);
+                  fetchPreview(member._id);
+                }}
+                onMouseLeave={() => setPreviewId(null)}
+                onClick={(e) => {
+                  // On touch devices, the first tap opens the preview
+                  // instead of navigating immediately — a second tap on
+                  // the name (now already previewed) goes through.
+                  if (previewId !== member._id && "ontouchstart" in window) {
+                    e.preventDefault();
+                    setPreviewId(member._id);
+                    fetchPreview(member._id);
+                  }
+                }}
                 style={{
                   fontSize: "clamp(15px, 4.2vw, 17px)",
                   color: OLIVE_DARK,
@@ -279,6 +311,12 @@ export default function LeaderboardView({
               >
                 {member.name}
               </Link>
+              {previewId === member._id && (
+                <MemberPreviewCard
+                  profile={previewCache[member._id]}
+                  loading={!previewCache[member._id]}
+                />
+              )}
               {member.latestActivity && (
                 <div
                   style={{
