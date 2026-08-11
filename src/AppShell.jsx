@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import TabSwitcher from "./components/TabSwitcher";
 import Footer from "./components/Footer";
@@ -24,6 +24,7 @@ const PANEL_MAX_WIDTH = "clamp(620px, 32vw, 820px)";
 
 export default function AppShell() {
   const auth = useAuthContext();
+  const location = useLocation();
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
 
   const booksState = useBooks(true);
@@ -80,7 +81,12 @@ export default function AppShell() {
           boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
         }}
       >
-        <Outlet context={context} />
+        {/* Keying on pathname remounts this div on every tab/page change,
+            which re-triggers the verba-fade-in CSS animation — a quick
+            fade+slide instead of content just snapping in. */}
+        <div key={location.pathname} className="verba-fade-in">
+          <Outlet context={context} />
+        </div>
       </div>
 
       <Footer maxWidth={PANEL_MAX_WIDTH} />
