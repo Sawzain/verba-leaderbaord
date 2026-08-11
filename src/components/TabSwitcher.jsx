@@ -59,7 +59,10 @@ function Tabs() {
 export default function TabSwitcher() {
   // Past ~140px of scroll, the original tab bar has scrolled out of
   // comfortable reach — show a small fixed copy (logo + same pill) so
-  // switching tabs never requires scrolling back to the top.
+  // switching tabs never requires scrolling back to the top. Always
+  // rendered once past the threshold; `stuck` toggles a fade+slide via
+  // opacity/transform rather than mounting/unmounting, so it eases in
+  // instead of popping.
   const [stuck, setStuck] = useState(false);
   useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 140);
@@ -69,67 +72,68 @@ export default function TabSwitcher() {
 
   return (
     <>
-      {stuck && (
+      <div
+        style={{
+          position: "fixed",
+          top: 20,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          display: "flex",
+          justifyContent: "center",
+          pointerEvents: stuck ? "auto" : "none",
+          opacity: stuck ? 1 : 0,
+          transform: stuck ? "translateY(0)" : "translateY(-8px)",
+          transition: "opacity 0.18s ease, transform 0.18s ease",
+        }}
+      >
         <div
           style={{
-            position: "fixed",
-            top: 20,
-            left: 0,
-            right: 0,
-            zIndex: 100,
             display: "flex",
-            justifyContent: "center",
-            pointerEvents: "none",
+            alignItems: "center",
+            gap: 10,
+            background: OLIVE_DARK,
+            padding: "8px 10px",
+            borderRadius: 16,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+            pointerEvents: "auto",
           }}
         >
+          <Link
+            to="/"
+            aria-label="Back to Verba Book Club home"
+            style={{ display: "flex", flexShrink: 0 }}
+          >
+            <img
+              src={LOGO_SRC}
+              alt="Verba Book Club"
+              style={{
+                width: 40,
+                height: 40,
+                objectFit: "cover",
+                borderRadius: 10,
+                display: "block",
+              }}
+            />
+          </Link>
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: OLIVE_DARK,
-              padding: "8px 10px",
-              borderRadius: 16,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
-              pointerEvents: "auto",
+              gap: 6,
+              overflowX: "auto",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              minWidth: 0,
             }}
           >
-            <Link
-              to="/"
-              aria-label="Back to Verba Book Club home"
-              style={{ display: "flex", flexShrink: 0 }}
-            >
-              <img
-                src={LOGO_SRC}
-                alt="Verba Book Club"
-                style={{
-                  width: 40,
-                  height: 40,
-                  objectFit: "cover",
-                  borderRadius: 10,
-                  display: "block",
-                }}
-              />
-            </Link>
-            <div
-              style={{
-                display: "flex",
-                gap: 6,
-                overflowX: "auto",
-                WebkitOverflowScrolling: "touch",
-                scrollbarWidth: "none",
-                minWidth: 0,
-              }}
-            >
-              {TABS.map(({ to, label }) => (
-                <NavLink key={to} to={to} style={tabPillStyle}>
-                  {label}
-                </NavLink>
-              ))}
-            </div>
+            {TABS.map(({ to, label }) => (
+              <NavLink key={to} to={to} style={tabPillStyle}>
+                {label}
+              </NavLink>
+            ))}
           </div>
         </div>
-      )}
+      </div>
       <div
         style={{
           position: "relative",

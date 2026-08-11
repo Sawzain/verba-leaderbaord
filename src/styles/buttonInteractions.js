@@ -45,4 +45,19 @@ export const buttonInteractionStyles = `
   .verba-link-btn:active {
     opacity: 0.5;
   }
+
+  .verba-row {
+    transition: background 0.15s ease;
+  }
+  .verba-row:hover {
+    background: rgba(255,255,255,0.55);
+  }
+
+  @keyframes verba-fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .verba-fade-in {
+    animation: verba-fade-up 0.25s ease both;
+  }
 `;

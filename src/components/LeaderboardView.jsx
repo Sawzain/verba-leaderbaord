@@ -241,13 +241,14 @@ export default function LeaderboardView({
         return (
           <div
             key={member._id}
+            className="verba-row verba-fade-in"
             style={{
               display: "flex",
               alignItems: "center",
               padding: "16px 24px",
               borderBottom: `1px solid ${CREAM}`,
               background: isFirstPlace ? ROW_BG_FIRST : ROW_BG,
-              transition: "background 0.2s",
+              animationDelay: `${pageItems.indexOf(member) * 25}ms`,
             }}
           >
             <div
