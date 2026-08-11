@@ -310,19 +310,31 @@ export default function MemberProfilePage() {
             maxLength={200}
             rows={4}
             placeholder="A line or two about you…"
+            onFocus={(e) => {
+              e.target.style.borderColor = OLIVE;
+              e.target.style.boxShadow = `0 0 0 3px ${OLIVE}22`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = CREAM_DARK;
+              e.target.style.boxShadow = "none";
+            }}
             style={{
               width: "100%",
               boxSizing: "border-box",
               marginBottom: 6,
-              padding: "10px 14px",
-              borderRadius: 10,
+              padding: "12px 16px",
+              borderRadius: 12,
               border: `1.5px solid ${CREAM_DARK}`,
               fontSize: 14,
+              lineHeight: 1.5,
               fontFamily: "'Georgia', serif",
+              fontStyle: "italic",
               outline: "none",
               resize: "vertical",
               background: WHITE,
               color: "#2d2d2d",
+              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.04)",
+              transition: "border-color 0.15s ease, box-shadow 0.15s ease",
             }}
           />
           <div style={{ fontSize: 12, color: "#8a8a72", marginBottom: 14 }}>

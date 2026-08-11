@@ -11,4 +11,13 @@ module.exports = [
   "Biography/Memoir",
   "Horror",
   "Young Adult",
+  "Contemporary",
+  "Literary Fiction",
+  "Dystopian",
+  "Magical Realism",
+  "Graphic Novels",
+  "Self-Help",
+  "Philosophy",
+  "Short Stories",
+  "Mythology",
 ];

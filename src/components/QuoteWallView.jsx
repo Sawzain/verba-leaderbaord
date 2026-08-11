@@ -1,5 +1,11 @@
+import { useState } from "react";
 import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK } from "../theme";
 import Pagination from "./Pagination";
+
+// Long poems are common on the Wall — anything over this line count
+// collapses by default with a "Read more" toggle, so scrolling through
+// the page doesn't mean scrolling through one person's entire poem first.
+const COLLAPSE_LINE_THRESHOLD = 6;
 
 // Lives inside AppShell's 620px cream card, so no full-page background here —
 // just content styled to match Leaderboard/Reviews. Georgia serif throughout,
@@ -90,6 +96,14 @@ export default function QuoteWallView({
   totalPages,
   goToPage,
 }) {
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const toggleExpanded = (id) =>
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
   const books = [...new Set(quotes.map((q) => q.book_title).filter(Boolean))];
   // Only pin a featured quote on page 1, so it doesn't appear to duplicate
   // across pages as you paginate.
@@ -218,17 +232,12 @@ export default function QuoteWallView({
                   Featured
                 </div>
                 <LeafMark size={18} />
-                <p
-                  style={{
-                    fontStyle: "italic",
-                    color: OLIVE_DARK,
-                    fontSize: 17,
-                    lineHeight: 1.5,
-                    margin: "8px 0 10px",
-                  }}
-                >
-                  {renderDiscordText(featured.quote_text)}
-                </p>
+                <QuoteBody
+                  text={featured.quote_text}
+                  expanded={expandedIds.has(featured.id)}
+                  onToggle={() => toggleExpanded(featured.id)}
+                  fontSize={17}
+                />
                 <QuoteMeta quote={featured} />
               </div>
             )}
@@ -244,17 +253,12 @@ export default function QuoteWallView({
                 }}
               >
                 <LeafMark size={15} />
-                <p
-                  style={{
-                    fontStyle: "italic",
-                    color: OLIVE_DARK,
-                    fontSize: 15.5,
-                    lineHeight: 1.5,
-                    margin: "6px 0 10px",
-                  }}
-                >
-                  {renderDiscordText(q.quote_text)}
-                </p>
+                <QuoteBody
+                  text={q.quote_text}
+                  expanded={expandedIds.has(q.id)}
+                  onToggle={() => toggleExpanded(q.id)}
+                  fontSize={15.5}
+                />
                 <QuoteMeta quote={q} />
               </div>
             ))}
@@ -264,6 +268,51 @@ export default function QuoteWallView({
         </>
       )}
     </div>
+  );
+}
+
+function QuoteBody({ text, expanded, onToggle, fontSize }) {
+  const lines = (text || "").split("\n");
+  const isLong = lines.length > COLLAPSE_LINE_THRESHOLD;
+  const visibleText =
+    isLong && !expanded
+      ? lines.slice(0, COLLAPSE_LINE_THRESHOLD).join("\n")
+      : text;
+
+  return (
+    <>
+      <p
+        style={{
+          fontStyle: "italic",
+          color: OLIVE_DARK,
+          fontSize,
+          lineHeight: 1.5,
+          margin: "8px 0 4px",
+        }}
+      >
+        {renderDiscordText(visibleText)}
+        {isLong && !expanded && "…"}
+      </p>
+      {isLong && (
+        <button
+          onClick={onToggle}
+          style={{
+            background: "none",
+            border: "none",
+            color: OLIVE,
+            fontSize: 12.5,
+            fontFamily: "'Georgia', serif",
+            fontWeight: "bold",
+            cursor: "pointer",
+            padding: 0,
+            margin: "0 0 10px",
+            textDecoration: "underline",
+          }}
+        >
+          {expanded ? "Show less" : "Read more"}
+        </button>
+      )}
+    </>
   );
 }
 
