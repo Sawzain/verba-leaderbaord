@@ -72,14 +72,43 @@ function Tabs({ tabs, myMemberId }) {
     <div
       style={{ position: "relative", width: "fit-content", maxWidth: "100%" }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div ref={scrollRef} style={pillWrapStyle}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          background: OLIVE_DARK,
+          padding: "6px",
+          borderRadius: 12,
+          maxWidth: "100%",
+          minWidth: 0,
+        }}
+      >
+        <div
+          ref={scrollRef}
+          style={{
+            display: "flex",
+            gap: 6,
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            minWidth: 0,
+          }}
+        >
           {tabs.map(({ to, label }) => (
             <NavLink key={to} to={to} style={tabPillStyle}>
               {label}
             </NavLink>
           ))}
         </div>
+        <div
+          style={{
+            width: 1,
+            alignSelf: "stretch",
+            background: "rgba(255,255,255,0.15)",
+            flexShrink: 0,
+          }}
+        />
         <AccountChip myMemberId={myMemberId} />
       </div>
       {canScrollRight && (
