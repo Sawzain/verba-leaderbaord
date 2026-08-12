@@ -39,10 +39,21 @@ The public leaderboard page also shows:
 - A **Recent Activity** panel below the ranked list, listing the most
   recent "finished [book]" entries across all members.
 
+**Member profiles** — hovering (desktop) or tapping (mobile) a leaderboard
+row shows a quick preview card; clicking through opens that member's full
+page at `/app/members/:id`. Every member's page shows their avatar, points,
+and a **Books Read** list (titles). Members who've linked a Discord account
+also get a bio, favorite genre tags, and their reviews — each review links
+to that book's page. Members who haven't linked Discord see a stats-only
+view with a prompt to connect.
+
 **Book reviews** — members create an account (email/password or "Continue
 with Discord"), then rate and review books on the shelf. One review per
 member per book. Admins can add books with a cover image, remove books,
 and mark one book as the "current pick" shown on the public landing page.
+Each book has its own page at `/app/reviews/:bookId`, linked from the
+leaderboard preview card, member profile reviews, and the landing page's
+current-pick teaser.
 
 **Verba Wall** — a scrollable, paginated wall of quotes and poems pulled
 from the club's `#quotes-highlights` and `#poetry-corner` Discord channels.

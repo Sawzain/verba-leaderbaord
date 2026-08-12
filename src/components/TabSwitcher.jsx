@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { OLIVE_DARK, CREAM, CREAM_DARK, LOGO_SRC } from "../theme";
 
@@ -46,13 +46,52 @@ const pillWrapStyle = {
 };
 
 function Tabs() {
+  const scrollRef = useRef(null);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollWidth - el.clientWidth - el.scrollLeft > 2);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, []);
+
   return (
-    <div style={pillWrapStyle}>
-      {TABS.map(({ to, label }) => (
-        <NavLink key={to} to={to} style={tabPillStyle}>
-          {label}
-        </NavLink>
-      ))}
+    <div
+      style={{ position: "relative", width: "fit-content", maxWidth: "100%" }}
+    >
+      <div ref={scrollRef} style={pillWrapStyle}>
+        {TABS.map(({ to, label }) => (
+          <NavLink key={to} to={to} style={tabPillStyle}>
+            {label}
+          </NavLink>
+        ))}
+      </div>
+      {canScrollRight && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: 28,
+            borderRadius: "0 12px 12px 0",
+            background: `linear-gradient(to right, transparent, ${OLIVE_DARK})`,
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -104,6 +143,7 @@ export default function TabSwitcher() {
             borderRadius: 16,
             boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
             pointerEvents: "auto",
+            maxWidth: "calc(100vw - 24px)",
           }}
         >
           <Link
@@ -130,6 +170,7 @@ export default function TabSwitcher() {
               overflowX: "auto",
               WebkitOverflowScrolling: "touch",
               scrollbarWidth: "none",
+              flex: "1 1 auto",
               minWidth: 0,
             }}
           >
@@ -143,28 +184,12 @@ export default function TabSwitcher() {
       </div>
       <div
         style={{
-          position: "relative",
           width: "fit-content",
           maxWidth: "100%",
           margin: "0 auto 20px",
         }}
       >
         <Tabs />
-        {/* Fades the right edge so a scrollable tab bar (e.g. "Manage" cut
-            off on narrow phones) visually hints there's more to scroll to,
-            without needing JS scroll-position tracking. */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: 28,
-            borderRadius: "0 12px 12px 0",
-            background: `linear-gradient(to right, transparent, ${OLIVE_DARK})`,
-            pointerEvents: "none",
-          }}
-        />
       </div>
     </>
   );

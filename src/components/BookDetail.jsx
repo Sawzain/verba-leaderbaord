@@ -182,7 +182,7 @@ export default function BookDetail({
           />
         </div>
       ) : (
-        <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
           <div
             style={{
               width: 96,
@@ -224,20 +224,37 @@ export default function BookDetail({
               {isAdminUnlocked && (
                 <button
                   onClick={() => setEditingBook(true)}
-                  className="verba-link-btn"
+                  className="verba-btn"
+                  aria-label="Edit book"
                   style={{
                     flexShrink: 0,
-                    background: "none",
-                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 26,
+                    height: 26,
+                    marginRight: 16,
+                    background: "transparent",
+                    border: `1.5px solid ${CREAM_DARK}`,
+                    borderRadius: 8,
                     color: OLIVE_DARK,
-                    fontSize: 12,
-                    textDecoration: "underline",
                     cursor: "pointer",
                     padding: 0,
-                    whiteSpace: "nowrap",
                   }}
                 >
-                  Edit
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
                 </button>
               )}
             </div>
@@ -391,19 +408,37 @@ export default function BookDetail({
               </span>
               <button
                 onClick={() => startEditReview(myReview)}
-                className="verba-link-btn"
+                className="verba-btn"
+                aria-label="Edit review"
                 style={{
-                  background: "none",
-                  border: "none",
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 26,
+                  height: 26,
+                  marginRight: 2,
+                  background: "transparent",
+                  border: `1.5px solid ${CREAM_DARK}`,
+                  borderRadius: 8,
                   color: OLIVE_DARK,
-                  fontSize: 12,
-                  textDecoration: "underline",
                   cursor: "pointer",
                   padding: 0,
-                  whiteSpace: "nowrap",
                 }}
               >
-                Edit
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
               </button>
             </div>
           )}
@@ -564,7 +599,7 @@ export default function BookDetail({
           fontSize: 20,
           fontWeight: "bold",
           color: OLIVE_DARK,
-          marginBottom: 14,
+          marginBottom: 10,
         }}
       >
         Reviews{" "}
@@ -623,11 +658,24 @@ export default function BookDetail({
                     fontSize: 14,
                     fontWeight: "bold",
                     color: OLIVE_DARK,
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {r.reviewer}
                 </span>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    flexShrink: 0,
+                    marginLeft: 8,
+                  }}
+                >
                   <StarDisplay value={r.rating} size={13} />
                   {isMine && editingReviewId !== r.id && (
                     <>
