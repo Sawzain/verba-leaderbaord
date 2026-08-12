@@ -31,7 +31,8 @@ const avatarBtnStyle = (name, size) => ({
   justifyContent: "center",
   fontSize: 12,
   fontWeight: "bold",
-  border: "none",
+  border: `2px solid ${CREAM}`,
+  boxSizing: "border-box",
   cursor: "pointer",
   flexShrink: 0,
 });
@@ -40,8 +41,8 @@ const chipStyle = {
   display: "flex",
   alignItems: "center",
   gap: 6,
-  padding: 6,
-  borderRadius: "50%",
+  padding: "6px 10px",
+  borderRadius: 8,
   background: CREAM,
   border: "none",
   cursor: "pointer",
@@ -111,6 +112,8 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                 height: size,
                 borderRadius: "50%",
                 objectFit: "cover",
+                border: `2px solid ${CREAM}`,
+                boxSizing: "border-box",
                 flexShrink: 0,
               }}
             />
@@ -219,7 +222,21 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
   return (
     <div ref={wrapRef} style={{ position: "relative" }}>
       <button onClick={() => setOpen((v) => !v)} style={chipStyle}>
-        👤{" "}
+        <svg
+          width={size - 8}
+          height={size - 8}
+          viewBox="0 0 24 24"
+          fill="none"
+          style={{ flexShrink: 0 }}
+        >
+          <circle cx="12" cy="8" r="4" stroke={OLIVE_DARK} strokeWidth="2" />
+          <path
+            d="M4 20c0-4 3.6-7 8-7s8 3 8 7"
+            stroke={OLIVE_DARK}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
         {!compact && (
           <span style={{ fontSize: 12, color: OLIVE_DARK }}>Log in</span>
         )}
