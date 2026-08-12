@@ -105,10 +105,14 @@ export default function MemberProfilePage() {
     if (ok) setEditing(false);
   };
 
+  const MAX_GENRES = 5;
+
   const toggleGenre = (g) =>
-    setDraftGenres((prev) =>
-      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g],
-    );
+    setDraftGenres((prev) => {
+      if (prev.includes(g)) return prev.filter((x) => x !== g);
+      if (prev.length >= MAX_GENRES) return prev;
+      return [...prev, g];
+    });
 
   return (
     <div style={{ padding: "24px" }}>
@@ -441,10 +445,13 @@ export default function MemberProfilePage() {
               color: OLIVE_DARK,
               letterSpacing: "1px",
               textTransform: "uppercase",
-              marginBottom: 10,
+              marginBottom: 4,
             }}
           >
             Favorite genres
+          </div>
+          <div style={{ fontSize: 12, color: "#8a8a72", marginBottom: 10 }}>
+            {draftGenres.length}/{MAX_GENRES} selected
           </div>
           <div
             style={{
@@ -454,25 +461,31 @@ export default function MemberProfilePage() {
               marginBottom: 22,
             }}
           >
-            {genres.map((g) => (
-              <button
-                key={g}
-                className="verba-btn"
-                onClick={() => toggleGenre(g)}
-                style={{
-                  borderRadius: 20,
-                  padding: "5px 14px",
-                  fontSize: 12,
-                  fontFamily: "'Georgia', serif",
-                  border: `1.5px solid ${OLIVE}`,
-                  background: draftGenres.includes(g) ? OLIVE : "transparent",
-                  color: draftGenres.includes(g) ? CREAM : OLIVE_DARK,
-                  cursor: "pointer",
-                }}
-              >
-                {g}
-              </button>
-            ))}
+            {genres.map((g) => {
+              const selected = draftGenres.includes(g);
+              const disabled = !selected && draftGenres.length >= MAX_GENRES;
+              return (
+                <button
+                  key={g}
+                  className="verba-btn"
+                  onClick={() => toggleGenre(g)}
+                  disabled={disabled}
+                  style={{
+                    borderRadius: 20,
+                    padding: "5px 14px",
+                    fontSize: 12,
+                    fontFamily: "'Georgia', serif",
+                    border: `1.5px solid ${OLIVE}`,
+                    background: selected ? OLIVE : "transparent",
+                    color: selected ? CREAM : OLIVE_DARK,
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    opacity: disabled ? 0.4 : 1,
+                  }}
+                >
+                  {g}
+                </button>
+              );
+            })}
           </div>
 
           <div style={{ display: "flex", gap: 8 }}>
