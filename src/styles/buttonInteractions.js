@@ -50,7 +50,7 @@ export const buttonInteractionStyles = `
     transition: background 0.15s ease;
   }
   .verba-row:hover {
-    background: rgba(255,255,255,0.55);
+    background: #F0EBDC;
   }
 
   @keyframes verba-fade-up {

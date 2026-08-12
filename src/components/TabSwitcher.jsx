@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { OLIVE_DARK, CREAM, CREAM_DARK, LOGO_SRC } from "../theme";
+import AccountChip from "./AccountChip";
 
 const TABS = [
   { to: "/app/leaderboard", label: "Leaderboard" },
@@ -71,12 +72,15 @@ function Tabs({ tabs }) {
     <div
       style={{ position: "relative", width: "fit-content", maxWidth: "100%" }}
     >
-      <div ref={scrollRef} style={pillWrapStyle}>
-        {tabs.map(({ to, label }) => (
-          <NavLink key={to} to={to} style={tabPillStyle}>
-            {label}
-          </NavLink>
-        ))}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div ref={scrollRef} style={pillWrapStyle}>
+          {tabs.map(({ to, label }) => (
+            <NavLink key={to} to={to} style={tabPillStyle}>
+              {label}
+            </NavLink>
+          ))}
+        </div>
+        <AccountChip />
       </div>
       {canScrollRight && (
         <div
@@ -184,6 +188,7 @@ export default function TabSwitcher({ isAdmin }) {
               </NavLink>
             ))}
           </div>
+          <AccountChip compact />
         </div>
       </div>
       <div

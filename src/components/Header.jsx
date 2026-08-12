@@ -12,8 +12,6 @@ const SUBTITLES = {
 
 export default function Header() {
   const location = useLocation();
-  const auth = useAuthContext();
-  const [showLogin, setShowLogin] = useState(false);
 
   const subtitle =
     location.pathname === "/"
@@ -35,8 +33,6 @@ export default function Header() {
       }}
     />
   );
-
-  const showAccountArea = location.pathname !== "/";
 
   return (
     <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -62,83 +58,6 @@ export default function Header() {
         </div>
       )}
 
-      {showAccountArea && auth.isLoggedIn && (
-        <div style={{ marginTop: 10, fontSize: 13, color: OLIVE_DARK }}>
-          Logged in as <strong>{auth.user?.name}</strong> ·{" "}
-          <button
-            onClick={auth.logout}
-            className="verba-link-btn"
-            style={{
-              background: "none",
-              border: "none",
-              color: OLIVE_DARK,
-              fontSize: 13,
-              textDecoration: "underline",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            Log out
-          </button>
-        </div>
-      )}
-
-      {showAccountArea && !auth.isLoggedIn && !showLogin && (
-        <button
-          onClick={() => setShowLogin(true)}
-          className="verba-link-btn"
-          style={{
-            marginTop: 10,
-            background: "none",
-            border: "none",
-            color: OLIVE_DARK,
-            fontSize: 13,
-            textDecoration: "underline",
-            cursor: "pointer",
-            padding: 0,
-          }}
-        >
-          Log in
-        </button>
-      )}
-
-      {showAccountArea && !auth.isLoggedIn && showLogin && (
-        <div
-          style={{
-            marginTop: 14,
-            maxWidth: 320,
-            marginLeft: "auto",
-            marginRight: "auto",
-            textAlign: "left",
-          }}
-        >
-          <AuthPanel
-            authError={auth.authError}
-            setAuthError={auth.setAuthError}
-            authBusy={auth.authBusy}
-            onRegister={auth.register}
-            onLogin={auth.login}
-            onForgotPassword={auth.forgotPassword}
-            discordLoginUrl={auth.discordLoginUrl}
-          />
-          <button
-            onClick={() => setShowLogin(false)}
-            className="verba-link-btn"
-            style={{
-              background: "none",
-              border: "none",
-              color: OLIVE_DARK,
-              fontSize: 12,
-              textDecoration: "underline",
-              cursor: "pointer",
-              padding: 0,
-              marginTop: 8,
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-    </div>
+      </div>
   );
 }
