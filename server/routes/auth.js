@@ -68,6 +68,7 @@ router.post("/register", authLimiter, async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         emailVerified: user.emailVerified,
+        avatarUrl: user.avatarUrl || "",
         requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
       },
     });
@@ -97,6 +98,7 @@ router.post("/login", authLimiter, async (req, res) => {
         email: user.email,
         isAdmin: user.isAdmin,
         emailVerified: user.emailVerified,
+        avatarUrl: user.avatarUrl || "",
         requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
       },
     });
@@ -114,6 +116,7 @@ router.get("/me", requireAuth, async (req, res) => {
       email: user?.email || "",
       isAdmin: Boolean(user?.isAdmin),
       emailVerified: Boolean(user?.emailVerified),
+      avatarUrl: user?.avatarUrl || "",
       requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
     });
   } catch (err) {

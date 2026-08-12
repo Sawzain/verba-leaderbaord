@@ -64,6 +64,7 @@ export default function useAuth() {
           email: me.email || "",
           isAdmin: Boolean(me.isAdmin),
           emailVerified: Boolean(me.emailVerified),
+          avatarUrl: me.avatarUrl || "",
           requireEmailVerification: Boolean(me.requireEmailVerification),
         });
         stripParams(["token"]);

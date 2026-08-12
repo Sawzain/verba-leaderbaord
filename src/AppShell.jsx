@@ -29,6 +29,13 @@ export default function AppShell() {
 
   const booksState = useBooks(true);
   const membersState = useMembers(auth.token, true);
+  // AccountChip's "View Profile" needs the Score entry's _id, not the
+  // User account's id — /app/members/:id expects a Score id (see
+  // members.js's GET /:id/profile). Resolve it here from the already-
+  // loaded member list rather than adding a new endpoint.
+  const myMemberId = auth.isLoggedIn
+    ? membersState.members.find((m) => m.userId === auth.user?.id)?._id || null
+    : null;
   const quotesState = useQuotes(true);
   const unlinkedUsersState = useUnlinkedUsers(auth.token, isAdmin);
   const activityState = useActivity(true);
@@ -66,7 +73,7 @@ export default function AppShell() {
           justifyContent: "center",
         }}
       >
-        <TabSwitcher isAdmin={isAdmin} />
+        <TabSwitcher isAdmin={isAdmin} myMemberId={myMemberId} />
       </div>
       {/* Reserves space for the sticky bar once it's fixed to the top, so
           it stops floating over list content underneath it (poems, member

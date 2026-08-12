@@ -80,7 +80,7 @@ function Tabs({ tabs }) {
             </NavLink>
           ))}
         </div>
-        <AccountChip />
+        <AccountChip myMemberId={myMemberId} />
       </div>
       {canScrollRight && (
         <div
@@ -100,7 +100,7 @@ function Tabs({ tabs }) {
   );
 }
 
-export default function TabSwitcher({ isAdmin }) {
+export default function TabSwitcher({ isAdmin, myMemberId }) {
   const visibleTabs = isAdmin
     ? TABS
     : TABS.filter((t) => t.to !== "/app/manage");
@@ -188,7 +188,7 @@ export default function TabSwitcher({ isAdmin }) {
               </NavLink>
             ))}
           </div>
-          <AccountChip compact />
+          <AccountChip compact myMemberId={myMemberId} />
         </div>
       </div>
       <div

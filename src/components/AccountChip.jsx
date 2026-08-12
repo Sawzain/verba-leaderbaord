@@ -61,7 +61,7 @@ const menuItemStyle = {
   textDecoration: "none",
 };
 
-export default function AccountChip({ compact = false }) {
+export default function AccountChip({ compact = false, myMemberId = null }) {
   const auth = useAuthContext();
   const [open, setOpen] = useState(false);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
@@ -74,7 +74,7 @@ export default function AccountChip({ compact = false }) {
 
   if (auth.isLoggedIn) {
     const name = auth.user?.name || "?";
-    const userId = auth.user?.id;
+    const avatarUrl = auth.user?.avatarUrl;
 
     return (
       <div style={{ position: "relative" }}>
@@ -83,7 +83,21 @@ export default function AccountChip({ compact = false }) {
           style={{ ...chipStyle, padding: 0 }}
           aria-label="Account menu"
         >
-          <div style={avatarBtnStyle(name, size)}>{initials(name)}</div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={name}
+              style={{
+                width: size,
+                height: size,
+                borderRadius: "50%",
+                objectFit: "cover",
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <div style={avatarBtnStyle(name, size)}>{initials(name)}</div>
+          )}
         </button>
 
         {open && (
@@ -118,9 +132,9 @@ export default function AccountChip({ compact = false }) {
                   {name}
                 </div>
 
-                {userId && (
+                {myMemberId && (
                   <Link
-                    to={`/app/members/${userId}`}
+                    to={`/app/members/${myMemberId}`}
                     onClick={closeAll}
                     style={{ ...menuItemStyle, color: OLIVE_DARK }}
                   >
