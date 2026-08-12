@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
 import AuthPanel from "./AuthPanel";
@@ -66,18 +66,37 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
   const [open, setOpen] = useState(false);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
   const size = compact ? 24 : 30;
+  const wrapRef = useRef(null);
 
   const closeAll = () => {
     setOpen(false);
     setConfirmingLogout(false);
   };
 
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        closeAll();
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") closeAll();
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
+
   if (auth.isLoggedIn) {
     const name = auth.user?.name || "?";
     const avatarUrl = auth.user?.avatarUrl;
 
     return (
-      <div style={{ position: "relative" }}>
+      <div ref={wrapRef} style={{ position: "relative" }}>
         <button
           onClick={() => setOpen((v) => !v)}
           style={{ ...chipStyle, padding: 0 }}
@@ -198,7 +217,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
   }
 
   return (
-    <div style={{ position: "relative" }}>
+    <div ref={wrapRef} style={{ position: "relative" }}>
       <button onClick={() => setOpen((v) => !v)} style={chipStyle}>
         👤{" "}
         {!compact && (
