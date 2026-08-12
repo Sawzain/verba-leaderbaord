@@ -19,6 +19,17 @@ function initials(name) {
 
 // Small floating tooltip-style preview, positioned by the caller (absolute
 // inside a relative-positioned wrapper around the triggering name).
+// Formats a Date/ISO string as "Jan 2025" — enough to feel personal
+// without needing exact-day precision for a small popup.
+function formatMemberSince(dateValue) {
+  if (!dateValue) return null;
+  const d = new Date(dateValue);
+  if (isNaN(d)) return null;
+  return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+}
+
+const MAX_VISIBLE_GENRES = 4;
+
 export default function MemberPreviewCard({ profile, loading }) {
   return (
     <div
@@ -32,7 +43,7 @@ export default function MemberPreviewCard({ profile, loading }) {
         borderRadius: 14,
         boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
         padding: "14px 16px",
-        width: 200,
+        width: 230,
         fontFamily: "'Georgia', serif",
       }}
     >
@@ -97,8 +108,30 @@ export default function MemberPreviewCard({ profile, loading }) {
               >
                 {profile.points} book{profile.points !== 1 ? "s" : ""}
               </Link>
+              {formatMemberSince(profile.memberSince) && (
+                <div style={{ fontSize: 10.5, color: "#aaa", marginTop: 1 }}>
+                  Member since {formatMemberSince(profile.memberSince)}
+                </div>
+              )}
             </div>
           </div>
+
+          {profile.bio && (
+            <div
+              style={{
+                fontSize: 12.5,
+                color: "#5a5a4a",
+                marginTop: 10,
+                lineHeight: 1.4,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {profile.bio}
+            </div>
+          )}
 
           {profile.favoriteGenres?.length > 0 && (
             <div
@@ -109,7 +142,7 @@ export default function MemberPreviewCard({ profile, loading }) {
                 marginTop: 10,
               }}
             >
-              {profile.favoriteGenres.slice(0, 2).map((g) => (
+              {profile.favoriteGenres.slice(0, MAX_VISIBLE_GENRES).map((g) => (
                 <span
                   key={g}
                   style={{
@@ -123,6 +156,19 @@ export default function MemberPreviewCard({ profile, loading }) {
                   {g}
                 </span>
               ))}
+              {profile.favoriteGenres.length > MAX_VISIBLE_GENRES && (
+                <span
+                  style={{
+                    background: CREAM_DARK,
+                    color: OLIVE_DARK,
+                    borderRadius: 20,
+                    padding: "2px 8px",
+                    fontSize: 10.5,
+                  }}
+                >
+                  +{profile.favoriteGenres.length - MAX_VISIBLE_GENRES}
+                </span>
+              )}
             </div>
           )}
         </>

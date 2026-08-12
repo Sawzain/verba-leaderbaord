@@ -198,7 +198,7 @@ export default function TabSwitcher({ isAdmin, myMemberId }) {
           margin: "0 auto 20px",
         }}
       >
-        <Tabs tabs={visibleTabs} />
+        <Tabs tabs={visibleTabs} myMemberId={myMemberId} />
       </div>
     </>
   );
