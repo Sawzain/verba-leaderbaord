@@ -13,6 +13,13 @@ body {
   background: #b7c7ac;
 }
 
+:root {
+  /* Set from theme.js at startup in main.jsx — fallback values here
+     match theme.js in case that script hasn't run yet. */
+  --danger-light: #f0d3d3;
+  --danger-dark: #e0b3b3;
+}
+
 #root {
   min-height: 100vh;
 }
@@ -97,11 +104,11 @@ a:active {
 }
 
 .verba-delete-btn:not(:disabled):hover {
-  background: #f0d3d3;
+  background: var(--danger-light);
 }
 
 .verba-delete-btn:not(:disabled):active {
-  background: #e0b3b3;
+  background: var(--danger-dark);
   transform: scale(0.9);
 }
 

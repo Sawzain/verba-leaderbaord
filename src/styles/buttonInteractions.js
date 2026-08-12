@@ -1,4 +1,4 @@
-import { OLIVE_LIGHT } from "../theme";
+import { OLIVE_LIGHT, DANGER_LIGHT, DANGER_DARK } from "../theme";
 
 export const buttonInteractionStyles = `
   .verba-btn {

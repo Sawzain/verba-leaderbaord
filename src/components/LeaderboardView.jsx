@@ -263,6 +263,8 @@ export default function LeaderboardView({
               borderBottom: `1px solid ${CREAM}`,
               background: isFirstPlace ? ROW_BG_FIRST : ROW_BG,
               animationDelay: `${pageItems.indexOf(member) * 25}ms`,
+              position: "relative",
+              zIndex: previewId === member._id ? 60 : "auto",
             }}
           >
             <div
