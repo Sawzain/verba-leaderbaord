@@ -16,11 +16,8 @@ import { API_ROOT } from "../hooks/useMembers";
 
 const PAGE_SIZE = 10;
 
-// Same translucent off-white used for cards on the Quote Wall (CARD_BG in
-// QuoteWallView.jsx), so leaderboard rows and quote cards read as one
-// consistent visual language.
-const ROW_BG = "rgba(255,255,255,0.4)";
-const ROW_BG_FIRST = "rgba(255,255,255,0.6)"; // slightly stronger for 1st place
+const ROW_BG = "#FAF7F0";
+const ROW_BG_FIRST = "#F5F0E3";
 
 export default function LeaderboardView({
   sorted,
