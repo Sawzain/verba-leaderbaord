@@ -3,7 +3,6 @@ import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
 import MemberRow from "./MemberRow";
 import AdminPasswordReset from "./AdminPasswordReset";
 import AuthPanel from "./AuthPanel";
-import AccountBar from "./AccountBar";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -124,8 +123,6 @@ export default function ManageView({
 
   return (
     <div style={{ padding: "24px" }}>
-      <AccountBar auth={auth} />
-
       {error && (
         <div
           style={{

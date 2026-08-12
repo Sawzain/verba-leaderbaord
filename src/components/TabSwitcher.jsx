@@ -45,7 +45,7 @@ const pillWrapStyle = {
   minWidth: 0,
 };
 
-function Tabs() {
+function Tabs({ tabs }) {
   const scrollRef = useRef(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -72,7 +72,7 @@ function Tabs() {
       style={{ position: "relative", width: "fit-content", maxWidth: "100%" }}
     >
       <div ref={scrollRef} style={pillWrapStyle}>
-        {TABS.map(({ to, label }) => (
+        {tabs.map(({ to, label }) => (
           <NavLink key={to} to={to} style={tabPillStyle}>
             {label}
           </NavLink>
@@ -96,7 +96,11 @@ function Tabs() {
   );
 }
 
-export default function TabSwitcher() {
+export default function TabSwitcher({ isAdmin }) {
+  const visibleTabs = isAdmin
+    ? TABS
+    : TABS.filter((t) => t.to !== "/app/manage");
+
   // Past ~140px of scroll, the original tab bar has scrolled out of
   // comfortable reach — show a small fixed copy (logo + same pill) so
   // switching tabs never requires scrolling back to the top. Always
@@ -174,7 +178,7 @@ export default function TabSwitcher() {
               minWidth: 0,
             }}
           >
-            {TABS.map(({ to, label }) => (
+            {visibleTabs.map(({ to, label }) => (
               <NavLink key={to} to={to} style={tabPillStyle}>
                 {label}
               </NavLink>
@@ -189,7 +193,7 @@ export default function TabSwitcher() {
           margin: "0 auto 20px",
         }}
       >
-        <Tabs />
+        <Tabs tabs={visibleTabs} />
       </div>
     </>
   );

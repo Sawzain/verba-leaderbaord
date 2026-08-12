@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { OLIVE_DARK, LOGO_SRC } from "../theme";
+import { useAuthContext } from "../AuthContext";
+import AuthPanel from "./AuthPanel";
 
-// Subtitle now reflects whichever route is actually active, instead of
-// always reading "READING LEADERBOARD" no matter which view you're on.
 const SUBTITLES = {
   "/app/leaderboard": "Reading Leaderboard",
   "/app/reviews": "Book Reviews",
@@ -11,8 +12,9 @@ const SUBTITLES = {
 
 export default function Header() {
   const location = useLocation();
-  // On the public landing page, show the brand tagline instead of an
-  // app-view label; on any other unmatched route, show nothing.
+  const auth = useAuthContext();
+  const [showLogin, setShowLogin] = useState(false);
+
   const subtitle =
     location.pathname === "/"
       ? "words that stay"
@@ -23,8 +25,6 @@ export default function Header() {
       src={LOGO_SRC}
       alt="Verba Book Club"
       style={{
-        // Fixed 140px through 1080p-equivalent widths; scales down on
-        // narrow phone viewports so the logo doesn't dominate the screen.
         width: "clamp(70px, 18vw, 100px)",
         height: "clamp(70px, 18vw, 100px)",
         objectFit: "cover",
@@ -35,6 +35,8 @@ export default function Header() {
       }}
     />
   );
+
+  const showAccountArea = location.pathname !== "/";
 
   return (
     <div style={{ textAlign: "center", marginBottom: 20 }}>
@@ -57,6 +59,84 @@ export default function Header() {
           }}
         >
           {subtitle}
+        </div>
+      )}
+
+      {showAccountArea && auth.isLoggedIn && (
+        <div style={{ marginTop: 10, fontSize: 13, color: OLIVE_DARK }}>
+          Logged in as <strong>{auth.user?.name}</strong> ·{" "}
+          <button
+            onClick={auth.logout}
+            className="verba-link-btn"
+            style={{
+              background: "none",
+              border: "none",
+              color: OLIVE_DARK,
+              fontSize: 13,
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            Log out
+          </button>
+        </div>
+      )}
+
+      {showAccountArea && !auth.isLoggedIn && !showLogin && (
+        <button
+          onClick={() => setShowLogin(true)}
+          className="verba-link-btn"
+          style={{
+            marginTop: 10,
+            background: "none",
+            border: "none",
+            color: OLIVE_DARK,
+            fontSize: 13,
+            textDecoration: "underline",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          Log in
+        </button>
+      )}
+
+      {showAccountArea && !auth.isLoggedIn && showLogin && (
+        <div
+          style={{
+            marginTop: 14,
+            maxWidth: 320,
+            marginLeft: "auto",
+            marginRight: "auto",
+            textAlign: "left",
+          }}
+        >
+          <AuthPanel
+            authError={auth.authError}
+            setAuthError={auth.setAuthError}
+            authBusy={auth.authBusy}
+            onRegister={auth.register}
+            onLogin={auth.login}
+            onForgotPassword={auth.forgotPassword}
+            discordLoginUrl={auth.discordLoginUrl}
+          />
+          <button
+            onClick={() => setShowLogin(false)}
+            className="verba-link-btn"
+            style={{
+              background: "none",
+              border: "none",
+              color: OLIVE_DARK,
+              fontSize: 12,
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: 0,
+              marginTop: 8,
+            }}
+          >
+            Cancel
+          </button>
         </div>
       )}
     </div>

@@ -5,7 +5,6 @@ import Pagination from "./Pagination";
 import BookCard from "./BookCard";
 import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
-import AccountBar from "./AccountBar";
 import EmptyState from "./EmptyState";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
@@ -162,9 +161,6 @@ export default function BooksView({
     }
     return (
       <div>
-        <div style={{ padding: "16px 24px 0" }}>
-          <AccountBar auth={auth} />
-        </div>
         <BookDetail
           book={selectedBook}
           auth={auth}
@@ -182,8 +178,6 @@ export default function BooksView({
 
   return (
     <div style={{ padding: "24px" }}>
-      <AccountBar auth={auth} />
-
       {isAdminUnlocked && (
         <div style={{ marginBottom: 20 }}>
           {showAddForm ? (

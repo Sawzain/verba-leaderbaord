@@ -42,7 +42,8 @@ The public leaderboard page also shows:
 **Member profiles** — hovering (desktop) or tapping (mobile) a leaderboard
 row shows a quick preview card; clicking through opens that member's full
 page at `/app/members/:id`. Every member's page shows their avatar, points,
-and a **Books Read** list (titles). Members who've linked a Discord account
+and a **Books Read** list (titles, collapsing to the first 3 with a "Show
+more" toggle once there are more). Members who've linked a Discord account
 also get a bio, favorite genre tags, and their reviews — each review links
 to that book's page. Members who haven't linked Discord see a stats-only
 view with a prompt to connect.
@@ -67,9 +68,12 @@ instead of content.
 
 **Accounts & admin access** — there's no separate admin key to type in
 anymore. Admin access is an `isAdmin` flag on a normal member account. Log
-in on the Manage tab like any other member; if your account has the flag,
-you can add/edit/remove members and books. To grant it, set `isAdmin: true`
-directly on a user's document in MongoDB (there's no UI for this yet).
+in from the header (visible on every tab) like any other member; if your
+account has the flag, you can add/edit/remove members and books. The
+Manage tab itself only appears in the tab bar once you're logged in with
+an admin account — non-admins won't see it listed at all. To grant admin
+access, set `isAdmin: true` directly on a user's document in MongoDB
+(there's no UI for this yet).
 
 The legacy shared `API_KEY` still works as a fallback for the same
 admin-only routes (useful for scripts or before you've granted anyone the

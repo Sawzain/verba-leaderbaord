@@ -60,6 +60,7 @@ export default function MemberProfilePage() {
   const [editing, setEditing] = useState(false);
   const [draftBio, setDraftBio] = useState("");
   const [draftGenres, setDraftGenres] = useState([]);
+  const [booksExpanded, setBooksExpanded] = useState(false);
 
   if (loading)
     return (
@@ -205,30 +206,53 @@ export default function MemberProfilePage() {
       )}
 
       {profile.booksRead?.length > 0 && (
-        <ul
-          style={{
-            listStyle: "none",
-            margin: "0 0 22px",
-            padding: 0,
-          }}
-        >
-          {profile.booksRead.map((title, i) => (
-            <li
-              key={`${title}-${i}`}
+        <div style={{ marginBottom: 22 }}>
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+            }}
+          >
+            {(booksExpanded
+              ? profile.booksRead
+              : profile.booksRead.slice(0, 3)
+            ).map((title, i, arr) => (
+              <li
+                key={`${title}-${i}`}
+                style={{
+                  padding: "9px 4px",
+                  borderBottom:
+                    i < arr.length - 1 ? `1px solid ${CREAM_DARK}` : "none",
+                  color: "#3f4230",
+                  fontSize: 14,
+                }}
+              >
+                {title}
+              </li>
+            ))}
+          </ul>
+          {profile.booksRead.length > 3 && (
+            <button
+              className="verba-link-btn"
+              onClick={() => setBooksExpanded((v) => !v)}
               style={{
-                padding: "9px 4px",
-                borderBottom:
-                  i < profile.booksRead.length - 1
-                    ? `1px solid ${CREAM_DARK}`
-                    : "none",
-                color: "#3f4230",
-                fontSize: 14,
+                background: "none",
+                border: "none",
+                color: OLIVE_DARK,
+                fontSize: 12,
+                textDecoration: "underline",
+                cursor: "pointer",
+                padding: 0,
+                marginTop: 8,
               }}
             >
-              {title}
-            </li>
-          ))}
-        </ul>
+              {booksExpanded
+                ? "Show less"
+                : `Show ${profile.booksRead.length - 3} more`}
+            </button>
+          )}
+        </div>
       )}
 
       {!profile.linked && (

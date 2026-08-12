@@ -66,7 +66,7 @@ export default function AppShell() {
           justifyContent: "center",
         }}
       >
-        <TabSwitcher />
+        <TabSwitcher isAdmin={isAdmin} />
       </div>
       {/* Reserves space for the sticky bar once it's fixed to the top, so
           it stops floating over list content underneath it (poems, member
