@@ -46,7 +46,7 @@ const pillWrapStyle = {
   minWidth: 0,
 };
 
-function Tabs({ tabs }) {
+function Tabs({ tabs, myMemberId }) {
   const scrollRef = useRef(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
