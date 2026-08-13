@@ -1,4 +1,4 @@
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, OLIVE_LIGHT } from "../theme";
+import { SAGE_DARK, SAGE_DEEP, PAPER, MUTED, SAGE, SAGE_TINT, DANGER_LIGHT } from "../theme";
 import { StarDisplay } from "./StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import RatingSummary from "./RatingSummary";
@@ -18,10 +18,10 @@ export default function BookCard({
       style={{
         position: "relative",
         cursor: "pointer",
-        background: CREAM,
+        background: SAGE_TINT,
         border: book.isCurrentPick
-          ? `1.5px solid ${OLIVE}`
-          : `1px solid ${CREAM_DARK}`,
+          ? `1.5px solid ${SAGE_DARK}`
+          : `1px solid ${MUTED}`,
         borderRadius: 12,
         overflow: "hidden",
         display: "flex",
@@ -32,7 +32,7 @@ export default function BookCard({
         style={{
           width: "100%",
           aspectRatio: "3 / 4",
-          background: "#e4ddc7",
+          background: `${SAGE}33`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -58,8 +58,8 @@ export default function BookCard({
               position: "absolute",
               bottom: 8,
               left: 8,
-              background: OLIVE,
-              color: CREAM,
+              background: SAGE_DARK,
+              color: PAPER,
               fontSize: 10,
               fontWeight: "bold",
               letterSpacing: "0.5px",
@@ -107,9 +107,9 @@ export default function BookCard({
                   borderRadius: "50%",
                   border: "none",
                   background: book.isCurrentPick
-                    ? OLIVE
+                    ? SAGE_DARK
                     : "rgba(20,20,20,0.55)",
-                  color: CREAM,
+                  color: PAPER,
                   cursor: "pointer",
                   fontSize: 13,
                   display: "flex",
@@ -137,7 +137,7 @@ export default function BookCard({
                   borderRadius: "50%",
                   border: "none",
                   background: "rgba(20,20,20,0.55)",
-                  color: "#ffb3b3",
+                  color: DANGER_LIGHT,
                   cursor: "pointer",
                   fontSize: 12,
                   display: "flex",
@@ -166,7 +166,7 @@ export default function BookCard({
           style={{
             fontSize: 14,
             fontWeight: "bold",
-            color: OLIVE_DARK,
+            color: SAGE_DEEP,
             lineHeight: 1.3,
           }}
         >
@@ -174,7 +174,7 @@ export default function BookCard({
         </div>
 
         {book.author && (
-          <div style={{ fontSize: 12, color: OLIVE_DARK, marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: SAGE_DEEP, marginTop: 2 }}>
             {book.author}
           </div>
         )}

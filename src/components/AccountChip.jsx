@@ -2,9 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
 import AuthPanel from "./AuthPanel";
-import { OLIVE_DARK, CREAM, CREAM_DARK, DANGER } from "../theme";
+import { SAGE_DEEP, PAPER, MUTED, CLAY, DANGER, AVATAR_COLORS, SAGE_TINT, FONT_SANS } from "../theme";
 
-const AVATAR_COLORS = [OLIVE_DARK, "#8a9a4a", "#8a6a3a", "#5a7a6a"];
 function avatarColor(name) {
   let hash = 0;
   for (let i = 0; i < name.length; i++)
@@ -25,13 +24,13 @@ const avatarBtnStyle = (name, size) => ({
   height: size,
   borderRadius: "50%",
   background: avatarColor(name),
-  color: CREAM,
+  color: PAPER,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   fontSize: 12,
   fontWeight: "bold",
-  border: `2px solid ${CREAM}`,
+  border: `2px solid ${PAPER}`,
   boxSizing: "border-box",
   cursor: "pointer",
   flexShrink: 0,
@@ -43,7 +42,7 @@ const chipStyle = {
   gap: 6,
   padding: "6px 10px",
   borderRadius: 8,
-  background: CREAM,
+  background: SAGE_TINT,
   border: "none",
   cursor: "pointer",
   flexShrink: 0,
@@ -60,6 +59,7 @@ const menuItemStyle = {
   cursor: "pointer",
   borderRadius: 6,
   textDecoration: "none",
+  fontFamily: FONT_SANS,
 };
 
 export default function AccountChip({ compact = false, myMemberId = null }) {
@@ -112,7 +112,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                 height: size,
                 borderRadius: "50%",
                 objectFit: "cover",
-                border: `2px solid ${CREAM}`,
+                border: `2px solid ${PAPER}`,
                 boxSizing: "border-box",
                 flexShrink: 0,
               }}
@@ -130,11 +130,10 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
               right: 0,
               zIndex: 200,
               minWidth: 190,
-              background: CREAM,
+              background: PAPER,
               borderRadius: 12,
-              border: `1px solid ${CREAM_DARK}`,
               padding: 10,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+              boxShadow: "0 10px 30px rgba(45,51,39,0.2)",
               textAlign: "left",
             }}
           >
@@ -144,9 +143,9 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                   style={{
                     fontSize: 14,
                     fontWeight: "bold",
-                    color: OLIVE_DARK,
+                    color: SAGE_DEEP,
                     padding: "4px 8px 8px",
-                    borderBottom: `1px solid ${CREAM_DARK}`,
+                    borderBottom: "1px solid rgba(45,51,39,0.1)",
                     marginBottom: 6,
                     wordBreak: "break-word",
                   }}
@@ -158,7 +157,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                   <Link
                     to={`/app/members/${myMemberId}`}
                     onClick={closeAll}
-                    style={{ ...menuItemStyle, color: OLIVE_DARK }}
+                    style={{ ...menuItemStyle, color: SAGE_DEEP }}
                   >
                     View Profile
                   </Link>
@@ -176,7 +175,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                 <div
                   style={{
                     fontSize: 13,
-                    color: OLIVE_DARK,
+                    color: SAGE_DEEP,
                     padding: "4px 8px 10px",
                   }}
                 >
@@ -189,8 +188,8 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                       ...menuItemStyle,
                       flex: 1,
                       textAlign: "center",
-                      color: OLIVE_DARK,
-                      border: `1px solid ${CREAM_DARK}`,
+                      color: SAGE_DEEP,
+                      border: "1px solid rgba(45,51,39,0.15)",
                     }}
                   >
                     Cancel
@@ -204,7 +203,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
                       ...menuItemStyle,
                       flex: 1,
                       textAlign: "center",
-                      color: CREAM,
+                      color: PAPER,
                       background: DANGER,
                     }}
                   >
@@ -229,16 +228,24 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
           fill="none"
           style={{ flexShrink: 0 }}
         >
-          <circle cx="12" cy="8" r="4" stroke={OLIVE_DARK} strokeWidth="2" />
+          <circle cx="12" cy="8" r="4" stroke={SAGE_DEEP} strokeWidth="2" />
           <path
             d="M4 20c0-4 3.6-7 8-7s8 3 8 7"
-            stroke={OLIVE_DARK}
+            stroke={SAGE_DEEP}
             strokeWidth="2"
             strokeLinecap="round"
           />
         </svg>
         {!compact && (
-          <span style={{ fontSize: 12, color: OLIVE_DARK }}>Log in</span>
+          <span
+            style={{
+              fontSize: 12,
+              color: SAGE_DEEP,
+              fontFamily: FONT_SANS,
+            }}
+          >
+            Log in
+          </span>
         )}
       </button>
       {open && (
@@ -249,11 +256,10 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
             right: 0,
             zIndex: 200,
             width: 280,
-            background: CREAM,
+            background: PAPER,
             borderRadius: 12,
-            border: `1px solid ${CREAM_DARK}`,
             padding: 14,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+            boxShadow: "0 10px 30px rgba(45,51,39,0.2)",
             textAlign: "left",
           }}
         >

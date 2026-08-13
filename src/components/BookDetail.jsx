@@ -1,11 +1,16 @@
 import { useState } from "react";
 import {
-  OLIVE,
-  OLIVE_DARK,
-  CREAM,
-  CREAM_DARK,
-  WHITE,
-  OLIVE_LIGHT,
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  SAGE,
+  SAGE_TINT,
+  FONT_SERIF,
+  FONT_SANS,
+  DANGER,
+  DANGER_LIGHT,
+  CLAY,
 } from "../theme";
 import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
@@ -155,7 +160,7 @@ export default function BookDetail({
         style={{
           background: "none",
           border: "none",
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           fontSize: 13,
           cursor: "pointer",
           padding: 0,
@@ -190,7 +195,7 @@ export default function BookDetail({
               flexShrink: 0,
               borderRadius: 8,
               overflow: "hidden",
-              background: `${OLIVE_LIGHT}33`,
+              background: `${SAGE}33`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -217,7 +222,7 @@ export default function BookDetail({
               }}
             >
               <div
-                style={{ fontSize: 19, fontWeight: "bold", color: OLIVE_DARK }}
+                style={{ fontSize: 19, fontWeight: "bold", color: SAGE_DEEP }}
               >
                 {book.title}
               </div>
@@ -235,9 +240,9 @@ export default function BookDetail({
                     height: 26,
                     marginRight: 16,
                     background: "transparent",
-                    border: `1.5px solid ${CREAM_DARK}`,
+                    border: `1.5px solid ${MUTED}`,
                     borderRadius: 8,
-                    color: OLIVE_DARK,
+                    color: SAGE_DEEP,
                     cursor: "pointer",
                     padding: 0,
                   }}
@@ -259,7 +264,7 @@ export default function BookDetail({
               )}
             </div>
             {book.author && (
-              <div style={{ fontSize: 14, color: OLIVE_DARK, marginTop: 2 }}>
+              <div style={{ fontSize: 14, color: SAGE_DEEP, marginTop: 2 }}>
                 {book.author}
               </div>
             )}
@@ -280,7 +285,7 @@ export default function BookDetail({
         <div
           style={{
             fontSize: 11,
-            color: OLIVE,
+            color: SAGE_DARK,
             letterSpacing: "1px",
             textTransform: "uppercase",
             marginBottom: 8,
@@ -295,13 +300,13 @@ export default function BookDetail({
             className="verba-btn"
             style={{
               background: "none",
-              border: `1px dashed ${CREAM_DARK}`,
+              border: `1px dashed ${MUTED}`,
               borderRadius: 10,
               padding: "10px 14px",
               fontSize: 13,
-              color: OLIVE_DARK,
+              color: SAGE_DEEP,
               cursor: "pointer",
-              fontFamily: "'Georgia', serif",
+              fontFamily: FONT_SERIF,
               width: "100%",
               textAlign: "left",
             }}
@@ -327,7 +332,7 @@ export default function BookDetail({
               style={{
                 background: "none",
                 border: "none",
-                color: OLIVE_DARK,
+                color: SAGE_DEEP,
                 fontSize: 12,
                 textDecoration: "underline",
                 cursor: "pointer",
@@ -391,12 +396,12 @@ export default function BookDetail({
           editingReviewId !== myReview.id && (
             <div
               style={{
-                background: "#eef3e2",
-                border: "1px solid #d3e0bd",
+                background: SAGE_TINT,
+                border: `1px solid ${SAGE_DARK}33`,
                 borderRadius: 10,
                 padding: "12px 14px",
                 fontSize: 13,
-                color: "#3f4d1e",
+                color: SAGE_DEEP,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -419,9 +424,9 @@ export default function BookDetail({
                   height: 26,
                   marginRight: 2,
                   background: "transparent",
-                  border: `1.5px solid ${CREAM_DARK}`,
+                  border: `1.5px solid ${MUTED}`,
                   borderRadius: 8,
-                  color: OLIVE_DARK,
+                  color: SAGE_DEEP,
                   cursor: "pointer",
                   padding: 0,
                 }}
@@ -446,8 +451,8 @@ export default function BookDetail({
         {auth.isLoggedIn && myReview && editingReviewId === myReview.id && (
           <div
             style={{
-              background: `${CREAM_DARK}66`,
-              border: `1px solid ${CREAM_DARK}`,
+              background: `${MUTED}66`,
+              border: `1px solid ${MUTED}`,
               borderRadius: 12,
               padding: "16px",
             }}
@@ -464,18 +469,18 @@ export default function BookDetail({
                 width: "100%",
                 padding: "10px 12px",
                 borderRadius: 10,
-                border: `1.5px solid ${CREAM_DARK}`,
+                border: `1.5px solid ${MUTED}`,
                 fontSize: 14,
-                fontFamily: "'Georgia', serif",
+                fontFamily: FONT_SERIF,
                 outline: "none",
-                background: WHITE,
-                color: OLIVE_DARK,
+                background: PAPER,
+                color: SAGE_DEEP,
                 boxSizing: "border-box",
                 resize: "vertical",
               }}
             />
             {editError && (
-              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>
+              <div style={{ marginTop: 8, fontSize: 13, color: DANGER }}>
                 {editError}
               </div>
             )}
@@ -485,15 +490,15 @@ export default function BookDetail({
                 disabled={editSubmitting}
                 className="verba-btn"
                 style={{
-                  background: OLIVE,
-                  color: CREAM,
+                  background: SAGE_DARK,
+                  color: PAPER,
                   border: "none",
                   borderRadius: 10,
                   padding: "10px 20px",
                   fontSize: 14,
                   cursor: editSubmitting ? "default" : "pointer",
                   opacity: editSubmitting ? 0.7 : 1,
-                  fontFamily: "'Georgia', serif",
+                  fontFamily: FONT_SERIF,
                 }}
               >
                 {editSubmitting ? "Saving…" : "Save changes"}
@@ -504,13 +509,13 @@ export default function BookDetail({
                 className="verba-btn"
                 style={{
                   background: "none",
-                  border: `1.5px solid ${CREAM_DARK}`,
+                  border: `1.5px solid ${MUTED}`,
                   borderRadius: 10,
                   padding: "10px 20px",
                   fontSize: 14,
                   cursor: "pointer",
-                  fontFamily: "'Georgia', serif",
-                  color: OLIVE_DARK,
+                  fontFamily: FONT_SERIF,
+                  color: SAGE_DEEP,
                 }}
               >
                 Cancel
@@ -522,8 +527,8 @@ export default function BookDetail({
         {auth.isLoggedIn && !myReview && !justSubmitted && (
           <div
             style={{
-              background: `${CREAM_DARK}66`,
-              border: `1px solid ${CREAM_DARK}`,
+              background: `${MUTED}66`,
+              border: `1px solid ${MUTED}`,
               borderRadius: 12,
               padding: "16px",
             }}
@@ -540,18 +545,18 @@ export default function BookDetail({
                 width: "100%",
                 padding: "10px 12px",
                 borderRadius: 10,
-                border: `1.5px solid ${CREAM_DARK}`,
+                border: `1.5px solid ${MUTED}`,
                 fontSize: 14,
-                fontFamily: "'Georgia', serif",
+                fontFamily: FONT_SERIF,
                 outline: "none",
-                background: WHITE,
-                color: OLIVE_DARK,
+                background: PAPER,
+                color: SAGE_DEEP,
                 boxSizing: "border-box",
                 resize: "vertical",
               }}
             />
             {submitError && (
-              <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>
+              <div style={{ marginTop: 8, fontSize: 13, color: DANGER }}>
                 {submitError}
               </div>
             )}
@@ -561,15 +566,15 @@ export default function BookDetail({
               className="verba-btn"
               style={{
                 marginTop: 10,
-                background: OLIVE,
-                color: CREAM,
+                background: SAGE_DARK,
+                color: PAPER,
                 border: "none",
                 borderRadius: 10,
                 padding: "10px 20px",
                 fontSize: 14,
                 cursor: submitting ? "default" : "pointer",
                 opacity: submitting ? 0.7 : 1,
-                fontFamily: "'Georgia', serif",
+                fontFamily: FONT_SERIF,
               }}
             >
               {submitting ? "Submitting…" : "Submit review"}
@@ -580,12 +585,12 @@ export default function BookDetail({
         {justSubmitted && auth.isLoggedIn && (
           <div
             style={{
-              background: "#eef3e2",
-              border: "1px solid #d3e0bd",
+              background: SAGE_TINT,
+              border: `1px solid ${SAGE_DARK}33`,
               borderRadius: 10,
               padding: "12px 14px",
               fontSize: 13,
-              color: "#3f4d1e",
+              color: SAGE_DEEP,
             }}
           >
             Thanks for reviewing! Your rating has been added.
@@ -598,13 +603,15 @@ export default function BookDetail({
         style={{
           fontSize: 20,
           fontWeight: "bold",
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           marginBottom: 10,
         }}
       >
         Reviews{" "}
         {reviews.length > 0 && (
-          <span style={{ fontSize: 15, fontWeight: "normal", color: OLIVE }}>
+          <span
+            style={{ fontSize: 15, fontWeight: "normal", color: SAGE_DARK }}
+          >
             ({reviews.length})
           </span>
         )}
@@ -623,8 +630,8 @@ export default function BookDetail({
               gap: 12,
               padding: "14px 16px",
               marginBottom: 10,
-              background: WHITE,
-              border: `1px solid ${CREAM_DARK}`,
+              background: SAGE_TINT,
+              border: `1px solid ${MUTED}`,
               borderRadius: 12,
             }}
           >
@@ -634,8 +641,8 @@ export default function BookDetail({
                 width: 34,
                 height: 34,
                 borderRadius: "50%",
-                background: OLIVE,
-                color: CREAM,
+                background: SAGE_DARK,
+                color: PAPER,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -657,7 +664,7 @@ export default function BookDetail({
                   style={{
                     fontSize: 14,
                     fontWeight: "bold",
-                    color: OLIVE_DARK,
+                    color: SAGE_DEEP,
                     flex: 1,
                     minWidth: 0,
                     overflow: "hidden",
@@ -690,9 +697,9 @@ export default function BookDetail({
                           width: 26,
                           height: 26,
                           background: "transparent",
-                          border: `1.5px solid ${CREAM_DARK}`,
+                          border: `1.5px solid ${MUTED}`,
                           borderRadius: 8,
-                          color: OLIVE_DARK,
+                          color: SAGE_DEEP,
                           cursor: "pointer",
                           padding: 0,
                         }}
@@ -723,9 +730,9 @@ export default function BookDetail({
                           width: 26,
                           height: 26,
                           background: "transparent",
-                          border: "1.5px solid #e3c2c2",
+                          border: `1.5px solid ${DANGER_LIGHT}`,
                           borderRadius: 8,
-                          color: "#a33",
+                          color: DANGER,
                           cursor: removingId === r.id ? "default" : "pointer",
                           opacity: removingId === r.id ? 0.6 : 1,
                           padding: 0,
@@ -761,9 +768,9 @@ export default function BookDetail({
                         width: 26,
                         height: 26,
                         background: "transparent",
-                        border: "1.5px solid #e3c2c2",
+                        border: `1.5px solid ${DANGER_LIGHT}`,
                         borderRadius: 8,
-                        color: "#a33",
+                        color: DANGER,
                         cursor: removingId === r.id ? "default" : "pointer",
                         opacity: removingId === r.id ? 0.6 : 1,
                         padding: 0,
@@ -792,7 +799,7 @@ export default function BookDetail({
                   style={{
                     marginTop: 6,
                     fontSize: 14,
-                    color: OLIVE_DARK,
+                    color: SAGE_DEEP,
                     lineHeight: 1.5,
                   }}
                 >
@@ -802,7 +809,7 @@ export default function BookDetail({
                       style={{
                         marginLeft: 8,
                         fontSize: 11,
-                        color: OLIVE_LIGHT,
+                        color: SAGE,
                         fontStyle: "italic",
                       }}
                     >

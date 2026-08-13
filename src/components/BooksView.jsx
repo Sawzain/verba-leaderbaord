@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { OLIVE, OLIVE_DARK, CREAM_DARK, WHITE, OLIVE_LIGHT } from "../theme";
+import {
+  SAGE_DARK,
+  SAGE_DEEP,
+  MUTED,
+  PAPER,
+  DANGER,
+  FONT_SERIF,
+} from "../theme";
 import Pagination from "./Pagination";
 import BookCard from "./BookCard";
 import BookForm from "./BookForm";
@@ -135,14 +142,29 @@ export default function BooksView({
     }
   };
 
+  // AppShell no longer wraps pages in a frosted cream panel, and
+  // TwoColumnLayout's "main" slot has no background of its own (its own
+  // comment only covers the sidebar) — so BooksView owns its own PAPER
+  // card here, same pattern as Leaderboard/Manage/Verba Wall, across both
+  // the grid view and the detail-loading/error states below.
+  const cardStyle = {
+    background: PAPER,
+    border: "1px solid rgba(45,51,39,0.08)",
+    borderRadius: 14,
+  };
+
   if (selectedId) {
     if (detailLoading) {
-      return <EmptyState message="Loading book…" />;
+      return (
+        <div style={cardStyle}>
+          <EmptyState message="Loading book…" />
+        </div>
+      );
     }
     if (detailError || !selectedBook) {
       return (
-        <div style={{ padding: 24 }}>
-          <div style={{ color: "#a33", marginBottom: 12 }}>
+        <div style={{ ...cardStyle, padding: 24 }}>
+          <div style={{ color: DANGER, marginBottom: 12 }}>
             {detailError || "Couldn't load that book."}
           </div>
           <button
@@ -150,7 +172,7 @@ export default function BooksView({
             style={{
               background: "none",
               border: "none",
-              color: OLIVE_DARK,
+              color: SAGE_DEEP,
               cursor: "pointer",
             }}
           >
@@ -160,7 +182,7 @@ export default function BooksView({
       );
     }
     return (
-      <div>
+      <div style={cardStyle}>
         <BookDetail
           book={selectedBook}
           auth={auth}
@@ -177,7 +199,7 @@ export default function BooksView({
   }
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ ...cardStyle, padding: "24px" }}>
       {isAdminUnlocked && (
         <div style={{ marginBottom: 20 }}>
           {showAddForm ? (
@@ -194,12 +216,12 @@ export default function BooksView({
               onClick={() => setShowAddForm(true)}
               style={{
                 background: "none",
-                border: `1.5px dashed ${CREAM_DARK}`,
+                border: `1.5px dashed ${MUTED}`,
                 borderRadius: 10,
                 padding: "9px 18px",
                 fontSize: 14,
-                fontFamily: "'Georgia', serif",
-                color: OLIVE_DARK,
+                fontFamily: FONT_SERIF,
+                color: SAGE_DEEP,
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
@@ -214,14 +236,14 @@ export default function BooksView({
       )}
 
       {loading && (
-        <div style={{ padding: 20, textAlign: "center", color: "#aaa" }}>
+        <div style={{ padding: 20, textAlign: "center", color: MUTED }}>
           <div
             style={{
               width: 28,
               height: 28,
               margin: "0 auto 14px",
-              border: `3px solid ${CREAM_DARK}`,
-              borderTopColor: OLIVE,
+              border: `3px solid ${MUTED}`,
+              borderTopColor: SAGE_DARK,
               borderRadius: "50%",
               animation: "verba-spin 0.8s linear infinite",
             }}
@@ -236,7 +258,7 @@ export default function BooksView({
       )}
 
       {error && (
-        <div style={{ color: "#a33", fontSize: 13, marginBottom: 12 }}>
+        <div style={{ color: DANGER, fontSize: 13, marginBottom: 12 }}>
           {error}
         </div>
       )}
@@ -254,12 +276,12 @@ export default function BooksView({
             width: "100%",
             padding: "8px 14px",
             borderRadius: 10,
-            border: `1.5px solid ${CREAM_DARK}`,
+            border: `1.5px solid ${MUTED}`,
             fontSize: 14,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SERIF,
             outline: "none",
-            background: WHITE,
-            color: OLIVE_DARK,
+            background: PAPER,
+            color: SAGE_DEEP,
             boxSizing: "border-box",
             marginBottom: 16,
           }}
@@ -273,7 +295,7 @@ export default function BooksView({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 180px))",
           gap: 12,
         }}
       >

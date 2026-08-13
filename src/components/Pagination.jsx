@@ -1,8 +1,5 @@
-import { OLIVE_DARK, OLIVE_LIGHT, CREAM } from "../theme";
+import { SAGE_DARK, MUTED, PAPER, CLAY } from "../theme";
 
-// Builds a compact page list with ellipsis gaps, e.g. [1, "…", 4, 5, 6, 7, 8, "…", 24]
-// Always keeps first, last, and a small window around the current page so it
-// stays readable even with dozens of pages.
 function getPageNumbers(current, total, siblings = 1) {
   const pages = [];
   const start = Math.max(2, current - siblings);
@@ -20,12 +17,13 @@ function getPageNumbers(current, total, siblings = 1) {
 function pageButtonStyle(disabled) {
   return {
     padding: "6px 14px",
-    borderRadius: 999,
-    border: `1px solid ${OLIVE_LIGHT}`,
-    background: disabled ? "transparent" : OLIVE_DARK,
-    color: disabled ? OLIVE_LIGHT : CREAM,
+    borderRadius: 8,
+    border: "none",
+    background: disabled ? "transparent" : PAPER,
+    color: disabled ? MUTED : SAGE_DARK,
     fontSize: 12.5,
-    fontFamily: "'Georgia', serif",
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+    fontWeight: 600,
     cursor: disabled ? "default" : "pointer",
     opacity: disabled ? 0.5 : 1,
   };
@@ -36,22 +34,17 @@ function pageNumberStyle(isCurrent) {
     minWidth: 28,
     height: 28,
     padding: "0 6px",
-    borderRadius: 999,
-    border: `1px solid ${isCurrent ? OLIVE_DARK : OLIVE_LIGHT}`,
-    background: isCurrent ? OLIVE_DARK : "transparent",
-    color: isCurrent ? CREAM : OLIVE_DARK,
+    borderRadius: 8,
+    border: "none",
+    background: isCurrent ? CLAY : "transparent",
+    color: isCurrent ? PAPER : SAGE_DARK,
     fontSize: 12.5,
-    fontWeight: isCurrent ? "bold" : "normal",
-    fontFamily: "'Georgia', serif",
+    fontWeight: isCurrent ? 700 : 500,
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     cursor: isCurrent ? "default" : "pointer",
   };
 }
 
-// Shared numbered pagination with Prev/Next, used by BooksView,
-// LeaderboardView, and QuoteWallView. `goToPage` receives the target page
-// number directly (not an updater function) — callers using setState should
-// pass `goToPage={(p) => setPage(p)}` rather than `setPage` directly if they
-// need extra logic, or just `goToPage={setPage}` if not.
 export default function Pagination({ page, totalPages, goToPage }) {
   if (totalPages <= 1) return null;
 
@@ -62,7 +55,7 @@ export default function Pagination({ page, totalPages, goToPage }) {
         justifyContent: "center",
         alignItems: "center",
         gap: 6,
-        marginTop: 24,
+        marginTop: 16,
         flexWrap: "wrap",
       }}
     >
@@ -78,7 +71,7 @@ export default function Pagination({ page, totalPages, goToPage }) {
         p === "…" ? (
           <span
             key={`ellipsis-${i}`}
-            style={{ padding: "0 4px", fontSize: 12.5, color: OLIVE_LIGHT }}
+            style={{ padding: "0 4px", fontSize: 12.5, color: MUTED }}
           >
             …
           </span>
@@ -91,7 +84,7 @@ export default function Pagination({ page, totalPages, goToPage }) {
           >
             {p}
           </button>
-        )
+        ),
       )}
 
       <button

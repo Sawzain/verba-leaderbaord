@@ -1,4 +1,4 @@
-import { OLIVE_LIGHT, DANGER_LIGHT, DANGER_DARK } from "../theme";
+import { SAGE, SAGE_DEEP } from "../theme";
 
 export const buttonInteractionStyles = `
   .verba-btn {
@@ -20,20 +20,20 @@ export const buttonInteractionStyles = `
   .verba-btn-elevated:hover {
     transform: translateY(-2px);
     filter: none;
-    box-shadow: 0 10px 26px rgba(45, 60, 45, 0.18);
+    box-shadow: 0 10px 26px ${SAGE_DEEP}2e;
   }
   .verba-btn-elevated:active {
     transform: translateY(0);
     filter: none;
-    box-shadow: 0 4px 14px rgba(45, 60, 45, 0.14);
+    box-shadow: 0 4px 14px ${SAGE_DEEP}24;
     opacity: 0.9;
   }
 
   .verba-btn-outline:hover {
-    background: ${OLIVE_LIGHT}22;
+    background: ${SAGE}55;
   }
   .verba-btn-outline:active {
-    background: ${OLIVE_LIGHT}3a;
+    background: ${SAGE}88;
   }
 
   .verba-link-btn {
@@ -44,13 +44,6 @@ export const buttonInteractionStyles = `
   }
   .verba-link-btn:active {
     opacity: 0.5;
-  }
-
-  .verba-row {
-    transition: background 0.15s ease;
-  }
-  .verba-row:hover {
-    background: #F0EBDC;
   }
 
   @keyframes verba-fade-up {

@@ -1,7 +1,17 @@
 import { Link } from "react-router-dom";
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
+import {
+  SAGE_DEEP,
+  SAGE_DARK,
+  PAPER,
+  MUTED,
+  CLAY,
+  SAGE_TINT,
+  CLAY_TINT,
+  AVATAR_COLORS,
+  FONT_SERIF,
+  FONT_SANS,
+} from "../theme";
 
-const AVATAR_COLORS = [OLIVE, OLIVE_DARK, "#8a9a4a", "#8a6a3a", "#5a7a6a"];
 function avatarColor(name) {
   let hash = 0;
   for (let i = 0; i < name.length; i++)
@@ -17,10 +27,6 @@ function initials(name) {
     .join("");
 }
 
-// Small floating tooltip-style preview, positioned by the caller (absolute
-// inside a relative-positioned wrapper around the triggering name).
-// Formats a Date/ISO string as "Jan 2025" — enough to feel personal
-// without needing exact-day precision for a small popup.
 function formatMemberSince(dateValue) {
   if (!dateValue) return null;
   const d = new Date(dateValue);
@@ -38,17 +44,16 @@ export default function MemberPreviewCard({ profile, loading }) {
         top: "calc(100% + 8px)",
         left: 0,
         zIndex: 50,
-        background: WHITE,
-        border: `2px solid ${OLIVE}`,
+        background: PAPER,
         borderRadius: 14,
-        boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
+        boxShadow: "0 10px 30px rgba(45,51,39,0.18)",
         padding: "14px 16px",
         width: 230,
-        fontFamily: "'Georgia', serif",
+        fontFamily: FONT_SANS,
       }}
     >
       {loading || !profile ? (
-        <div style={{ fontSize: 13, color: "#aaa", fontStyle: "italic" }}>
+        <div style={{ fontSize: 13, color: MUTED, fontStyle: "italic" }}>
           Loading…
         </div>
       ) : (
@@ -73,7 +78,7 @@ export default function MemberPreviewCard({ profile, loading }) {
                   height: 36,
                   borderRadius: "50%",
                   background: avatarColor(profile.name),
-                  color: CREAM,
+                  color: PAPER,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -88,9 +93,10 @@ export default function MemberPreviewCard({ profile, loading }) {
             <div style={{ minWidth: 0 }}>
               <div
                 style={{
-                  fontSize: 14,
-                  fontWeight: "bold",
-                  color: "#2d2d2d",
+                  fontSize: 15,
+                  fontFamily: FONT_SERIF,
+                  fontWeight: 600,
+                  color: SAGE_DEEP,
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -102,14 +108,14 @@ export default function MemberPreviewCard({ profile, loading }) {
                 to={`/app/members/${profile.id}`}
                 style={{
                   fontSize: 12,
-                  color: "#8a8a72",
+                  color: SAGE_DARK,
                   textDecoration: "underline",
                 }}
               >
                 {profile.points} book{profile.points !== 1 ? "s" : ""}
               </Link>
               {formatMemberSince(profile.memberSince) && (
-                <div style={{ fontSize: 10.5, color: "#aaa", marginTop: 1 }}>
+                <div style={{ fontSize: 10.5, color: MUTED, marginTop: 1 }}>
                   Member since {formatMemberSince(profile.memberSince)}
                 </div>
               )}
@@ -120,7 +126,7 @@ export default function MemberPreviewCard({ profile, loading }) {
             <div
               style={{
                 fontSize: 12.5,
-                color: "#5a5a4a",
+                color: SAGE_DEEP,
                 marginTop: 10,
                 lineHeight: 1.4,
                 display: "-webkit-box",
@@ -146,8 +152,8 @@ export default function MemberPreviewCard({ profile, loading }) {
                 <span
                   key={g}
                   style={{
-                    background: OLIVE,
-                    color: CREAM,
+                    background: SAGE_TINT,
+                    color: SAGE_DEEP,
                     borderRadius: 20,
                     padding: "2px 8px",
                     fontSize: 10.5,
@@ -159,11 +165,12 @@ export default function MemberPreviewCard({ profile, loading }) {
               {profile.favoriteGenres.length > MAX_VISIBLE_GENRES && (
                 <span
                   style={{
-                    background: CREAM_DARK,
-                    color: OLIVE_DARK,
+                    background: CLAY_TINT,
+                    color: CLAY,
                     borderRadius: 20,
                     padding: "2px 8px",
                     fontSize: 10.5,
+                    fontWeight: 600,
                   }}
                 >
                   +{profile.favoriteGenres.length - MAX_VISIBLE_GENRES}

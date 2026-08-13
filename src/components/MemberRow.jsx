@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK } from "../theme";
+import {
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  INK,
+  SAGE_TINT,
+  FONT_SERIF,
+} from "../theme";
 
 export default function MemberRow({
   member,
@@ -27,7 +35,7 @@ export default function MemberRow({
         display: "flex",
         flexDirection: "column",
         padding: "12px 0",
-        borderBottom: `1px solid ${CREAM}`,
+        borderBottom: "1px solid rgba(45,51,39,0.08)",
         gap: 6,
         opacity: isSaving ? 0.6 : 1,
         transition: "opacity 0.15s",
@@ -38,8 +46,8 @@ export default function MemberRow({
           style={{
             flex: 1,
             fontSize: 16,
-            color: "#2d2d2d",
-            fontFamily: "'Georgia', serif",
+            color: INK,
+            fontFamily: FONT_SERIF,
           }}
         >
           {member.name}
@@ -56,18 +64,18 @@ export default function MemberRow({
                 width: 60,
                 padding: "6px 8px",
                 borderRadius: 8,
-                border: `1.5px solid ${OLIVE}`,
+                border: `1.5px solid ${SAGE_DARK}`,
                 fontSize: 14,
                 textAlign: "center",
-                fontFamily: "'Georgia', serif",
+                fontFamily: FONT_SERIF,
               }}
             />
             <button
               className="verba-btn"
               onClick={() => onSaveEdit(member._id)}
               style={{
-                background: "#6B7A3A",
-                color: CREAM,
+                background: SAGE_DARK,
+                color: PAPER,
                 border: "none",
                 borderRadius: 8,
                 padding: "6px 12px",
@@ -82,7 +90,7 @@ export default function MemberRow({
               aria-label="Cancel editing points"
               style={{
                 background: "transparent",
-                color: "#0a3101",
+                color: SAGE_DEEP,
                 border: "none",
                 cursor: "pointer",
                 fontSize: 13,
@@ -101,12 +109,12 @@ export default function MemberRow({
                 width: 28,
                 height: 28,
                 borderRadius: "50%",
-                border: `1.5px solid ${CREAM_DARK}`,
-                background: "white",
+                border: `1.5px solid ${MUTED}`,
+                background: PAPER,
                 boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
                 cursor: isSaving ? "default" : "pointer",
                 fontSize: 16,
-                color: OLIVE_DARK,
+                color: SAGE_DEEP,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -121,12 +129,12 @@ export default function MemberRow({
               style={{
                 minWidth: 44,
                 textAlign: "center",
-                background: CREAM,
+                background: SAGE_TINT,
                 borderRadius: 8,
                 padding: "4px 8px",
                 fontSize: 14,
                 fontWeight: "bold",
-                color: OLIVE_DARK,
+                color: SAGE_DEEP,
                 cursor: "pointer",
               }}
             >
@@ -147,8 +155,8 @@ export default function MemberRow({
                   fontSize: 12,
                   borderRadius: 8,
                   padding: "4px 6px",
-                  border: `1.5px solid ${OLIVE}`,
-                  fontFamily: "'Georgia', serif",
+                  border: `1.5px solid ${SAGE_DARK}`,
+                  fontFamily: FONT_SERIF,
                   maxWidth: 130,
                 }}
               >
@@ -175,11 +183,11 @@ export default function MemberRow({
                   width: 28,
                   height: 28,
                   borderRadius: "50%",
-                  border: `1.5px solid ${CREAM_DARK}`,
-                  background: "white",
+                  border: `1.5px solid ${MUTED}`,
+                  background: PAPER,
                   cursor: isSaving ? "default" : "pointer",
                   fontSize: 16,
-                  color: OLIVE_DARK,
+                  color: SAGE_DEEP,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -193,12 +201,12 @@ export default function MemberRow({
               onClick={onRemove}
               disabled={isSaving}
               aria-label={`Remove ${member.name}`}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#222")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#333")}
+              onMouseEnter={(e) => (e.currentTarget.style.color = SAGE_DEEP)}
+              onMouseLeave={(e) => (e.currentTarget.style.color = INK)}
               style={{
                 background: "transparent",
                 border: "none",
-                color: "#333",
+                color: INK,
                 cursor: isSaving ? "default" : "pointer",
                 fontSize: 16,
                 marginLeft: 4,
@@ -225,8 +233,8 @@ export default function MemberRow({
                 fontSize: 11,
                 borderRadius: 6,
                 padding: "3px 6px",
-                border: `1px solid ${OLIVE}`,
-                fontFamily: "'Georgia', serif",
+                border: `1px solid ${SAGE_DARK}`,
+                fontFamily: FONT_SERIF,
               }}
             >
               <option value="" disabled>
@@ -243,7 +251,7 @@ export default function MemberRow({
               onClick={() => setShowLinkPicker(true)}
               style={{
                 fontSize: 11,
-                color: OLIVE_DARK,
+                color: SAGE_DEEP,
                 background: "none",
                 border: "none",
                 cursor: "pointer",

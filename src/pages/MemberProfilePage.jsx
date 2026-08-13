@@ -3,53 +3,40 @@ import { useParams, Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
 import useMemberProfile from "../hooks/useMemberProfile";
 import {
-  OLIVE,
-  OLIVE_DARK,
-  OLIVE_LIGHT,
-  CREAM,
-  CREAM_DARK,
-  WHITE,
+  SAGE,
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  CLAY,
+  SAGE_TINT,
+  FONT_SERIF,
+  avatarColor,
+  initials,
 } from "../theme";
 
-// Same deterministic initials-avatar approach used nowhere else yet in the
-// app, but matches the palette — a stable color per name (via a simple
-// hash) so the same person always gets the same avatar color.
-const AVATAR_COLORS = [OLIVE, OLIVE_DARK, OLIVE_LIGHT, "#8a6a3a", "#5a7a6a"];
-function avatarColor(name) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++)
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-function initials(name) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join("");
-}
-
 const primaryBtn = {
-  background: OLIVE,
-  color: CREAM,
+  background: SAGE_DEEP,
+  color: PAPER,
   border: "none",
   borderRadius: 10,
   padding: "8px 18px",
   fontSize: 14,
+  fontWeight: 600,
   cursor: "pointer",
-  fontFamily: "'Georgia', serif",
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
 };
 
 const secondaryBtn = {
   background: "transparent",
-  color: OLIVE_DARK,
-  border: `1.5px solid ${CREAM_DARK}`,
+  color: SAGE_DEEP,
+  border: `1.5px solid ${SAGE}`,
   borderRadius: 10,
   padding: "8px 18px",
   fontSize: 14,
+  fontWeight: 600,
   cursor: "pointer",
-  fontFamily: "'Georgia', serif",
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
 };
 
 export default function MemberProfilePage() {
@@ -62,13 +49,15 @@ export default function MemberProfilePage() {
   const [draftGenres, setDraftGenres] = useState([]);
   const [booksExpanded, setBooksExpanded] = useState(false);
 
+  const MAX_GENRES = 5;
+
   if (loading)
     return (
       <div
         style={{
           padding: 40,
           textAlign: "center",
-          color: "#aaa",
+          color: MUTED,
           fontStyle: "italic",
         }}
       >
@@ -81,7 +70,7 @@ export default function MemberProfilePage() {
         style={{
           padding: 40,
           textAlign: "center",
-          color: "#aaa",
+          color: MUTED,
           fontStyle: "italic",
         }}
       >
@@ -105,8 +94,6 @@ export default function MemberProfilePage() {
     if (ok) setEditing(false);
   };
 
-  const MAX_GENRES = 5;
-
   const toggleGenre = (g) =>
     setDraftGenres((prev) => {
       if (prev.includes(g)) return prev.filter((x) => x !== g);
@@ -115,11 +102,13 @@ export default function MemberProfilePage() {
     });
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div
+      style={{ padding: "24px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+    >
       <Link
         to="/app/leaderboard"
         style={{
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           fontSize: 13,
           textDecoration: "underline",
         }}
@@ -154,13 +143,12 @@ export default function MemberProfilePage() {
               height: 56,
               borderRadius: "50%",
               background: avatarColor(profile.name),
-              color: CREAM,
+              color: PAPER,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 20,
               fontWeight: "bold",
-              fontFamily: "'Georgia', serif",
               flexShrink: 0,
             }}
           >
@@ -170,15 +158,15 @@ export default function MemberProfilePage() {
         <div>
           <h1
             style={{
-              fontFamily: "'Georgia', serif",
-              color: OLIVE_DARK,
+              fontFamily: FONT_SERIF,
+              color: SAGE_DEEP,
               margin: 0,
-              fontSize: 24,
+              fontSize: 26,
             }}
           >
             {profile.name}
           </h1>
-          <div style={{ color: "#8a8a72", fontSize: 13, marginTop: 2 }}>
+          <div style={{ color: MUTED, fontSize: 13, marginTop: 2 }}>
             {profile.points} book{profile.points !== 1 ? "s" : ""} read
           </div>
         </div>
@@ -186,20 +174,20 @@ export default function MemberProfilePage() {
 
       <div
         style={{
-          fontSize: 13,
-          color: OLIVE,
-          letterSpacing: "1px",
-          textTransform: "uppercase",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          color: SAGE_DARK,
+          letterSpacing: "0.5px",
           marginBottom: 10,
         }}
       >
-        Books Read
+        BOOKS READ
       </div>
 
       {(!profile.booksRead || profile.booksRead.length === 0) && (
         <div
           style={{
-            color: "#aaa",
+            color: MUTED,
             fontStyle: "italic",
             fontSize: 14,
             marginBottom: 22,
@@ -211,13 +199,7 @@ export default function MemberProfilePage() {
 
       {profile.booksRead?.length > 0 && (
         <div style={{ marginBottom: 22 }}>
-          <ul
-            style={{
-              listStyle: "none",
-              margin: 0,
-              padding: 0,
-            }}
-          >
+          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
             {(booksExpanded
               ? profile.booksRead
               : profile.booksRead.slice(0, 3)
@@ -227,8 +209,8 @@ export default function MemberProfilePage() {
                 style={{
                   padding: "9px 4px",
                   borderBottom:
-                    i < arr.length - 1 ? `1px solid ${CREAM_DARK}` : "none",
-                  color: "#3f4230",
+                    i < arr.length - 1 ? `1px solid ${SAGE}55` : "none",
+                  color: SAGE_DEEP,
                   fontSize: 14,
                 }}
               >
@@ -243,7 +225,7 @@ export default function MemberProfilePage() {
               style={{
                 background: "none",
                 border: "none",
-                color: OLIVE_DARK,
+                color: SAGE_DEEP,
                 fontSize: 12,
                 textDecoration: "underline",
                 cursor: "pointer",
@@ -262,11 +244,10 @@ export default function MemberProfilePage() {
       {!profile.linked && (
         <div
           style={{
-            background: CREAM,
-            border: `1px solid ${CREAM_DARK}`,
+            background: SAGE,
             borderRadius: 12,
             padding: "14px 16px",
-            color: OLIVE_DARK,
+            color: SAGE_DEEP,
             fontStyle: "italic",
             fontSize: 14,
           }}
@@ -281,7 +262,7 @@ export default function MemberProfilePage() {
           {profile.bio && (
             <p
               style={{
-                color: "#3f4230",
+                color: SAGE_DEEP,
                 fontSize: 15,
                 lineHeight: 1.5,
                 marginTop: 0,
@@ -304,12 +285,12 @@ export default function MemberProfilePage() {
                 <span
                   key={g}
                   style={{
-                    background: OLIVE,
-                    color: CREAM,
+                    background: SAGE_TINT,
+                    color: SAGE_DEEP,
                     borderRadius: 20,
                     padding: "4px 12px",
                     fontSize: 12,
-                    fontFamily: "'Georgia', serif",
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
                   }}
                 >
                   {g}
@@ -330,23 +311,19 @@ export default function MemberProfilePage() {
 
           <div
             style={{
-              fontSize: 13,
-              color: OLIVE,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              color: SAGE_DARK,
+              letterSpacing: "0.5px",
               marginBottom: 10,
             }}
           >
-            Reviews
+            REVIEWS
           </div>
 
           {(!profile.reviews || profile.reviews.length === 0) && (
             <div
-              style={{
-                color: "#aaa",
-                fontStyle: "italic",
-                padding: "16px 0",
-              }}
+              style={{ color: MUTED, fontStyle: "italic", padding: "16px 0" }}
             >
               No reviews yet.
             </div>
@@ -360,8 +337,7 @@ export default function MemberProfilePage() {
                 display: "block",
                 textDecoration: "none",
                 color: "inherit",
-                background: WHITE,
-                border: `1px solid ${CREAM_DARK}`,
+                background: PAPER,
                 borderRadius: 12,
                 padding: "12px 16px",
                 marginBottom: 10,
@@ -375,22 +351,16 @@ export default function MemberProfilePage() {
                   gap: 8,
                 }}
               >
-                <strong
-                  style={{ fontFamily: "'Georgia', serif", color: "#2d2d2d" }}
-                >
+                <strong style={{ fontFamily: FONT_SERIF, color: SAGE_DEEP }}>
                   {r.bookTitle}
                 </strong>
-                <span style={{ color: "#d4a017", fontSize: 13, flexShrink: 0 }}>
+                <span style={{ color: CLAY, fontSize: 13, flexShrink: 0 }}>
                   {"★".repeat(r.rating)}
                 </span>
               </div>
               {r.text && (
                 <p
-                  style={{
-                    margin: "6px 0 0",
-                    color: "#3f4230",
-                    fontSize: 14,
-                  }}
+                  style={{ margin: "6px 0 0", color: SAGE_DEEP, fontSize: 14 }}
                 >
                   {r.text}
                 </p>
@@ -409,11 +379,9 @@ export default function MemberProfilePage() {
             rows={4}
             placeholder="A line or two about you…"
             onFocus={(e) => {
-              e.target.style.borderColor = OLIVE;
-              e.target.style.boxShadow = `0 0 0 3px ${OLIVE}22`;
+              e.target.style.boxShadow = `0 0 0 3px ${SAGE_DARK}33`;
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = CREAM_DARK;
               e.target.style.boxShadow = "none";
             }}
             style={{
@@ -422,35 +390,34 @@ export default function MemberProfilePage() {
               marginBottom: 6,
               padding: "12px 16px",
               borderRadius: 12,
-              border: `1.5px solid ${CREAM_DARK}`,
+              border: "none",
               fontSize: 14,
               lineHeight: 1.5,
-              fontFamily: "'Georgia', serif",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
               fontStyle: "italic",
               outline: "none",
               resize: "vertical",
-              background: WHITE,
-              color: "#2d2d2d",
-              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.04)",
-              transition: "border-color 0.15s ease, box-shadow 0.15s ease",
+              background: PAPER,
+              color: SAGE_DEEP,
+              transition: "box-shadow 0.15s ease",
             }}
           />
-          <div style={{ fontSize: 12, color: "#8a8a72", marginBottom: 14 }}>
+          <div style={{ fontSize: 12, color: MUTED, marginBottom: 14 }}>
             {draftBio.length}/200
           </div>
 
           <div
             style={{
-              fontSize: 13,
-              color: OLIVE_DARK,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 11,
+              color: SAGE_DARK,
+              letterSpacing: "0.5px",
               marginBottom: 4,
             }}
           >
-            Favorite genres
+            FAVORITE GENRES
           </div>
-          <div style={{ fontSize: 12, color: "#8a8a72", marginBottom: 10 }}>
+          <div style={{ fontSize: 12, color: MUTED, marginBottom: 10 }}>
             {draftGenres.length}/{MAX_GENRES} selected
           </div>
           <div
@@ -474,10 +441,10 @@ export default function MemberProfilePage() {
                     borderRadius: 20,
                     padding: "5px 14px",
                     fontSize: 12,
-                    fontFamily: "'Georgia', serif",
-                    border: `1.5px solid ${OLIVE}`,
-                    background: selected ? OLIVE : "transparent",
-                    color: selected ? CREAM : OLIVE_DARK,
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    border: `1.5px solid ${SAGE_DARK}`,
+                    background: selected ? SAGE_DEEP : "transparent",
+                    color: selected ? PAPER : SAGE_DEEP,
                     cursor: disabled ? "not-allowed" : "pointer",
                     opacity: disabled ? 0.4 : 1,
                   }}

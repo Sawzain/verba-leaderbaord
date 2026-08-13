@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
+import {
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  INK,
+  FONT_SERIF,
+  SAGE_TINT,
+  DANGER,
+} from "../theme";
 import { API_ROOT } from "../hooks/useMembers";
 
 const inputStyle = {
   padding: "10px 14px",
   borderRadius: 10,
-  border: `1.5px solid ${CREAM_DARK}`,
+  border: `1.5px solid ${MUTED}`,
   fontSize: 14,
-  fontFamily: "'Georgia', serif",
+  fontFamily: FONT_SERIF,
   outline: "none",
-  background: WHITE,
-  color: "#2d2d2d",
+  background: PAPER,
+  color: INK,
   boxSizing: "border-box",
 };
 
@@ -50,7 +59,7 @@ export default function AdminPasswordReset({ token }) {
       <div
         style={{
           fontSize: 13,
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           letterSpacing: "1px",
           textTransform: "uppercase",
           marginBottom: 10,
@@ -71,33 +80,33 @@ export default function AdminPasswordReset({ token }) {
           onClick={submit}
           disabled={busy}
           style={{
-            background: "#6B7A3A",
-            color: CREAM,
+            background: SAGE_DARK,
+            color: PAPER,
             border: "none",
             borderRadius: 10,
             padding: "10px 18px",
             fontSize: 14,
             cursor: busy ? "default" : "pointer",
             opacity: busy ? 0.7 : 1,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SERIF,
           }}
         >
           {busy ? "Resetting…" : "Reset password"}
         </button>
       </div>
 
-      {error && <div style={{ marginTop: 8, fontSize: 13, color: "#a33" }}>{error}</div>}
+      {error && <div style={{ marginTop: 8, fontSize: 13, color: DANGER }}>{error}</div>}
 
       {result && (
         <div
           style={{
             marginTop: 10,
-            background: "#eef3e2",
-            border: "1px solid #d3e0bd",
+            background: SAGE_TINT,
+            border: "1px solid rgba(95,115,85,0.3)",
             borderRadius: 10,
             padding: "10px 12px",
             fontSize: 13,
-            color: "#3f4d1e",
+            color: SAGE_DEEP,
           }}
         >
           New temporary password for {result.name} ({result.email}):{" "}

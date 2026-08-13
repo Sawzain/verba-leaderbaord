@@ -1,18 +1,38 @@
 import { useState } from "react";
-import { OLIVE, OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
+import {
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  INK,
+  FONT_SERIF,
+  DANGER,
+  DANGER_LIGHT,
+  DANGER_DARK,
+} from "../theme";
 import MemberRow from "./MemberRow";
 import AdminPasswordReset from "./AdminPasswordReset";
 import AuthPanel from "./AuthPanel";
 
+// AppShell no longer wraps pages in a frosted cream panel (removed in the
+// full-site revamp) — this view owns its own PAPER card against the SAGE
+// page background, same pattern as Leaderboard/Verba Wall. Applied to both
+// the locked-out AdminGate states and the main admin content below.
+const cardStyle = {
+  background: PAPER,
+  border: "1px solid rgba(45,51,39,0.08)",
+  borderRadius: 14,
+};
+
 const inputStyle = {
   padding: "10px 14px",
   borderRadius: 10,
-  border: `1.5px solid ${CREAM_DARK}`,
+  border: `1.5px solid ${MUTED}`,
   fontSize: 15,
-  fontFamily: "'Georgia', serif",
+  fontFamily: FONT_SERIF,
   outline: "none",
-  background: WHITE,
-  color: "#2d2d2d",
+  background: PAPER,
+  color: INK,
   boxSizing: "border-box",
 };
 
@@ -21,12 +41,12 @@ const inputStyle = {
 function AdminGate({ auth }) {
   if (auth.isLoggedIn) {
     return (
-      <div style={{ padding: "32px 24px", textAlign: "center" }}>
+      <div style={{ ...cardStyle, padding: "32px 24px", textAlign: "center" }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
         <div
           style={{
             fontSize: 15,
-            color: "#2d2d2d",
+            color: INK,
             marginBottom: 4,
             fontWeight: "bold",
           }}
@@ -36,7 +56,7 @@ function AdminGate({ auth }) {
         <div
           style={{
             fontSize: 13,
-            color: OLIVE_DARK,
+            color: SAGE_DEEP,
             maxWidth: 320,
             margin: "0 auto",
           }}
@@ -49,20 +69,20 @@ function AdminGate({ auth }) {
   }
 
   return (
-    <div style={{ padding: "32px 24px" }}>
+    <div style={{ ...cardStyle, padding: "32px 24px" }}>
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <div style={{ fontSize: 32, marginBottom: 8 }}>🔒</div>
         <div
           style={{
             fontSize: 15,
-            color: "#2d2d2d",
+            color: INK,
             marginBottom: 4,
             fontWeight: "bold",
           }}
         >
           Manage view is locked
         </div>
-        <div style={{ fontSize: 13, color: OLIVE_DARK }}>
+        <div style={{ fontSize: 13, color: SAGE_DEEP }}>
           Log in with an admin account to add, edit, or remove members.
         </div>
       </div>
@@ -122,17 +142,17 @@ export default function ManageView({
   };
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ ...cardStyle, padding: "24px" }}>
       {error && (
         <div
           style={{
             marginBottom: 20,
-            background: "#fbeaea",
-            border: "1px solid #e6b8b8",
+            background: DANGER_LIGHT,
+            border: `1px solid ${DANGER_DARK}`,
             borderRadius: 10,
             padding: "10px 12px",
             fontSize: 13,
-            color: "#7a2a2a",
+            color: DANGER,
             display: "flex",
             justifyContent: "space-between",
             gap: 8,
@@ -146,7 +166,7 @@ export default function ManageView({
             style={{
               background: "none",
               border: "none",
-              color: "#7a2a2a",
+              color: DANGER,
               cursor: "pointer",
               fontWeight: "bold",
             }}
@@ -162,7 +182,7 @@ export default function ManageView({
         <div
           style={{
             fontSize: 13,
-            color: OLIVE_DARK,
+            color: SAGE_DEEP,
             letterSpacing: "1px",
             textTransform: "uppercase",
             marginBottom: 12,
@@ -179,18 +199,18 @@ export default function ManageView({
             style={{ ...inputStyle, flex: 2, minWidth: 140 }}
           />
 
-            <button
+          <button
             className="verba-btn"
             onClick={addMember}
             style={{
-              background: "#6B7A3A",
-              color: CREAM,
+              background: SAGE_DARK,
+              color: PAPER,
               border: "none",
               borderRadius: 10,
               padding: "10px 18px",
               fontSize: 15,
               cursor: "pointer",
-              fontFamily: "'Georgia', serif",
+              fontFamily: FONT_SERIF,
             }}
           >
             Add
@@ -209,7 +229,7 @@ export default function ManageView({
         <div
           style={{
             fontSize: 13,
-            color: OLIVE,
+            color: SAGE_DARK,
             letterSpacing: "1px",
             textTransform: "uppercase",
           }}
@@ -234,7 +254,7 @@ export default function ManageView({
       {loading && (
         <div
           style={{
-            color: "#aaa",
+            color: MUTED,
             fontStyle: "italic",
             padding: "20px 0",
             textAlign: "center",
@@ -247,7 +267,7 @@ export default function ManageView({
       {!loading && members.length === 0 && (
         <div
           style={{
-            color: "#aaa",
+            color: MUTED,
             fontStyle: "italic",
             padding: "20px 0",
             textAlign: "center",
@@ -260,7 +280,7 @@ export default function ManageView({
       {!loading && members.length > 0 && filteredMembers.length === 0 && (
         <div
           style={{
-            color: "#aaa",
+            color: MUTED,
             fontStyle: "italic",
             padding: "20px 0",
             textAlign: "center",

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CREAM_DARK, OLIVE_DARK } from "../theme";
+import { MUTED, SAGE_DEEP } from "../theme";
 
 // Clickable stars for submitting a review.
 export function StarInput({ value, onChange }) {
@@ -17,7 +17,7 @@ export function StarInput({ value, onChange }) {
           className="verba-clickable"
           style={{
             cursor: "pointer",
-            color: n <= active ? "#c9a227" : CREAM_DARK,
+            color: n <= active ? "#c9a227" : MUTED,
             transition: "color 0.1s",
           }}
         >
@@ -28,7 +28,7 @@ export function StarInput({ value, onChange }) {
         style={{
           marginLeft: 8,
           fontSize: 13,
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           verticalAlign: "middle",
         }}
       >
@@ -46,7 +46,7 @@ export function StarDisplay({ value, size = 16 }) {
         <span
           key={n}
           style={{
-            color: n <= value ? "#c9a227" : CREAM_DARK,
+            color: n <= value ? "#c9a227" : MUTED,
           }}
         >
           ★

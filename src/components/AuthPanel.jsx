@@ -1,15 +1,23 @@
 import { useState } from "react";
-import { OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
+import {
+  SAGE_DEEP,
+  SAGE,
+  PAPER,
+  MUTED,
+  DANGER,
+  INK,
+  FONT_SANS,
+} from "../theme";
 
 const inputStyle = {
   padding: "10px 14px",
   borderRadius: 10,
-  border: `1.5px solid ${CREAM_DARK}`,
+  border: "none",
   fontSize: 15,
-  fontFamily: "'Georgia', serif",
+  fontFamily: FONT_SANS,
   outline: "none",
-  background: WHITE,
-  color: "#2d2d2d",
+  background: PAPER,
+  color: INK,
   boxSizing: "border-box",
   width: "100%",
 };
@@ -23,7 +31,7 @@ export default function AuthPanel({
   onForgotPassword,
   discordLoginUrl,
 }) {
-  const [mode, setMode] = useState("login"); // "login" | "register" | "forgot"
+  const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -66,13 +74,12 @@ export default function AuthPanel({
     return (
       <div
         style={{
-          background: "#f6f3e8",
-          border: `1px solid ${CREAM_DARK}`,
+          background: SAGE,
           borderRadius: 12,
           padding: "18px 16px",
         }}
       >
-        <div style={{ fontSize: 14, color: "#2d2d2d", marginBottom: 12 }}>
+        <div style={{ fontSize: 14, color: SAGE_DEEP, marginBottom: 12 }}>
           Enter your account email and we'll send a link to reset your password.
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -85,7 +92,7 @@ export default function AuthPanel({
             style={inputStyle}
           />
           {forgotMessage && (
-            <div style={{ fontSize: 13, color: OLIVE_DARK }}>
+            <div style={{ fontSize: 13, color: SAGE_DEEP }}>
               {forgotMessage}
             </div>
           )}
@@ -95,15 +102,16 @@ export default function AuthPanel({
             disabled={forgotBusy}
             style={{
               marginTop: 4,
-              background: "#6B7A3A",
-              color: CREAM,
+              background: SAGE_DEEP,
+              color: PAPER,
               border: "none",
               borderRadius: 10,
               padding: "10px 18px",
               fontSize: 15,
               cursor: forgotBusy ? "default" : "pointer",
               opacity: forgotBusy ? 0.7 : 1,
-              fontFamily: "'Georgia', serif",
+              fontFamily: FONT_SANS,
+              fontWeight: 600,
             }}
           >
             {forgotBusy ? "Sending…" : "Send reset link"}
@@ -115,9 +123,9 @@ export default function AuthPanel({
               border: "none",
               padding: 0,
               marginTop: 4,
-              fontFamily: "'Georgia', serif",
+              fontFamily: FONT_SANS,
               fontSize: 13,
-              color: OLIVE_DARK,
+              color: SAGE_DEEP,
               textDecoration: "underline",
               cursor: "pointer",
               alignSelf: "flex-start",
@@ -133,8 +141,7 @@ export default function AuthPanel({
   return (
     <div
       style={{
-        background: "#f6f3e8",
-        border: `1px solid ${CREAM_DARK}`,
+        background: SAGE,
         borderRadius: 12,
         padding: "18px 16px",
       }}
@@ -152,7 +159,8 @@ export default function AuthPanel({
           borderRadius: 10,
           padding: "10px 18px",
           fontSize: 14,
-          fontFamily: "'Georgia', serif",
+          fontFamily: FONT_SANS,
+          fontWeight: 600,
           textDecoration: "none",
           marginBottom: 14,
         }}
@@ -165,13 +173,17 @@ export default function AuthPanel({
           alignItems: "center",
           gap: 10,
           marginBottom: 14,
-          color: "#999",
+          color: MUTED,
           fontSize: 12,
         }}
       >
-        <div style={{ flex: 1, height: 1, background: CREAM_DARK }} />
+        <div
+          style={{ flex: 1, height: 1, background: "rgba(45,51,39,0.15)" }}
+        />
         or use email
-        <div style={{ flex: 1, height: 1, background: CREAM_DARK }} />
+        <div
+          style={{ flex: 1, height: 1, background: "rgba(45,51,39,0.15)" }}
+        />
       </div>
       <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
         <button
@@ -180,14 +192,14 @@ export default function AuthPanel({
             background: "none",
             border: "none",
             padding: 0,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SANS,
             fontSize: 14,
             cursor: "pointer",
-            color: mode === "login" ? OLIVE_DARK : "#999",
-            fontWeight: mode === "login" ? "bold" : "normal",
+            color: mode === "login" ? SAGE_DEEP : MUTED,
+            fontWeight: mode === "login" ? 700 : 500,
             borderBottom:
               mode === "login"
-                ? `2px solid ${OLIVE_DARK}`
+                ? `2px solid ${SAGE_DEEP}`
                 : "2px solid transparent",
             paddingBottom: 4,
           }}
@@ -200,14 +212,14 @@ export default function AuthPanel({
             background: "none",
             border: "none",
             padding: 0,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SANS,
             fontSize: 14,
             cursor: "pointer",
-            color: mode === "register" ? OLIVE_DARK : "#999",
-            fontWeight: mode === "register" ? "bold" : "normal",
+            color: mode === "register" ? SAGE_DEEP : MUTED,
+            fontWeight: mode === "register" ? 700 : 500,
             borderBottom:
               mode === "register"
-                ? `2px solid ${OLIVE_DARK}`
+                ? `2px solid ${SAGE_DEEP}`
                 : "2px solid transparent",
             paddingBottom: 4,
           }}
@@ -217,14 +229,12 @@ export default function AuthPanel({
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {mode === "register" && (
-          <>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              style={inputStyle}
-            />
-          </>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name"
+            style={inputStyle}
+          />
         )}
         <input
           type="email"
@@ -249,8 +259,8 @@ export default function AuthPanel({
             onClick={() => setShowPassword((s) => !s)}
             title={showPassword ? "Hide password" : "Show password"}
             style={{
-              border: `1.5px solid ${CREAM_DARK}`,
-              background: WHITE,
+              border: "none",
+              background: PAPER,
               borderRadius: 10,
               width: 42,
               flexShrink: 0,
@@ -268,9 +278,9 @@ export default function AuthPanel({
               background: "none",
               border: "none",
               padding: 0,
-              fontFamily: "'Georgia', serif",
+              fontFamily: FONT_SANS,
               fontSize: 12,
-              color: OLIVE_DARK,
+              color: SAGE_DEEP,
               textDecoration: "underline",
               cursor: "pointer",
               alignSelf: "flex-end",
@@ -280,7 +290,7 @@ export default function AuthPanel({
           </button>
         )}
         {authError && (
-          <div style={{ fontSize: 13, color: "#a33" }}>{authError}</div>
+          <div style={{ fontSize: 13, color: DANGER }}>{authError}</div>
         )}
         <button
           className="verba-btn"
@@ -288,15 +298,16 @@ export default function AuthPanel({
           disabled={authBusy}
           style={{
             marginTop: 4,
-            background: "#6B7A3A",
-            color: CREAM,
+            background: SAGE_DEEP,
+            color: PAPER,
             border: "none",
             borderRadius: 10,
             padding: "10px 18px",
             fontSize: 15,
             cursor: authBusy ? "default" : "pointer",
             opacity: authBusy ? 0.7 : 1,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SANS,
+            fontWeight: 600,
           }}
         >
           {authBusy

@@ -1,15 +1,14 @@
-import { OLIVE_LIGHT } from "../theme";
+import { MUTED } from "../theme";
 
-// Shared "nothing to show" message — used for loading states, empty lists,
-// and no-search-results messages across Books, Leaderboard, and Reviews.
 export default function EmptyState({ message, padding = 40 }) {
   return (
     <div
       style={{
         padding,
         textAlign: "center",
-        color: OLIVE_LIGHT,
+        color: MUTED,
         fontStyle: "italic",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
     >
       {message}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { OLIVE, OLIVE_DARK, OLIVE_LIGHT, CREAM, CREAM_DARK } from "../theme";
+import { SAGE_DARK, SAGE_DEEP, SAGE, PAPER, SAGE_TINT, CLAY_TINT, FONT_SERIF } from "../theme";
 import Pagination from "./Pagination";
 
 // Long poems are common on the Wall — anything over this line count
@@ -7,10 +7,11 @@ import Pagination from "./Pagination";
 // the page doesn't mean scrolling through one person's entire poem first.
 const COLLAPSE_LINE_THRESHOLD = 6;
 
-// Lives inside AppShell's 620px cream card, so no full-page background here —
-// just content styled to match Leaderboard/Reviews. Georgia serif throughout,
-// per the app's existing type choice. The leaf glyph nods to "Verba" (willow)
-// without introducing a new visual language on top of the existing one.
+// AppShell no longer wraps pages in a frosted cream panel (removed in the
+// full-site revamp), so this view owns its own PAPER card against the
+// SAGE page background — same pattern as Leaderboard. The leaf glyph nods
+// to "Verba" (willow) without introducing a new visual language on top of
+// the existing one.
 // Quotes and poems share this one page, switched via the Quotes/Poems/All
 // toggle rather than living on separate tabs. Sort order (newest first)
 // comes from the backend — this component just renders what it's given.
@@ -64,7 +65,7 @@ const renderDiscordText = (text = "") => {
 // Always keeps first, last, and a small window around the current page so it
 // stays readable even with dozens of pages.
 
-const LeafMark = ({ size = 16, color = OLIVE_LIGHT }) => (
+const LeafMark = ({ size = 16, color = SAGE }) => (
   <svg viewBox="0 0 40 40" width={size} height={size} aria-hidden="true">
     <path
       d="M20 4C10 10 6 20 12 32c2-6 6-11 12-14-4 6-6 12-6 18 10-4 16-14 14-26-4 2-8 3-12 3 2-3 4-6 0-9z"
@@ -79,10 +80,10 @@ const SOURCE_TABS = [
   { value: "poetry-corner", label: "Poems" },
 ];
 
-// Card background matches the app's translucent-cream language (same idea
-// as AppShell's frosted panel) instead of a stark white block.
-const CARD_BG = "rgba(255,255,255,0.4)";
-const CARD_BORDER = "rgba(107,122,58,0.28)"; // OLIVE at low alpha
+// Faint tint against the PAPER wrapper card, matching the hairline-border
+// language used elsewhere post-revamp (Leaderboard's "Recent activity" box).
+const CARD_BG = SAGE_TINT;
+const CARD_BORDER = "rgba(45,51,39,0.08)";
 
 export default function QuoteWallView({
   quotes,
@@ -111,12 +112,20 @@ export default function QuoteWallView({
   const rest = quotes.filter((q) => q.id !== featured?.id);
 
   return (
-    <div style={{ padding: "28px 24px 32px", fontFamily: "'Georgia', serif" }}>
+    <div
+      style={{
+        background: PAPER,
+        border: "1px solid rgba(45,51,39,0.08)",
+        borderRadius: 14,
+        padding: "28px 24px 32px",
+        fontFamily: FONT_SERIF,
+      }}
+    >
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         <h2
           style={{
             margin: "0 0 4px",
-            color: OLIVE_DARK,
+            color: SAGE_DEEP,
             fontSize: 26,
             letterSpacing: "0.5px",
           }}
@@ -124,49 +133,55 @@ export default function QuoteWallView({
           Verba Wall
         </h2>
         <p
-          style={{ margin: 0, fontStyle: "italic", color: OLIVE, fontSize: 14 }}
+          style={{
+            margin: 0,
+            fontStyle: "italic",
+            color: SAGE_DARK,
+            fontSize: 14,
+          }}
         >
           Words worth pressing between pages
         </p>
       </div>
 
-      {/* Segmented toggle, restyled to match TabSwitcher's olive/cream pill nav */}
       <div
         style={{
           display: "flex",
           gap: 6,
           justifyContent: "center",
           marginBottom: 16,
-          background: OLIVE_DARK,
+          background: SAGE_DEEP,
           padding: 3,
           borderRadius: 10,
           maxWidth: 280,
           margin: "0 auto 16px",
         }}
       >
-        {SOURCE_TABS.map(({ value, label }) => (
-          <button
-            key={value}
-            onClick={() => setSourceFilter(value)}
-            style={{
-              flex: 1,
-              padding: "6px 12px",
-              borderRadius: 7,
-              border: "none",
-              cursor: "pointer",
-              fontSize: 12,
-              fontFamily: "'Georgia', serif",
-              background: sourceFilter === value ? CREAM : "transparent",
-              color: sourceFilter === value ? OLIVE_DARK : CREAM_DARK,
-              fontWeight: sourceFilter === value ? "bold" : "normal",
-              transition: "all 0.15s",
-            }}
-          >
-            {label}
-          </button>
-        ))}
+        {SOURCE_TABS.map(({ value, label }) => {
+          const active = sourceFilter === value;
+          return (
+            <button
+              key={value}
+              onClick={() => setSourceFilter(value)}
+              style={{
+                fontFamily: FONT_SERIF,
+                fontStyle: "italic",
+                fontWeight: active ? "bold" : "normal",
+                color: active ? SAGE_DEEP : PAPER,
+                fontSize: 13,
+                lineHeight: 1.5,
+                padding: "6px 14px",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                background: active ? PAPER : "transparent",
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
-
       {books.length > 0 && (
         <div
           style={{
@@ -213,8 +228,8 @@ export default function QuoteWallView({
             {featured && (
               <div
                 style={{
-                  border: `1px solid ${OLIVE_LIGHT}`,
-                  background: CREAM_DARK,
+                  border: `1px solid ${SAGE}`,
+                  background: MUTED,
                   borderRadius: 10,
                   padding: "18px 20px",
                 }}
@@ -224,7 +239,7 @@ export default function QuoteWallView({
                     fontSize: 11,
                     letterSpacing: "1px",
                     textTransform: "uppercase",
-                    color: OLIVE_DARK,
+                    color: SAGE_DEEP,
                     fontWeight: "bold",
                     marginBottom: 8,
                   }}
@@ -283,8 +298,9 @@ function QuoteBody({ text, expanded, onToggle, fontSize }) {
     <>
       <p
         style={{
+          fontFamily: FONT_SERIF,
           fontStyle: "italic",
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           fontSize,
           lineHeight: 1.5,
           margin: "8px 0 4px",
@@ -299,9 +315,9 @@ function QuoteBody({ text, expanded, onToggle, fontSize }) {
           style={{
             background: "none",
             border: "none",
-            color: OLIVE,
+            color: SAGE_DARK,
             fontSize: 12.5,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SERIF,
             fontWeight: "bold",
             cursor: "pointer",
             padding: 0,
@@ -324,7 +340,7 @@ function QuoteMeta({ quote }) {
         justifyContent: "space-between",
         alignItems: "center",
         fontSize: 12.5,
-        color: OLIVE,
+        color: SAGE_DARK,
       }}
     >
       <span>
@@ -336,7 +352,7 @@ function QuoteMeta({ quote }) {
         target="_blank"
         rel="noreferrer"
         style={{
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           textDecoration: "none",
           fontWeight: "bold",
         }}
@@ -351,11 +367,11 @@ function chipStyle(active) {
   return {
     padding: "6px 14px",
     borderRadius: 999,
-    border: `1px solid ${OLIVE_LIGHT}`,
-    background: active ? OLIVE_DARK : "transparent",
-    color: active ? CREAM : OLIVE_DARK,
+    border: `1px solid ${SAGE}`,
+    background: active ? SAGE_DEEP : "transparent",
+    color: active ? PAPER : SAGE_DEEP,
     fontSize: 12.5,
-    fontFamily: "'Georgia', serif",
+    fontFamily: FONT_SERIF,
     cursor: "pointer",
   };
 }
@@ -365,6 +381,6 @@ function chipStyle(active) {
 const emptyStyle = {
   textAlign: "center",
   fontStyle: "italic",
-  color: OLIVE,
+  color: SAGE_DARK,
   padding: "40px 16px",
 };

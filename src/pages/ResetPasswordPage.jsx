@@ -1,21 +1,33 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
-import { OLIVE_DARK, CREAM, CREAM_DARK, WHITE, LOGO_SRC } from "../theme";
+import {
+  SAGE_DEEP,
+  SAGE_DARK,
+  PAPER,
+  SAGE,
+  INK,
+  DANGER,
+  LOGO_SRC,
+  FONT_SERIF,
+} from "../theme";
 
 const inputStyle = {
   padding: "10px 14px",
   borderRadius: 10,
-  border: `1.5px solid ${CREAM_DARK}`,
+  border: `1.5px solid ${SAGE}`,
   fontSize: 15,
-  fontFamily: "'Georgia', serif",
+  fontFamily: FONT_SERIF,
   outline: "none",
-  background: WHITE,
-  color: "#2d2d2d",
+  background: PAPER,
+  color: INK,
   boxSizing: "border-box",
   width: "100%",
 };
 
+// Sits outside the authenticated AppShell, so it keeps its own layout
+// language rather than the SAGE-page/PAPER-card shell treatment used
+// inside /app — see LandingPage for the same note.
 export default function ResetPasswordPage() {
   const auth = useAuthContext();
   const [searchParams] = useSearchParams();
@@ -52,7 +64,7 @@ export default function ResetPasswordPage() {
     <div
       style={{
         minHeight: "100vh",
-        fontFamily: "'Georgia', serif",
+        fontFamily: FONT_SERIF,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -75,14 +87,14 @@ export default function ResetPasswordPage() {
         style={{
           width: "100%",
           maxWidth: 380,
-          background: "#f6f3e8",
-          border: `1px solid ${CREAM_DARK}`,
+          background: PAPER,
+          border: `1px solid ${SAGE}`,
           borderRadius: 12,
           padding: "24px 20px",
         }}
       >
         {!token && (
-          <div style={{ fontSize: 14, color: "#a33" }}>
+          <div style={{ fontSize: 14, color: DANGER }}>
             This reset link is missing its token. Please use the link from your
             email, or request a new one from the login screen.
           </div>
@@ -90,10 +102,10 @@ export default function ResetPasswordPage() {
 
         {token && done && (
           <div>
-            <div style={{ fontSize: 15, color: "#2d2d2d", marginBottom: 12 }}>
+            <div style={{ fontSize: 15, color: INK, marginBottom: 12 }}>
               Your password has been reset.
             </div>
-            <Link to="/app/reviews" style={{ fontSize: 14, color: OLIVE_DARK }}>
+            <Link to="/app/reviews" style={{ fontSize: 14, color: SAGE_DEEP }}>
               Continue to log in
             </Link>
           </div>
@@ -104,7 +116,7 @@ export default function ResetPasswordPage() {
             <div
               style={{
                 fontSize: 15,
-                color: "#2d2d2d",
+                color: INK,
                 fontWeight: "bold",
                 marginBottom: 16,
               }}
@@ -128,22 +140,22 @@ export default function ResetPasswordPage() {
                 style={inputStyle}
               />
               {error && (
-                <div style={{ fontSize: 13, color: "#a33" }}>{error}</div>
+                <div style={{ fontSize: 13, color: DANGER }}>{error}</div>
               )}
               <button
                 onClick={submit}
                 disabled={busy}
                 style={{
                   marginTop: 4,
-                  background: "#6B7A3A",
-                  color: CREAM,
+                  background: SAGE_DARK,
+                  color: PAPER,
                   border: "none",
                   borderRadius: 10,
                   padding: "10px 18px",
                   fontSize: 15,
                   cursor: busy ? "default" : "pointer",
                   opacity: busy ? 0.7 : 1,
-                  fontFamily: "'Georgia', serif",
+                  fontFamily: FONT_SERIF,
                 }}
               >
                 {busy ? "Saving…" : "Reset password"}

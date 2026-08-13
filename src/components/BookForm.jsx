@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { OLIVE_DARK, CREAM, CREAM_DARK, WHITE } from "../theme";
+import { SAGE_DARK, SAGE_DEEP, PAPER, MUTED, SAGE, INK, DANGER, FONT_SERIF } from "../theme";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 
 const MAX_COVER_BYTES = 5 * 1024 * 1024; // matches the server's multer limit
@@ -73,12 +73,12 @@ export default function BookForm({
   const fieldStyle = (name) => ({
     padding: "11px 14px",
     borderRadius: 10,
-    border: `1.5px solid ${focusedField === name ? OLIVE_DARK : CREAM_DARK}`,
+    border: `1.5px solid ${focusedField === name ? SAGE_DEEP : SAGE}`,
     fontSize: 15,
-    fontFamily: "'Georgia', serif",
+    fontFamily: FONT_SERIF,
     outline: "none",
-    background: WHITE,
-    color: "#2d2d2d",
+    background: PAPER,
+    color: INK,
     boxSizing: "border-box",
     width: "100%",
     transition: "border-color 0.15s ease",
@@ -87,8 +87,8 @@ export default function BookForm({
   return (
     <div
       style={{
-        background: mode === "edit" ? "#f6f3e8" : "transparent",
-        border: mode === "edit" ? `1px solid ${CREAM_DARK}` : "none",
+        background: mode === "edit" ? `${MUTED}66` : "transparent",
+        border: mode === "edit" ? `1px solid ${MUTED}` : "none",
         borderRadius: 14,
         padding: mode === "edit" ? "22px 20px" : "16px 0",
         boxShadow: mode === "edit" ? "0 1px 3px rgba(0,0,0,0.04)" : "none",
@@ -98,7 +98,7 @@ export default function BookForm({
         style={{
           fontSize: 13,
           fontWeight: 600,
-          color: OLIVE_DARK,
+          color: SAGE_DEEP,
           letterSpacing: "1.5px",
           textTransform: "uppercase",
           marginBottom: 16,
@@ -119,12 +119,12 @@ export default function BookForm({
             flexShrink: 0,
             borderRadius: 10,
             overflow: "hidden",
-            background: "#e4ddc7",
+            background: `${SAGE}33`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
-            border: `1.5px dashed ${hoveringCover ? OLIVE_DARK : "transparent"}`,
+            border: `1.5px dashed ${hoveringCover ? SAGE_DEEP : "transparent"}`,
             boxShadow: coverPreviewSrc ? "0 1px 4px rgba(0,0,0,0.12)" : "none",
             transition: "border-color 0.15s ease",
           }}
@@ -156,8 +156,8 @@ export default function BookForm({
               <span
                 style={{
                   fontSize: 11,
-                  color: coverPreviewSrc ? WHITE : "#6B7A3A",
-                  fontFamily: "'Georgia', serif",
+                  color: coverPreviewSrc ? PAPER : SAGE_DARK,
+                  fontFamily: FONT_SERIF,
                   letterSpacing: "0.3px",
                 }}
               >
@@ -208,7 +208,7 @@ export default function BookForm({
             style={fieldStyle("author")}
           />
           {mode === "edit" && (
-            <div style={{ fontSize: 12, color: "#9a9578" }}>
+            <div style={{ fontSize: 12, color: MUTED }}>
               Click the cover to replace it, or leave it as is.
             </div>
           )}
@@ -216,7 +216,7 @@ export default function BookForm({
       </div>
 
       {error && (
-        <div style={{ marginTop: 12, fontSize: 13, color: "#a33" }}>
+        <div style={{ marginTop: 12, fontSize: 13, color: DANGER }}>
           {error}
         </div>
       )}
@@ -226,15 +226,15 @@ export default function BookForm({
           onClick={submit}
           disabled={busy}
           style={{
-            background: "#6B7A3A",
-            color: CREAM,
+            background: SAGE_DARK,
+            color: PAPER,
             border: "none",
             borderRadius: 10,
             padding: "10px 22px",
             fontSize: 14,
             cursor: busy ? "default" : "pointer",
             opacity: busy ? 0.7 : 1,
-            fontFamily: "'Georgia', serif",
+            fontFamily: FONT_SERIF,
           }}
         >
           {busy
@@ -251,13 +251,13 @@ export default function BookForm({
             disabled={busy}
             style={{
               background: "none",
-              border: `1.5px solid ${CREAM_DARK}`,
+              border: `1.5px solid ${SAGE}`,
               borderRadius: 10,
               padding: "10px 22px",
               fontSize: 14,
               cursor: "pointer",
-              fontFamily: "'Georgia', serif",
-              color: "#2d2d2d",
+              fontFamily: FONT_SERIF,
+              color: INK,
             }}
           >
             Cancel

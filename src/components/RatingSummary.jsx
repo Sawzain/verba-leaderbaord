@@ -1,4 +1,4 @@
-import { OLIVE, OLIVE_LIGHT } from "../theme";
+import { SAGE_DARK, SAGE } from "../theme";
 import { StarDisplay } from "./StarRating";
 
 // Shared "★★★★☆ 4.2 · 12 reviews" pattern used on book cards and the
@@ -19,7 +19,7 @@ export default function RatingSummary({
       <div
         style={{
           fontSize: textSize,
-          color: OLIVE_LIGHT,
+          color: SAGE,
           fontStyle: "italic",
           ...wrapperStyle,
         }}
@@ -39,7 +39,7 @@ export default function RatingSummary({
       }}
     >
       <StarDisplay value={rating} size={starSize} />
-      <span style={{ fontSize: textSize, color: OLIVE }}>
+      <span style={{ fontSize: textSize, color: SAGE_DARK }}>
         {rating} · {count} review{count !== 1 ? "s" : ""}
       </span>
     </div>
