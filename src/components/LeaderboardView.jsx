@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  OLIVE,
-  OLIVE_DARK,
-  OLIVE_LIGHT,
-  CREAM,
-  CREAM_DARK,
-  medals,
+  SAGE,
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  CLAY,
+  SAGE_TINT,
+  FONT_SERIF,
+  FONT_SANS,
+  FONT_MONO,
 } from "../theme";
 import Pagination from "./Pagination";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
@@ -16,14 +20,10 @@ import { API_ROOT } from "../hooks/useMembers";
 
 const PAGE_SIZE = 10;
 
-const ROW_BG = "#FAF7F0";
-const ROW_BG_FIRST = "#F5F0E3";
-
 export default function LeaderboardView({
   sorted,
   memberCount,
   loading,
-  activity = [],
   totalBooksRead = 0,
   totalQuotes = 0,
 }) {
@@ -32,9 +32,6 @@ export default function LeaderboardView({
   const [page, setPage] = useState(1);
   const showSlowHint = useSlowLoadHint(loading);
 
-  // Hover (desktop) / tap (mobile) preview card. previewCache avoids
-  // refetching the same member's profile on repeated hovers within a
-  // session — profile.jsx already handles the authoritative page view.
   const [previewId, setPreviewId] = useState(null);
   const [previewCache, setPreviewCache] = useState({});
   const fetchPreview = (id) => {
@@ -53,9 +50,6 @@ export default function LeaderboardView({
     return sorted.filter((m) => m.name.toLowerCase().includes(q));
   }, [sorted, search]);
 
-  // Search narrows the result set, so whatever page you were on may no
-  // longer exist (e.g. you were on page 3, then searched down to 1 result).
-  // Reset to page 1 any time the search term changes.
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -67,10 +61,6 @@ export default function LeaderboardView({
     [visible, safePage],
   );
 
-  // Competitive ranking ("1224"): tied members share a rank, and the next
-  // distinct point total skips ahead accordingly (1, 2, 2, 4 — not 1, 2, 2, 3).
-  // Computed once over the full (unfiltered) `sorted` list so a member's
-  // rank stays their true standing even while a search narrows what's shown.
   const ranks = useMemo(() => {
     const map = new Map();
     let rank = 0;
@@ -86,107 +76,78 @@ export default function LeaderboardView({
   }, [sorted]);
 
   return (
-    <div>
+    <div style={{ background: PAPER, padding: 24, borderRadius: 16, border: "1px solid rgba(45,51,39,0.08)" }}>
       <div
         style={{
-          background: OLIVE_LIGHT,
-          padding: "14px 24px",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: `1px solid ${CREAM_DARK}`,
+          alignItems: "baseline",
+          marginBottom: 16,
+          flexWrap: "wrap",
+          gap: 8,
         }}
       >
-        <span
-          style={{
-            fontSize: 13,
-            color: CREAM,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-          }}
-        >
-          📚 Book of the Month
-        </span>
-        <span style={{ fontSize: 13, color: CREAM, fontStyle: "italic" }}>
-          1 pt per book read
-        </span>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 10,
-          padding: "8px 24px",
-          fontSize: 11,
-          color: OLIVE_DARK,
-          borderBottom: `1px solid ${CREAM_DARK}`,
-          whiteSpace: "nowrap",
-        }}
-      >
+        <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: SAGE_DEEP }}>
+          Reading leaderboard
+        </div>
         <div
           style={{
+            fontFamily: FONT_MONO,
+            fontSize: 11,
+            color: SAGE_DARK,
+            letterSpacing: "0.5px",
             display: "flex",
-            gap: 10,
-            overflowX: "auto",
-            scrollbarWidth: "none",
+            gap: 8,
+            alignItems: "center",
           }}
         >
           <span>
-            <strong>{memberCount}</strong> reader
-            {memberCount !== 1 ? "s" : ""}
+            {memberCount} MEMBER{memberCount !== 1 ? "S" : ""}
           </span>
           <span>·</span>
           <span>
-            <strong>{totalBooksRead}</strong> book
-            {totalBooksRead !== 1 ? "s" : ""} read
+            {totalBooksRead} BOOK{totalBooksRead !== 1 ? "S" : ""} READ
           </span>
           <span>·</span>
-          <span>
-            <strong>{totalQuotes}</strong> verse
-            {totalQuotes !== 1 ? "s" : ""} on the Wall
-          </span>
+          <span>{totalQuotes} ON THE WALL</span>
+          {memberCount > 5 && !searchOpen && (
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search readers"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 2,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke={SAGE_DARK}
+                  strokeWidth="2"
+                />
+                <line
+                  x1="16.5"
+                  y1="16.5"
+                  x2="21"
+                  y2="21"
+                  stroke={SAGE_DARK}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          )}
         </div>
-
-        {memberCount > 5 && !searchOpen && (
-          <button
-            onClick={() => setSearchOpen(true)}
-            aria-label="Search readers"
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 2,
-              display: "flex",
-              alignItems: "center",
-              flexShrink: 0,
-              marginLeft: "auto",
-            }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-                stroke={OLIVE_DARK}
-                strokeWidth="2"
-              />
-              <line
-                x1="16.5"
-                y1="16.5"
-                x2="21"
-                y2="21"
-                stroke={OLIVE_DARK}
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        )}
       </div>
 
       {memberCount > 5 && searchOpen && (
-        <div style={{ padding: "0 24px 12px" }}>
+        <div style={{ marginBottom: 12 }}>
           <input
             autoFocus
             value={search}
@@ -197,14 +158,14 @@ export default function LeaderboardView({
             placeholder="Search readers…"
             style={{
               width: "100%",
-              padding: "7px 12px",
-              borderRadius: 8,
-              border: `1px solid ${CREAM_DARK}`,
+              padding: "9px 14px",
+              borderRadius: 10,
+              border: "none",
               fontSize: 13,
-              fontFamily: "'Georgia', serif",
+              fontFamily: FONT_SANS,
               outline: "none",
-              background: "rgba(255,255,255,0.75)",
-              color: "#3f4230",
+              background: PAPER,
+              color: SAGE_DEEP,
               boxSizing: "border-box",
             }}
           />
@@ -212,20 +173,14 @@ export default function LeaderboardView({
       )}
 
       {loading && (
-        <div
-          style={{
-            padding: 40,
-            textAlign: "center",
-            color: "#aaa",
-          }}
-        >
+        <div style={{ padding: 40, textAlign: "center", color: SAGE_DARK }}>
           <div
             style={{
               width: 28,
               height: 28,
               margin: "0 auto 14px",
-              border: `3px solid ${CREAM_DARK}`,
-              borderTopColor: OLIVE,
+              border: `3px solid ${PAPER}`,
+              borderTopColor: SAGE_DARK,
               borderRadius: "50%",
               animation: "verba-spin 0.8s linear infinite",
             }}
@@ -247,164 +202,103 @@ export default function LeaderboardView({
         <EmptyState message={`No readers match "${search}".`} />
       )}
 
-      {pageItems.map((member) => {
-        const displayRank = ranks.get(member._id);
-        const isTop3 = displayRank <= 3;
-        const isFirstPlace = displayRank === 1;
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {pageItems.map((member, i) => {
+          const displayRank = ranks.get(member._id);
+          const isFirstPlace = displayRank === 1;
 
-        return (
-          <div
-            key={member._id}
-            className="verba-row verba-fade-in"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "16px 24px",
-              borderBottom: `1px solid ${CREAM}`,
-              background: isFirstPlace ? ROW_BG_FIRST : ROW_BG,
-              animationDelay: `${pageItems.indexOf(member) * 25}ms`,
-              position: "relative",
-              zIndex: previewId === member._id ? 60 : "auto",
-            }}
-          >
+          return (
             <div
+              key={member._id}
+              className="verba-fade-in"
               style={{
-                width: 36,
-                fontSize: isTop3 ? 22 : 16,
-                textAlign: "center",
-                color: isTop3 ? OLIVE : OLIVE_DARK,
-                fontWeight: "bold",
-                flexShrink: 0,
-                alignSelf: "flex-start",
-                paddingTop: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                padding: "14px 16px",
+                borderRadius: 10,
+                borderBottom: "1px solid rgba(45,51,39,0.07)",
+                animationDelay: `${i * 25}ms`,
+                position: "relative",
+                zIndex: previewId === member._id ? 60 : "auto",
               }}
             >
-              {isTop3 ? medals[displayRank - 1] || displayRank : displayRank}
-            </div>
-
-            <div style={{ flex: 1, paddingLeft: 12, position: "relative" }}>
-              <Link
-                to={`/app/members/${member._id}`}
-                onMouseEnter={() => {
-                  setPreviewId(member._id);
-                  fetchPreview(member._id);
+              <span
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontSize: 12,
+                  color: SAGE_DARK,
+                  width: 22,
+                  flexShrink: 0,
                 }}
-                onMouseLeave={() => setPreviewId(null)}
-                onClick={(e) => {
-                  // On touch devices, the first tap opens the preview
-                  // instead of navigating immediately — a second tap on
-                  // the name (now already previewed) goes through.
-                  if (previewId !== member._id && "ontouchstart" in window) {
-                    e.preventDefault();
+              >
+                {String(displayRank).padStart(2, "0")}
+              </span>
+
+              <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+                <Link
+                  to={`/app/members/${member._id}`}
+                  onMouseEnter={() => {
                     setPreviewId(member._id);
                     fetchPreview(member._id);
-                  }
-                }}
-                style={{
-                  fontSize: "clamp(15px, 4.2vw, 17px)",
-                  color: OLIVE_DARK,
-                  fontFamily: "'Georgia', serif",
-                  fontWeight: isFirstPlace ? "bold" : "normal",
-                  textDecoration: "none",
-                }}
-              >
-                {member.name}
-              </Link>
-              {previewId === member._id && (
-                <MemberPreviewCard
-                  profile={previewCache[member._id]}
-                  loading={!previewCache[member._id]}
-                />
-              )}
-              {member.latestActivity && (
-                <div
+                  }}
+                  onMouseLeave={() => setPreviewId(null)}
+                  onClick={(e) => {
+                    if (previewId !== member._id && "ontouchstart" in window) {
+                      e.preventDefault();
+                      setPreviewId(member._id);
+                      fetchPreview(member._id);
+                    }
+                  }}
                   style={{
-                    fontSize: 11,
-                    color: "#8a8a72",
-                    fontStyle: "italic",
-                    marginTop: 1,
+                    fontSize: 15,
+                    color: SAGE_DEEP,
+                    fontFamily: FONT_SERIF,
+                    fontWeight: isFirstPlace ? 600 : 500,
+                    textDecoration: "none",
+                    display: "block",
                   }}
                 >
-                  {member.latestActivity.type === "review"
-                    ? "reviewed "
-                    : "finished "}
-                  {member.latestActivity.bookTitle || "a book"}
-                </div>
-              )}
-            </div>
+                  {member.name}
+                </Link>
+                {previewId === member._id && (
+                  <MemberPreviewCard
+                    profile={previewCache[member._id]}
+                    loading={!previewCache[member._id]}
+                  />
+                )}
+                {member.latestActivity && (
+                  <div
+                    style={{ fontSize: 11, color: MUTED, fontStyle: "italic" }}
+                  >
+                    {member.latestActivity.type === "review"
+                      ? "reviewed "
+                      : "finished "}
+                    {member.latestActivity.bookTitle || "a book"}
+                  </div>
+                )}
+              </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <div
                 style={{
-                  background: OLIVE,
-                  color: CREAM,
-                  borderRadius: 20,
-                  padding: "4px 14px",
-                  fontSize: 14,
-                  fontWeight: "bold",
+                  background: isFirstPlace ? CLAY : SAGE_TINT,
+                  color: isFirstPlace ? PAPER : SAGE_DEEP,
+                  borderRadius: 7,
+                  padding: "5px 12px",
+                  fontSize: 11,
+                  fontWeight: 700,
                   letterSpacing: "0.5px",
+                  flexShrink: 0,
                 }}
               >
-                {member.points} book{member.points !== 1 ? "s" : ""}
+                {member.points} BOOK{member.points !== 1 ? "S" : ""}
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       <Pagination page={safePage} totalPages={totalPages} goToPage={setPage} />
-      {activity.length > 0 && (
-        <div
-          style={{
-            margin: "12px 24px",
-            background: CREAM,
-            borderRadius: 12,
-            padding: "12px 16px",
-            border: `1px solid ${CREAM_DARK}`,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 12,
-              color: OLIVE_DARK,
-              letterSpacing: "1px",
-              textTransform: "uppercase",
-              marginBottom: 6,
-              fontWeight: "bold",
-            }}
-          >
-            Recent Activity
-          </div>
-          {activity.slice(0, 3).map((a, i) => (
-            <div
-              key={i}
-              style={{
-                fontSize: 13,
-                color: "#3f4230",
-                padding: "3px 0",
-                fontFamily: "'Georgia', serif",
-              }}
-            >
-              <strong>{a.memberName}</strong> finished{" "}
-              <em>{a.bookTitle || "a book"}</em>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div
-        style={{
-          padding: "12px 24px",
-          background: OLIVE_LIGHT,
-          textAlign: "center",
-          fontSize: 12,
-          color: CREAM,
-          letterSpacing: "1px",
-          textTransform: "uppercase",
-        }}
-      >
-        {memberCount} reader{memberCount !== 1 ? "s" : ""} · Verba Book Club
-      </div>
     </div>
   );
 }

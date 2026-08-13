@@ -36,8 +36,8 @@ The public leaderboard page also shows:
   total "verses on the Wall" (quotes + poems from the Verba Wall/Twig bot).
 - A small italic line under each member's name showing the book they most
   recently finished.
-- A **Recent Activity** panel below the ranked list, listing the most
-  recent "finished [book]" entries across all members.
+- A **Recent Activity** card in the sidebar (see "Layout" below) covering
+  finishes, reviews, and quotes/poems together — not just book finishes.
 
 **Member profiles** — hovering (desktop) or tapping (mobile) a leaderboard
 row shows a quick preview card; clicking through opens that member's full
@@ -78,6 +78,36 @@ access, set `isAdmin: true` directly on a user's document in MongoDB
 The legacy shared `API_KEY` still works as a fallback for the same
 admin-only routes (useful for scripts or before you've granted anyone the
 `isAdmin` flag), sent as an `x-api-key` header.
+
+## Layout
+
+Reviews, Leaderboard, and Verba Wall share one wide two-column layout
+(`TwoColumnLayout` — see `WIDE_LAYOUT_ROUTES` in `AppShell.jsx`): a main
+content column plus a sidebar of small "preview" cards that link out to
+the other tabs. This replaced an earlier version where each of those three
+pages had its own one-off layout and didn't visually read as the same
+site. Every route not listed in `WIDE_LAYOUT_ROUTES` still gets the
+original narrower single-column shell (Manage, member profiles, etc.) —
+add a route there if a future page needs the wide treatment.
+
+The sidebar is assembled per-page from four reusable preview components in
+`src/components/`, each pulling from data already fetched in `AppShell`
+(no extra requests):
+
+- `RecentActivityPreview` — merges two independently-sourced feeds: book
+  finishes/reviews from Mongo's `ActivityLog` (`GET /api/activity`), and
+  quotes/poems from Supabase (`useQuotes`, unfiltered). Quotes never pass
+  through the Express API — Twig writes them straight to Supabase — so
+  there's no shared `ActivityLog` row to join against; this component
+  merges the two lists client-side by timestamp instead of requiring a
+  backend sync job.
+- `CurrentPickPreview` — this month's book, with cover and rating.
+- `VerbaWallPreview` — the featured (or most recent) quote.
+- `ReaderIndexPreview` — top 3 of the leaderboard.
+
+Each page shows `RecentActivityPreview` plus whichever two of the
+remaining three aren't already its main content — e.g. Leaderboard's
+sidebar doesn't also show a leaderboard preview.
 
 ## Book covers (Cloudinary)
 
@@ -134,7 +164,10 @@ email/password login keeps working either way.
 
 src/ React frontend (Vite)
 hooks/ data-fetching hooks (useAuth, useMembers, useBooks, useQuotes)
-components/ presentational components (..., QuoteWallView)
+components/ presentational components, incl. TwoColumnLayout (shared
+wide-page shell) and its four sidebar cards — RecentActivityPreview,
+CurrentPickPreview, VerbaWallPreview, ReaderIndexPreview — see "Layout"
+above
 pages/ route-level components (..., QuotesPage — "Verba Wall" tab)
 
 server/

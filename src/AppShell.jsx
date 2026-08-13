@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import TabSwitcher from "./components/TabSwitcher";
+import AccountChip from "./components/AccountChip";
 import Footer from "./components/Footer";
 import useMembers from "./hooks/useMembers";
 import useBooks from "./hooks/useBooks";
@@ -8,31 +9,33 @@ import useQuotes from "./hooks/useQuotes";
 import { useAuthContext } from "./AuthContext";
 import useUnlinkedUsers from "./hooks/useUnlinkedUsers";
 import useActivity from "./hooks/useActivity";
+import { SAGE, PAPER, FONT_SERIF } from "./theme";
 
-// Owns auth/members/books state and lifts it to routed views via
-// <Outlet context={...}>, so switching tabs doesn't lose session state.
-// Both books and members load in parallel on mount rather than waiting
-// for their matching tab to be active — so switching tabs feels instant
-// instead of triggering a fresh fetch (and its full network latency)
-// the first time you land on each one.
-//
-// Panel width: fixed at 620px through 1080p (clamp floor), then scales
-// fluidly with viewport width above that, capped at 900px on very wide
-// screens. Inline styles can't do media queries, but clamp() gives the
-// same effect without needing an injected <style> block.
-const PANEL_MAX_WIDTH = "clamp(620px, 32vw, 820px)";
+// Reviews, Leaderboard, and Quotes (Verba Wall) share the wide two-column
+// layout (see TwoColumnLayout) — everything else sits in a narrower single
+// column. Add a base path here for any future page that needs the wide
+// treatment.
+const WIDE_LAYOUT_ROUTES = ["/app/reviews", "/app/leaderboard", "/app/quotes"];
+const DEFAULT_CONTENT_MAX_WIDTH = 900;
+const WIDE_CONTENT_MAX_WIDTH = 1400;
+
+function isWideLayoutRoute(pathname) {
+  return WIDE_LAYOUT_ROUTES.some(
+    (base) => pathname === base || pathname.startsWith(`${base}/`),
+  );
+}
 
 export default function AppShell() {
   const auth = useAuthContext();
   const location = useLocation();
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
+  const isWide = isWideLayoutRoute(location.pathname);
+  const contentMaxWidth = isWide
+    ? WIDE_CONTENT_MAX_WIDTH
+    : DEFAULT_CONTENT_MAX_WIDTH;
 
   const booksState = useBooks(true);
   const membersState = useMembers(auth.token, true);
-  // AccountChip's "View Profile" needs the Score entry's _id, not the
-  // User account's id — /app/members/:id expects a Score id (see
-  // members.js's GET /:id/profile). Resolve it here from the already-
-  // loaded member list rather than adding a new endpoint.
   const myMemberId = auth.isLoggedIn
     ? membersState.members.find((m) => m.userId === auth.user?.id)?._id || null
     : null;
@@ -54,53 +57,50 @@ export default function AppShell() {
     <div
       style={{
         minHeight: "100vh",
-        fontFamily: "'Georgia', serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "32px 24px",
-        overflowX: "hidden",
+        fontFamily: FONT_SERIF,
+        background: SAGE,
         width: "100%",
-        boxSizing: "border-box",
       }}
     >
-      <Header />
       <div
         style={{
-          width: "100%",
-          maxWidth: PANEL_MAX_WIDTH,
-          display: "flex",
-          justifyContent: "center",
+          background: PAPER,
+          borderBottom: "1px solid rgba(45,51,39,0.08)",
         }}
       >
-        <TabSwitcher isAdmin={isAdmin} myMemberId={myMemberId} />
+        <div
+          style={{
+            maxWidth: WIDE_CONTENT_MAX_WIDTH,
+            margin: "0 auto",
+            padding: "18px 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 24,
+            flexWrap: "wrap",
+          }}
+        >
+          <Header />
+          <TabSwitcher isAdmin={isAdmin} />
+          <AccountChip myMemberId={myMemberId} />
+        </div>
       </div>
-      {/* Reserves space for the sticky bar once it's fixed to the top, so
-          it stops floating over list content underneath it (poems, member
-          rows, etc.) — TabSwitcher toggles this via a body class. */}
-      <div id="verba-sticky-spacer" style={{ height: 0 }} />
 
       <div
         style={{
+          maxWidth: contentMaxWidth,
+          margin: "0 auto",
+          padding: "32px 24px",
           width: "100%",
-          maxWidth: PANEL_MAX_WIDTH,
-          background: "rgba(238,232,213,0.82)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          borderRadius: 20,
-          overflow: "hidden",
-          boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
+          boxSizing: "border-box",
         }}
       >
-        {/* Keying on pathname remounts this div on every tab/page change,
-            which re-triggers the verba-fade-in CSS animation — a quick
-            fade+slide instead of content just snapping in. */}
         <div key={location.pathname} className="verba-fade-in">
           <Outlet context={context} />
         </div>
       </div>
 
-      <Footer maxWidth={PANEL_MAX_WIDTH} />
+      <Footer maxWidth={contentMaxWidth} />
     </div>
   );
 }
