@@ -167,3 +167,156 @@ a:active {
 .verba-btn-outline:active {
   background: rgba(138, 154, 74, 0.23);
 }
+.verba-two-col-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.verba-sidebar-toggle-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .verba-sidebar-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .verba-two-col-sidebar[data-collapsed="true"] {
+    display: none;
+  }
+}
+/* ===== Verba responsive system =====
+   Baseline (no media query) = desktop, 769–1440px, matches existing
+   inline styles. Below and above that get explicit overrides. */
+
+/* ---------- Phone: max-width 480px ---------- */
+@media (max-width: 480px) {
+  .verba-chip-label {
+    display: none !important;
+  }
+  .verba-account-chip {
+    padding: 6px !important;
+    gap: 0 !important;
+  }
+  .verba-topbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    row-gap: 8px !important;
+    gap: 10px !important;
+    padding: 10px 16px !important;
+  }
+  .verba-header-link {
+    order: 1;
+  }
+  .verba-account-wrap {
+    order: 2;
+  }
+  .verba-tabs-account-row {
+    order: 3;
+    flex-basis: 100% !important;
+    justify-content: flex-start !important;
+  }
+  .verba-logo-text {
+    font-size: 22px !important;
+  }
+  .verba-header-subtitle {
+    display: none !important;
+  }
+  .verba-tabs {
+    gap: 12px !important;
+  }
+  .verba-tab-link {
+    font-size: 11px !important;
+    letter-spacing: 0.5px !important;
+  }
+  .verba-content-wrap {
+    padding: 16px 12px !important;
+  }
+
+  .verba-lb-title {
+    font-size: 22px !important;
+  }
+  .verba-stats-line {
+    font-size: 11px !important;
+    letter-spacing: 0.25px !important;
+    opacity: 0.75;
+  }
+  .verba-rank-num {
+    font-size: 12px !important;
+    width: 20px !important;
+  }
+  .verba-member-name {
+    font-size: 17px !important;
+  }
+  .verba-points-badge {
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+  }
+
+  .verba-books-grid {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+  }
+}
+
+/* ---------- Tablet: 481px–768px ---------- */
+@media (min-width: 481px) and (max-width: 768px) {
+  .verba-topbar {
+    gap: 16px !important;
+    padding: 12px 20px !important;
+  }
+  .verba-tabs {
+    gap: 18px !important;
+  }
+  .verba-content-wrap {
+    padding: 20px 16px !important;
+  }
+
+  .verba-lb-title {
+    font-size: 25px !important;
+  }
+  .verba-stats-line {
+    font-size: 12px !important;
+  }
+  .verba-member-name {
+    font-size: 16px !important;
+  }
+
+  .verba-books-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+  }
+}
+
+/* ---------- Wide / 2K: 1441px and up ---------- */
+@media (min-width: 1441px) {
+  .verba-topbar {
+    padding: 20px 48px !important;
+  }
+  .verba-content-wrap {
+    padding: 40px 32px !important;
+    max-width: 1600px !important;
+  }
+
+  .verba-lb-title {
+    font-size: 32px !important;
+  }
+  .verba-stats-line {
+    font-size: 14px !important;
+  }
+  .verba-member-name {
+    font-size: 18px !important;
+  }
+  .verba-rank-num {
+    font-size: 14px !important;
+  }
+  .verba-points-badge {
+    font-size: 13px !important;
+    padding: 7px 14px !important;
+  }
+
+  .verba-books-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+  }
+}

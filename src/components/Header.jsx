@@ -6,6 +6,7 @@ export default function Header() {
     <Link
       to="/"
       aria-label="Back to Verba Book Club home"
+      className="verba-header-link"
       style={{
         display: "flex",
         alignItems: "baseline",
@@ -14,6 +15,7 @@ export default function Header() {
       }}
     >
       <span
+        className="verba-logo-text"
         style={{
           fontFamily: FONT_SERIF,
           fontSize: 26,
@@ -23,6 +25,7 @@ export default function Header() {
         verba.
       </span>
       <span
+        className="verba-header-subtitle"
         style={{
           fontFamily: FONT_MONO,
           fontSize: 10.5,

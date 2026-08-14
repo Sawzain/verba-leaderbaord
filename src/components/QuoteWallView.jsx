@@ -1,5 +1,13 @@
-import { useState } from "react";
-import { SAGE_DARK, SAGE_DEEP, SAGE, PAPER, SAGE_TINT, CLAY_TINT, FONT_SERIF } from "../theme";
+import { useEffect, useState } from "react";
+import {
+  SAGE_DARK,
+  SAGE_DEEP,
+  SAGE,
+  PAPER,
+  SAGE_TINT,
+  FONT_SERIF,
+  FONT_SANS,
+} from "../theme";
 import Pagination from "./Pagination";
 
 // Long poems are common on the Wall — anything over this line count
@@ -98,6 +106,16 @@ export default function QuoteWallView({
   goToPage,
 }) {
   const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const [stickyTop, setStickyTop] = useState(0);
+  useEffect(() => {
+    const updateStickyTop = () => {
+      const bar = document.querySelector(".verba-topbar");
+      setStickyTop(bar ? bar.getBoundingClientRect().height : 0);
+    };
+    updateStickyTop();
+    window.addEventListener("resize", updateStickyTop);
+    return () => window.removeEventListener("resize", updateStickyTop);
+  }, []);
   const toggleExpanded = (id) =>
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -146,41 +164,51 @@ export default function QuoteWallView({
 
       <div
         style={{
-          display: "flex",
-          gap: 6,
-          justifyContent: "center",
-          marginBottom: 16,
-          background: SAGE_DEEP,
-          padding: 3,
-          borderRadius: 10,
-          maxWidth: 280,
-          margin: "0 auto 16px",
+          position: "sticky",
+          top: stickyTop,
+          zIndex: 90,
+          textAlign: "center",
+          padding: "12px 28px",
+          margin: "-12px -24px 16px",
         }}
       >
-        {SOURCE_TABS.map(({ value, label }) => {
-          const active = sourceFilter === value;
-          return (
-            <button
-              key={value}
-              onClick={() => setSourceFilter(value)}
-              style={{
-                fontFamily: FONT_SERIF,
-                fontStyle: "italic",
-                fontWeight: active ? "bold" : "normal",
-                color: active ? SAGE_DEEP : PAPER,
-                fontSize: 13,
-                lineHeight: 1.5,
-                padding: "6px 14px",
-                borderRadius: 8,
-                border: "none",
-                cursor: "pointer",
-                background: active ? PAPER : "transparent",
-              }}
-            >
-              {label}
-            </button>
-          );
-        })}
+        <div
+          style={{
+            display: "inline-flex",
+            gap: 6,
+            flexWrap: "wrap",
+            background: SAGE_DEEP,
+            padding: 3,
+            borderRadius: 10,
+            maxWidth: "100%",
+          }}
+        >
+          {SOURCE_TABS.map(({ value, label }) => {
+            const active = sourceFilter === value;
+            return (
+              <button
+                key={value}
+                onClick={() => setSourceFilter(value)}
+                style={{
+                  fontFamily: FONT_SANS,
+                  fontStyle: "normal",
+                  fontWeight: active ? 700 : 500,
+                  color: active ? SAGE_DEEP : PAPER,
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  padding: "6px 10px",
+                  borderRadius: 8,
+                  border: "none",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  background: active ? PAPER : "transparent",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </div>
       {books.length > 0 && (
         <div
@@ -299,11 +327,12 @@ function QuoteBody({ text, expanded, onToggle, fontSize }) {
       <p
         style={{
           fontFamily: FONT_SERIF,
-          fontStyle: "italic",
+          fontStyle: "normal",
           color: SAGE_DEEP,
           fontSize,
-          lineHeight: 1.5,
+          lineHeight: 1.6,
           margin: "8px 0 4px",
+          maxWidth: "62ch",
         }}
       >
         {renderDiscordText(visibleText)}

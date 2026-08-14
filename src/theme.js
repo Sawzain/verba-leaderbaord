@@ -7,7 +7,7 @@ export const SAGE_DEEP = "#2D3327";
 
 // Neutrals — warm off-white for cards, warm dark gray for body text,
 // sage-tinted gray for secondary/muted text.
-export const PAPER = "#FAF9F3";
+export const PAPER = "#F5F1DF";
 export const INK = "#2D2D28";
 export const MUTED = "#8A8E7A";
 

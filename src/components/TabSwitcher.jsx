@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { SAGE_DEEP, MUTED, FONT_MONO } from "../theme";
+import { SAGE_DEEP, SAGE_DARK, FONT_MONO } from "../theme";
 
 // Simple mono-caps nav links, underlined when active. Replaces the old
 // pill-nav pill background + the separate floating "stuck" duplicate that
@@ -14,12 +14,12 @@ const TABS = [
 
 const tabLinkStyle = ({ isActive }) => ({
   fontFamily: FONT_MONO,
-  fontSize: 12,
-  letterSpacing: "1px",
+  fontSize: 12.5,
+  letterSpacing: "0.75px",
   textTransform: "uppercase",
   textDecoration: "none",
-  color: isActive ? SAGE_DEEP : MUTED,
-  fontWeight: isActive ? 700 : 500,
+  color: isActive ? SAGE_DEEP : SAGE_DARK,
+  fontWeight: isActive ? 700 : 600,
   paddingBottom: 6,
   borderBottom: isActive ? `2px solid ${SAGE_DEEP}` : "2px solid transparent",
   whiteSpace: "nowrap",
@@ -32,6 +32,7 @@ export default function TabSwitcher({ isAdmin }) {
 
   return (
     <div
+      className="verba-tabs"
       style={{
         display: "flex",
         alignItems: "center",
@@ -40,7 +41,7 @@ export default function TabSwitcher({ isAdmin }) {
       }}
     >
       {visibleTabs.map(({ to, label }) => (
-        <NavLink key={to} to={to} style={tabLinkStyle}>
+         <NavLink key={to} to={to} className="verba-tab-link" style={tabLinkStyle}>
           {label}
         </NavLink>
       ))}

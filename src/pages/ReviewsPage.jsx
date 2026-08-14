@@ -6,8 +6,14 @@ import ReaderIndexPreview from "../components/ReaderIndexPreview";
 import RecentActivityPreview from "../components/RecentActivityPreview";
 
 export default function ReviewsPage() {
-  const { auth, isAdmin, booksState, quotesState, membersState, activityState } =
-    useOutletContext();
+  const {
+    auth,
+    isAdmin,
+    booksState,
+    quotesState,
+    membersState,
+    activityState,
+  } = useOutletContext();
   const { bookId } = useParams();
 
   const featuredQuote =
@@ -40,11 +46,14 @@ export default function ReviewsPage() {
       }
       sidebar={
         <>
-          <RecentActivityPreview activity={activityState.activity} quotes={quotesState.quotes} />
-          <VerbaWallPreview quote={featuredQuote} />
           <ReaderIndexPreview
             sorted={membersState.sorted}
             memberCount={membersState.members.length}
+          />
+          <VerbaWallPreview quote={featuredQuote} />
+          <RecentActivityPreview
+            activity={activityState.activity}
+            quotes={quotesState.quotes}
           />
         </>
       }

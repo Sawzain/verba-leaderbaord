@@ -293,6 +293,7 @@ export default function BooksView({
       )}
 
       <div
+        className="verba-books-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(120px, 180px))",

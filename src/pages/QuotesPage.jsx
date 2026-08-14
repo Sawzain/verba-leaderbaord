@@ -27,10 +27,13 @@ export default function QuotesPage() {
       }
       sidebar={
         <>
-          <RecentActivityPreview activity={activityState.activity} quotes={quotesState.quotes} />
           <CurrentPickPreview
             books={booksState.books}
             loading={booksState.loading}
+          />
+          <RecentActivityPreview
+            activity={activityState.activity}
+            quotes={quotesState.quotes}
           />
           <ReaderIndexPreview
             sorted={membersState.sorted}

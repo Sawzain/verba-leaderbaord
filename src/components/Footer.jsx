@@ -11,7 +11,8 @@ export default function Footer({ maxWidth = 720 }) {
         maxWidth,
         margin: "0 auto",
         textAlign: "center",
-        padding: "20px 16px 0",
+
+        padding: "20px 16px calc(20px + env(safe-area-inset-bottom))",
         borderTop: `1px solid ${MUTED}33`,
       }}
     >

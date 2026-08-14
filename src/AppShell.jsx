@@ -66,31 +66,47 @@ export default function AppShell() {
         style={{
           background: PAPER,
           borderBottom: "1px solid rgba(45,51,39,0.08)",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
         }}
       >
         <div
+          className="verba-topbar"
           style={{
             maxWidth: WIDE_CONTENT_MAX_WIDTH,
             margin: "0 auto",
-            padding: "18px 32px",
-            display: "flex",
+            padding: "14px clamp(16px, 4vw, 32px)",
+            display: "grid",
+            gridTemplateColumns: "auto 1fr auto",
             alignItems: "center",
-            justifyContent: "space-between",
             gap: 24,
-            flexWrap: "wrap",
           }}
         >
           <Header />
-          <TabSwitcher isAdmin={isAdmin} />
+          <div
+            className="verba-tabs-account-row"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 24,
+              flexWrap: "wrap",
+              minWidth: 0,
+            }}
+          >
+            <TabSwitcher isAdmin={isAdmin} />
+          </div>
           <AccountChip myMemberId={myMemberId} />
         </div>
       </div>
 
       <div
+        className="verba-content-wrap"
         style={{
           maxWidth: contentMaxWidth,
           margin: "0 auto",
-          padding: "32px 24px",
+          padding: "24px clamp(12px, 4vw, 24px)",
           width: "100%",
           boxSizing: "border-box",
         }}

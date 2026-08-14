@@ -2,7 +2,16 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
 import AuthPanel from "./AuthPanel";
-import { SAGE_DEEP, PAPER, MUTED, CLAY, DANGER, AVATAR_COLORS, SAGE_TINT, FONT_SANS } from "../theme";
+import {
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  CLAY,
+  DANGER,
+  AVATAR_COLORS,
+  SAGE_TINT,
+  FONT_SANS,
+} from "../theme";
 
 function avatarColor(name) {
   let hash = 0;
@@ -97,8 +106,13 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
     const avatarUrl = auth.user?.avatarUrl;
 
     return (
-      <div ref={wrapRef} style={{ position: "relative" }}>
+      <div
+        ref={wrapRef}
+        className="verba-account-wrap"
+        style={{ position: "relative" }}
+      >
         <button
+          className="verba-account-chip"
           onClick={() => setOpen((v) => !v)}
           style={{ ...chipStyle, padding: 0 }}
           aria-label="Account menu"
@@ -219,8 +233,16 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
   }
 
   return (
-    <div ref={wrapRef} style={{ position: "relative" }}>
-      <button onClick={() => setOpen((v) => !v)} style={chipStyle}>
+    <div
+      ref={wrapRef}
+      className="verba-account-wrap"
+      style={{ position: "relative" }}
+    >
+      <button
+        className="verba-account-chip"
+        onClick={() => setOpen((v) => !v)}
+        style={chipStyle}
+      >
         <svg
           width={size - 8}
           height={size - 8}
@@ -238,6 +260,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
         </svg>
         {!compact && (
           <span
+            className="verba-chip-label"
             style={{
               fontSize: 12,
               color: SAGE_DEEP,

@@ -76,7 +76,14 @@ export default function LeaderboardView({
   }, [sorted]);
 
   return (
-    <div style={{ background: PAPER, padding: 24, borderRadius: 16, border: "1px solid rgba(45,51,39,0.08)" }}>
+    <div
+      style={{
+        background: PAPER,
+        padding: 24,
+        borderRadius: 16,
+        border: "1px solid rgba(45,51,39,0.08)",
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -87,29 +94,13 @@ export default function LeaderboardView({
           gap: 8,
         }}
       >
-        <div style={{ fontFamily: FONT_SERIF, fontSize: 28, color: SAGE_DEEP }}>
-          Reading leaderboard
-        </div>
-        <div
-          style={{
-            fontFamily: FONT_MONO,
-            fontSize: 11,
-            color: SAGE_DARK,
-            letterSpacing: "0.5px",
-            display: "flex",
-            gap: 8,
-            alignItems: "center",
-          }}
-        >
-          <span>
-            {memberCount} MEMBER{memberCount !== 1 ? "S" : ""}
-          </span>
-          <span>·</span>
-          <span>
-            {totalBooksRead} BOOK{totalBooksRead !== 1 ? "S" : ""} READ
-          </span>
-          <span>·</span>
-          <span>{totalQuotes} ON THE WALL</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            className="verba-lb-title"
+            style={{ fontFamily: FONT_SERIF, fontSize: 28, color: SAGE_DEEP }}
+          >
+            Reading leaderboard
+          </div>
           {memberCount > 5 && !searchOpen && (
             <button
               onClick={() => setSearchOpen(true)}
@@ -121,9 +112,10 @@ export default function LeaderboardView({
                 padding: 2,
                 display: "flex",
                 alignItems: "center",
+                flexShrink: 0,
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle
                   cx="11"
                   cy="11"
@@ -143,6 +135,34 @@ export default function LeaderboardView({
               </svg>
             </button>
           )}
+        </div>
+        <div
+          className="verba-stats-line"
+          style={{
+            fontFamily: FONT_MONO,
+            fontSize: 13,
+            color: SAGE_DARK,
+            letterSpacing: "0.5px",
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            flexWrap: "wrap",
+            rowGap: 4,
+          }}
+        >
+          <span style={{ whiteSpace: "nowrap" }}>
+            {memberCount} MEMBER{memberCount !== 1 ? "S" : ""}
+            <span aria-hidden="true" style={{ margin: "0 8px" }}>
+              ·
+            </span>
+            {totalBooksRead} BOOK{totalBooksRead !== 1 ? "S" : ""} READ
+          </span>
+          <span style={{ whiteSpace: "nowrap" }}>
+            <span aria-hidden="true" style={{ margin: "0 8px 0 0" }}>
+              ·
+            </span>
+            {totalQuotes} ON THE WALL
+          </span>
         </div>
       </div>
 
@@ -224,11 +244,13 @@ export default function LeaderboardView({
               }}
             >
               <span
+                className="verba-rank-num"
                 style={{
                   fontFamily: FONT_MONO,
-                  fontSize: 12,
-                  color: SAGE_DARK,
-                  width: 22,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: SAGE_DEEP,
+                  width: 24,
                   flexShrink: 0,
                 }}
               >
@@ -250,6 +272,7 @@ export default function LeaderboardView({
                       fetchPreview(member._id);
                     }
                   }}
+                  className="verba-member-name"
                   style={{
                     fontSize: 15,
                     color: SAGE_DEEP,
@@ -280,12 +303,13 @@ export default function LeaderboardView({
               </div>
 
               <div
+                className="verba-points-badge"
                 style={{
                   background: isFirstPlace ? CLAY : SAGE_TINT,
                   color: isFirstPlace ? PAPER : SAGE_DEEP,
                   borderRadius: 7,
-                  padding: "5px 12px",
-                  fontSize: 11,
+                  padding: "6px 13px",
+                  fontSize: 13,
                   fontWeight: 700,
                   letterSpacing: "0.5px",
                   flexShrink: 0,
