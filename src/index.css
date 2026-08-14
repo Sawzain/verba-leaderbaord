@@ -317,6 +317,6 @@ a:active {
   }
 
   .verba-books-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 210px)) !important;
   }
 }
