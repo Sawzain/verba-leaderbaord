@@ -204,9 +204,11 @@ export default function ManageView({
             border: `1px solid ${SAGE}`,
             borderRadius: 12,
             padding: "16px",
-            display: "inline-flex",
+            display: "flex",
             gap: 8,
-            flexWrap: "wrap",
+            width: 420,
+            maxWidth: "100%",
+            boxSizing: "border-box",
           }}
         >
           <input
@@ -214,7 +216,7 @@ export default function ManageView({
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
             placeholder="Name"
-            style={{ ...inputStyle, width: 260, maxWidth: "100%" }}
+            style={{ ...inputStyle, flex: 1, minWidth: 0 }}
           />
 
           <button
