@@ -81,10 +81,6 @@ export default function AdminPasswordReset({ token }) {
           padding: "16px",
           display: "flex",
           gap: 8,
-          width: 420,
-          maxWidth: "100%",
-          boxSizing: "border-box",
-          marginLeft: "auto",
         }}
       >
         <input
@@ -92,7 +88,7 @@ export default function AdminPasswordReset({ token }) {
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
           placeholder="Their account email"
-          style={{ ...inputStyle, flex: 1, minWidth: 0 }}
+          style={{ ...inputStyle, flex: 1 }}
         />
         <button
           onClick={submit}

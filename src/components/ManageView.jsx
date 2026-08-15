@@ -206,10 +206,6 @@ export default function ManageView({
             padding: "16px",
             display: "flex",
             gap: 8,
-            width: 420,
-            maxWidth: "100%",
-            boxSizing: "border-box",
-            marginLeft: "auto",
           }}
         >
           <input
@@ -217,7 +213,7 @@ export default function ManageView({
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
             placeholder="Name"
-            style={{ ...inputStyle, flex: 1, minWidth: 0 }}
+            style={{ ...inputStyle, flex: 1 }}
           />
 
           <button
