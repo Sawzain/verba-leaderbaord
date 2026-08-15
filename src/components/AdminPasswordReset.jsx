@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  SAGE,
   SAGE_DARK,
   SAGE_DEEP,
   PAPER,
@@ -74,11 +75,11 @@ export default function AdminPasswordReset({ token }) {
 
       <div
         style={{
-          background: `${SAGE_DARK}0f`,
-          border: `1px solid ${SAGE_DARK}33`,
+          background: `${SAGE}66`,
+          border: `1px solid ${SAGE}`,
           borderRadius: 12,
           padding: "16px",
-          display: "flex",
+          display: "inline-flex",
           gap: 8,
           flexWrap: "wrap",
         }}
