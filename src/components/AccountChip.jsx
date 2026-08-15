@@ -114,7 +114,12 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
         <button
           className="verba-account-chip"
           onClick={() => setOpen((v) => !v)}
-          style={{ ...chipStyle, padding: 0 }}
+          style={{
+            ...chipStyle,
+            background: "none",
+            borderRadius: 999,
+            padding: compact ? 0 : "4px 10px 4px 4px",
+          }}
           aria-label="Account menu"
         >
           {avatarUrl ? (
@@ -133,6 +138,22 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
             />
           ) : (
             <div style={avatarBtnStyle(name, size)}>{initials(name)}</div>
+          )}
+          {!compact && (
+            <span
+              className="verba-chip-label"
+              style={{
+                fontSize: 12,
+                color: SAGE_DEEP,
+                fontFamily: FONT_SANS,
+                whiteSpace: "nowrap",
+                maxWidth: 110,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {name}
+            </span>
           )}
         </button>
 
