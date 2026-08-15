@@ -127,7 +127,6 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
               src={avatarUrl}
               alt={name}
               referrerPolicy="no-referrer"
-              crossOrigin="anonymous"
               style={{
                 width: size,
                 height: size,
