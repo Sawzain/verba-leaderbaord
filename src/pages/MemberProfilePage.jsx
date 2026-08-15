@@ -270,16 +270,15 @@ export default function MemberProfilePage() {
             favorite genres, and reviews will show up here once connected.
           </div>
         )}
-      </div>
 
-      {profile.linked && !editing && (
-        <>
+        {profile.linked && !editing && (
           <div
             style={{
-              background: PAPER,
-              borderRadius: 16,
-              padding: "22px 24px",
-              marginBottom: 22,
+              background: `${SAGE}66`,
+              border: `1px solid ${SAGE}`,
+              borderRadius: 12,
+              padding: "16px 18px",
+              marginTop: 20,
             }}
           >
             {profile.bio && (
@@ -348,7 +347,11 @@ export default function MemberProfilePage() {
               </button>
             )}
           </div>
+        )}
+      </div>
 
+      {profile.linked && !editing && (
+        <div style={{ marginTop: 22 }}>
           <div
             style={{
               fontFamily: "'JetBrains Mono', monospace",
@@ -407,11 +410,18 @@ export default function MemberProfilePage() {
               )}
             </Link>
           ))}
-        </>
+        </div>
       )}
 
       {profile.linked && editing && (
-        <div>
+        <div
+          style={{
+            background: PAPER,
+            borderRadius: 16,
+            padding: "22px 24px",
+            marginTop: 20,
+          }}
+        >
           <textarea
             value={draftBio}
             onChange={(e) => setDraftBio(e.target.value.slice(0, 200))}

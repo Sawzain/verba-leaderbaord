@@ -88,10 +88,10 @@ const SOURCE_TABS = [
   { value: "poetry-corner", label: "Poems" },
 ];
 
-// Faint tint against the PAPER wrapper card, matching the hairline-border
-// language used elsewhere post-revamp (Leaderboard's "Recent activity" box).
-const CARD_BG = SAGE_TINT;
-const CARD_BORDER = "rgba(45,51,39,0.08)";
+// Sage tint against the PAPER wrapper card, matching the treatment used
+// on Current Pick, review cards, and the profile bio box.
+const CARD_BG = `${SAGE}66`;
+const CARD_BORDER = SAGE;
 
 export default function QuoteWallView({
   quotes,

@@ -178,7 +178,14 @@ export default function ManageView({
 
       <AdminPasswordReset token={auth.token} />
 
-      <div style={{ marginBottom: 24 }}>
+      <div
+        style={{
+          marginTop: 24,
+          marginBottom: 24,
+          paddingTop: 24,
+          borderTop: "1px solid rgba(45,51,39,0.08)",
+        }}
+      >
         <div
           style={{
             fontSize: 13,
@@ -224,6 +231,9 @@ export default function ManageView({
           alignItems: "center",
           justifyContent: "space-between",
           marginBottom: 10,
+          marginTop: 24,
+          paddingTop: 24,
+          borderTop: "1px solid rgba(45,51,39,0.08)",
         }}
       >
         <div

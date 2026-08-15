@@ -451,8 +451,8 @@ export default function BookDetail({
         {auth.isLoggedIn && myReview && editingReviewId === myReview.id && (
           <div
             style={{
-              background: `${MUTED}66`,
-              border: `1px solid ${MUTED}`,
+              background: `${SAGE}66`,
+              border: `1px solid ${SAGE}`,
               borderRadius: 12,
               padding: "16px",
             }}
@@ -527,8 +527,8 @@ export default function BookDetail({
         {auth.isLoggedIn && !myReview && !justSubmitted && (
           <div
             style={{
-              background: `${MUTED}66`,
-              border: `1px solid ${MUTED}`,
+              background: `${SAGE}66`,
+              border: `1px solid ${SAGE}`,
               borderRadius: 12,
               padding: "16px",
             }}
@@ -630,8 +630,8 @@ export default function BookDetail({
               gap: 12,
               padding: "14px 16px",
               marginBottom: 10,
-              background: SAGE_TINT,
-              border: `1px solid ${MUTED}`,
+              background: `${SAGE}66`,
+              border: `1px solid ${SAGE}`,
               borderRadius: 12,
             }}
           >
