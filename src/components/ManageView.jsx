@@ -197,13 +197,23 @@ export default function ManageView({
         >
           Add new member
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div
+          style={{
+            background: `${SAGE_DARK}0f`,
+            border: `1px solid ${SAGE_DARK}33`,
+            borderRadius: 12,
+            padding: "16px",
+            display: "flex",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
             placeholder="Name"
-            style={{ ...inputStyle, flex: 2, minWidth: 140 }}
+            style={{ ...inputStyle, width: 260, maxWidth: "100%" }}
           />
 
           <button
@@ -238,10 +248,11 @@ export default function ManageView({
       >
         <div
           style={{
-            fontSize: 13,
+            fontSize: 15,
             color: SAGE_DARK,
             letterSpacing: "1px",
             textTransform: "uppercase",
+            fontWeight: "bold",
           }}
         >
           Members

@@ -45,7 +45,7 @@ export default function MemberRow({
         <div
           style={{
             flex: 1,
-            fontSize: 16,
+            fontSize: 19,
             color: INK,
             fontFamily: FONT_SERIF,
           }}
@@ -106,14 +106,14 @@ export default function MemberRow({
               disabled={isSaving}
               aria-label={`Decrease ${member.name}'s points`}
               style={{
-                width: 28,
-                height: 28,
+                width: 34,
+                height: 34,
                 borderRadius: "50%",
                 border: `1.5px solid ${MUTED}`,
                 background: PAPER,
                 boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
                 cursor: isSaving ? "default" : "pointer",
-                fontSize: 16,
+                fontSize: 19,
                 color: SAGE_DEEP,
                 display: "flex",
                 alignItems: "center",
@@ -127,12 +127,12 @@ export default function MemberRow({
               onClick={() => onStartEdit(member)}
               title="Click to edit"
               style={{
-                width: 60,
+                width: 68,
                 textAlign: "center",
                 background: SAGE_TINT,
                 borderRadius: 8,
-                padding: "4px 8px",
-                fontSize: 14,
+                padding: "6px 8px",
+                fontSize: 16,
                 fontWeight: "bold",
                 color: SAGE_DEEP,
                 cursor: "pointer",
@@ -181,13 +181,13 @@ export default function MemberRow({
                 disabled={isSaving}
                 aria-label={`Mark ${member.name} as finished a book`}
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 34,
+                  height: 34,
                   borderRadius: "50%",
                   border: `1.5px solid ${MUTED}`,
                   background: PAPER,
                   cursor: isSaving ? "default" : "pointer",
-                  fontSize: 16,
+                  fontSize: 19,
                   color: SAGE_DEEP,
                   display: "flex",
                   alignItems: "center",

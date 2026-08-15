@@ -40,11 +40,15 @@ export default function AdminPasswordReset({ token }) {
     try {
       const res = await fetch(`${API_ROOT}/admin/reset-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ email: email.trim() }),
       });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error || "Couldn't reset that password");
+      if (!res.ok)
+        throw new Error(body.error || "Couldn't reset that password");
       setResult(body);
       setEmail("");
     } catch (err) {
@@ -68,13 +72,23 @@ export default function AdminPasswordReset({ token }) {
         Reset a member's password
       </div>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div
+        style={{
+          background: `${SAGE_DARK}0f`,
+          border: `1px solid ${SAGE_DARK}33`,
+          borderRadius: 12,
+          padding: "16px",
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+        }}
+      >
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
           placeholder="Their account email"
-          style={{ ...inputStyle, flex: 1, minWidth: 180 }}
+          style={{ ...inputStyle, width: 300, maxWidth: "100%" }}
         />
         <button
           onClick={submit}
@@ -95,7 +109,9 @@ export default function AdminPasswordReset({ token }) {
         </button>
       </div>
 
-      {error && <div style={{ marginTop: 8, fontSize: 13, color: DANGER }}>{error}</div>}
+      {error && (
+        <div style={{ marginTop: 8, fontSize: 13, color: DANGER }}>{error}</div>
+      )}
 
       {result && (
         <div
@@ -110,7 +126,9 @@ export default function AdminPasswordReset({ token }) {
           }}
         >
           New temporary password for {result.name} ({result.email}):{" "}
-          <strong style={{ fontFamily: "monospace" }}>{result.tempPassword}</strong>
+          <strong style={{ fontFamily: "monospace" }}>
+            {result.tempPassword}
+          </strong>
           <div style={{ marginTop: 4, opacity: 0.85 }}>
             Copy this and send it to them directly — it won't be shown again.
           </div>
