@@ -28,6 +28,9 @@ app.use(
   express.static(uploadsDir, { maxAge: "7d", immutable: true }),
 );
 
+// Root health-check — also what cron-job.org's keep-alive ping hits.
+app.get("/", (req, res) => res.status(200).send("OK"));
+
 app.use("/api/quotes", quotesRouter);
 app.use("/api/members", membersRouter);
 app.use("/api/auth", authRouter);
