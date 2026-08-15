@@ -1,10 +1,4 @@
-/* Global baseline styles.
-   Bug fix: the sage-green background (#B7C7AC) was previously only set on
-   an inner wrapper div inside VerbaLeaderboard.jsx. On overscroll/bounce
-   (mobile Safari, trackpad rubber-banding, etc.) the browser paints past
-   that wrapper and white shows through underneath it. Setting the same
-   color on html/body — and zeroing out body's default margin — means
-   there's nothing but sage-green for the bounce to reveal. */
+/* Global baseline styles.*/
 
 html,
 body {
@@ -219,8 +213,9 @@ a:active {
     flex-basis: 100% !important;
     justify-content: flex-start !important;
   }
-  .verba-logo-text {
-    font-size: 22px !important;
+  .verba-logo-mark {
+    height: 30px !important;
+    width: auto !important;
   }
   .verba-header-subtitle {
     display: none !important;

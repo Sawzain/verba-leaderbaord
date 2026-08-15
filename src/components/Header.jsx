@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SAGE_DEEP, MUTED, FONT_SERIF, FONT_MONO } from "../theme";
+import VerbaLogo from "./VerbaLogo";
 
 export default function Header() {
   return (
@@ -14,21 +15,13 @@ export default function Header() {
         textDecoration: "none",
       }}
     >
-      <span
-        className="verba-logo-text"
-        style={{
-          fontFamily: FONT_SERIF,
-          fontSize: 26,
-          color: SAGE_DEEP,
-        }}
-      >
-        verba.
-      </span>
+      <VerbaLogo height={40} color={SAGE_DEEP} className="verba-logo-mark" />
       <span
         className="verba-header-subtitle"
         style={{
           fontFamily: FONT_MONO,
-          fontSize: 10.5,
+          fontSize: 7, // was 10.5
+          lineHeight: 2.5, // add this
           letterSpacing: "1.5px",
           color: MUTED,
           textTransform: "uppercase",
