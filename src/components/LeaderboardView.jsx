@@ -274,7 +274,7 @@ export default function LeaderboardView({
                   }}
                   className="verba-member-name"
                   style={{
-                    fontSize: 15,
+                    fontSize: 17,
                     color: SAGE_DEEP,
                     fontFamily: FONT_SERIF,
                     fontWeight: isFirstPlace ? 600 : 500,
@@ -292,7 +292,7 @@ export default function LeaderboardView({
                 )}
                 {member.latestActivity && (
                   <div
-                    style={{ fontSize: 11, color: MUTED, fontStyle: "italic" }}
+                    style={{ fontSize: 13, color: MUTED, fontStyle: "italic" }}
                   >
                     {member.latestActivity.type === "review"
                       ? "reviewed "
