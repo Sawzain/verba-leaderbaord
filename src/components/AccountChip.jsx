@@ -75,7 +75,7 @@ export default function AccountChip({ compact = false, myMemberId = null }) {
   const auth = useAuthContext();
   const [open, setOpen] = useState(false);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
-  const size = compact ? 24 : 30;
+  const size = compact ? 28 : 36;
   const wrapRef = useRef(null);
 
   const closeAll = () => {
