@@ -41,11 +41,11 @@ export default function MemberRow({
         transition: "opacity 0.15s",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
         <div
           style={{
             flex: 1,
-            fontSize: 22,
+            fontSize: 16,
             fontWeight: 600,
             color: INK,
             fontFamily: FONT_SERIF,
@@ -220,50 +220,51 @@ export default function MemberRow({
         )}
       </div>
 
-      {onLinkAccount && !member.userId && (
-        <div style={{ paddingLeft: 2 }}>
-          {showLinkPicker ? (
-            <select
-              autoFocus
-              defaultValue=""
-              onChange={(e) => {
-                if (e.target.value) onLinkAccount(member._id, e.target.value);
-                setShowLinkPicker(false);
-              }}
-              onBlur={() => setShowLinkPicker(false)}
-              style={{
-                fontSize: 11,
-                borderRadius: 6,
-                padding: "3px 6px",
-                border: `1px solid ${SAGE_DARK}`,
-                fontFamily: FONT_SERIF,
-              }}
-            >
-              <option value="" disabled>
-                Link to Discord account…
-              </option>
-              {unlinkedUsers.map((u) => (
-                <option key={u._id} value={u._id}>
-                  {u.name}
+      {onLinkAccount && (
+        <div style={{ paddingLeft: 2, minHeight: 18 }}>
+          {!member.userId &&
+            (showLinkPicker ? (
+              <select
+                autoFocus
+                defaultValue=""
+                onChange={(e) => {
+                  if (e.target.value) onLinkAccount(member._id, e.target.value);
+                  setShowLinkPicker(false);
+                }}
+                onBlur={() => setShowLinkPicker(false)}
+                style={{
+                  fontSize: 11,
+                  borderRadius: 6,
+                  padding: "3px 6px",
+                  border: `1px solid ${SAGE_DARK}`,
+                  fontFamily: FONT_SERIF,
+                }}
+              >
+                <option value="" disabled>
+                  Link to Discord account…
                 </option>
-              ))}
-            </select>
-          ) : (
-            <button
-              onClick={() => setShowLinkPicker(true)}
-              style={{
-                fontSize: 11,
-                color: SAGE_DEEP,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                textDecoration: "underline",
-                padding: 0,
-              }}
-            >
-              Link Discord account
-            </button>
-          )}
+                {unlinkedUsers.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <button
+                onClick={() => setShowLinkPicker(true)}
+                style={{
+                  fontSize: 11,
+                  color: SAGE_DEEP,
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  padding: 0,
+                }}
+              >
+                Link Discord account
+              </button>
+            ))}
         </div>
       )}
     </div>
