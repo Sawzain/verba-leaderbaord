@@ -156,7 +156,7 @@ export default function BookCard({
 
       <div
         style={{
-          padding: "10px 12px",
+          padding: "14px 14px",
           flex: 1,
           display: "flex",
           flexDirection: "column",
@@ -164,7 +164,7 @@ export default function BookCard({
       >
         <div
           style={{
-            fontSize: 14,
+            fontSize: 17,
             fontWeight: "bold",
             color: SAGE_DEEP,
             lineHeight: 1.3,
@@ -174,7 +174,7 @@ export default function BookCard({
         </div>
 
         {book.author && (
-          <div style={{ fontSize: 12, color: SAGE_DEEP, marginTop: 2 }}>
+          <div style={{ fontSize: 14, color: SAGE_DEEP, marginTop: 3 }}>
             {book.author}
           </div>
         )}
@@ -182,13 +182,18 @@ export default function BookCard({
         <div
           style={{
             marginTop: "auto",
-            paddingTop: 8,
+            paddingTop: 10,
             display: "flex",
             alignItems: "center",
             gap: 6,
           }}
         >
-          <RatingSummary rating={book.avgRating} count={book.reviewCount} />
+          <RatingSummary
+            rating={book.avgRating}
+            count={book.reviewCount}
+            starSize={15}
+            textSize={13}
+          />
         </div>
       </div>
     </div>

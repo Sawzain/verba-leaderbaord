@@ -187,15 +187,26 @@ export default function BookDetail({
           />
         </div>
       ) : (
-        <div style={{ display: "flex", gap: 16, marginBottom: 14 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 28,
+            marginBottom: 28,
+            background: PAPER,
+            borderRadius: 20,
+            padding: "28px 32px",
+            alignItems: "flex-start",
+          }}
+        >
           <div
             style={{
-              width: 96,
-              height: 128,
+              width: 180,
+              height: 240,
               flexShrink: 0,
-              borderRadius: 8,
+              borderRadius: 12,
               overflow: "hidden",
               background: `${SAGE}33`,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -209,10 +220,10 @@ export default function BookDetail({
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             ) : (
-              <span style={{ fontSize: 28, opacity: 0.4 }}>📖</span>
+              <span style={{ fontSize: 52, opacity: 0.4 }}>📖</span>
             )}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: 1, minWidth: 0, paddingTop: 6 }}>
             <div
               style={{
                 display: "flex",
@@ -222,7 +233,13 @@ export default function BookDetail({
               }}
             >
               <div
-                style={{ fontSize: 19, fontWeight: "bold", color: SAGE_DEEP }}
+                style={{
+                  fontSize: 36,
+                  fontWeight: "bold",
+                  color: SAGE_DEEP,
+                  fontFamily: FONT_SERIF,
+                  lineHeight: 1.15,
+                }}
               >
                 {book.title}
               </div>
@@ -236,8 +253,8 @@ export default function BookDetail({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: 26,
-                    height: 26,
+                    width: 30,
+                    height: 30,
                     marginRight: 16,
                     background: "transparent",
                     border: `1.5px solid ${MUTED}`,
@@ -248,8 +265,8 @@ export default function BookDetail({
                   }}
                 >
                   <svg
-                    width="13"
-                    height="13"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -264,17 +281,17 @@ export default function BookDetail({
               )}
             </div>
             {book.author && (
-              <div style={{ fontSize: 14, color: SAGE_DEEP, marginTop: 2 }}>
+              <div style={{ fontSize: 17, color: SAGE_DEEP, marginTop: 8 }}>
                 {book.author}
               </div>
             )}
             <RatingSummary
               rating={avgRating}
               count={reviewCount}
-              starSize={16}
-              textSize={13}
+              starSize={22}
+              textSize={15}
               emptyMessage="No reviews yet — be the first"
-              wrapperStyle={{ marginTop: 8 }}
+              wrapperStyle={{ marginTop: 16 }}
             />
           </div>
         </div>
@@ -284,11 +301,10 @@ export default function BookDetail({
       <div style={{ marginBottom: 28 }}>
         <div
           style={{
-            fontSize: 11,
-            color: SAGE_DARK,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-            marginBottom: 8,
+            fontSize: 20,
+            fontWeight: "bold",
+            color: SAGE_DEEP,
+            marginBottom: 12,
           }}
         >
           Write a review
@@ -301,9 +317,9 @@ export default function BookDetail({
             style={{
               background: "none",
               border: `1px dashed ${MUTED}`,
-              borderRadius: 10,
-              padding: "10px 14px",
-              fontSize: 13,
+              borderRadius: 12,
+              padding: "16px 18px",
+              fontSize: 16,
               color: SAGE_DEEP,
               cursor: "pointer",
               fontFamily: FONT_SERIF,
@@ -453,12 +469,16 @@ export default function BookDetail({
             style={{
               background: `${SAGE}66`,
               border: `1px solid ${SAGE}`,
-              borderRadius: 12,
-              padding: "16px",
+              borderRadius: 14,
+              padding: "22px",
             }}
           >
-            <div style={{ marginBottom: 12 }}>
-              <StarInput value={editRating} onChange={setEditRating} />
+            <div style={{ marginBottom: 16 }}>
+              <StarInput
+                value={editRating}
+                onChange={setEditRating}
+                size={28}
+              />
             </div>
             <textarea
               value={editText}
@@ -467,10 +487,10 @@ export default function BookDetail({
               rows={3}
               style={{
                 width: "100%",
-                padding: "10px 12px",
-                borderRadius: 10,
+                padding: "14px 16px",
+                borderRadius: 12,
                 border: `1.5px solid ${MUTED}`,
-                fontSize: 14,
+                fontSize: 16,
                 fontFamily: FONT_SERIF,
                 outline: "none",
                 background: PAPER,
@@ -529,12 +549,12 @@ export default function BookDetail({
             style={{
               background: `${SAGE}66`,
               border: `1px solid ${SAGE}`,
-              borderRadius: 12,
-              padding: "16px",
+              borderRadius: 14,
+              padding: "22px",
             }}
           >
-            <div style={{ marginBottom: 12 }}>
-              <StarInput value={rating} onChange={setRating} />
+            <div style={{ marginBottom: 16 }}>
+              <StarInput value={rating} onChange={setRating} size={28} />
             </div>
             <textarea
               value={text}
@@ -543,10 +563,10 @@ export default function BookDetail({
               rows={3}
               style={{
                 width: "100%",
-                padding: "10px 12px",
-                borderRadius: 10,
+                padding: "14px 16px",
+                borderRadius: 12,
                 border: `1.5px solid ${MUTED}`,
-                fontSize: 14,
+                fontSize: 16,
                 fontFamily: FONT_SERIF,
                 outline: "none",
                 background: PAPER,
@@ -565,13 +585,13 @@ export default function BookDetail({
               disabled={submitting}
               className="verba-btn"
               style={{
-                marginTop: 10,
+                marginTop: 14,
                 background: SAGE_DARK,
                 color: PAPER,
                 border: "none",
                 borderRadius: 10,
-                padding: "10px 20px",
-                fontSize: 14,
+                padding: "12px 24px",
+                fontSize: 15,
                 cursor: submitting ? "default" : "pointer",
                 opacity: submitting ? 0.7 : 1,
                 fontFamily: FONT_SERIF,
@@ -627,26 +647,26 @@ export default function BookDetail({
             key={r.id || r._id}
             style={{
               display: "flex",
-              gap: 12,
-              padding: "14px 16px",
-              marginBottom: 10,
+              gap: 14,
+              padding: "18px 20px",
+              marginBottom: 12,
               background: `${SAGE}66`,
               border: `1px solid ${SAGE}`,
-              borderRadius: 12,
+              borderRadius: 14,
             }}
           >
             <div
               style={{
                 flexShrink: 0,
-                width: 34,
-                height: 34,
+                width: 42,
+                height: 42,
                 borderRadius: "50%",
                 background: SAGE_DARK,
                 color: PAPER,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 14,
+                fontSize: 17,
                 fontWeight: "bold",
               }}
             >
@@ -662,7 +682,7 @@ export default function BookDetail({
               >
                 <span
                   style={{
-                    fontSize: 14,
+                    fontSize: 17,
                     fontWeight: "bold",
                     color: SAGE_DEEP,
                     flex: 1,
@@ -683,7 +703,7 @@ export default function BookDetail({
                     marginLeft: 8,
                   }}
                 >
-                  <StarDisplay value={r.rating} size={13} />
+                  <StarDisplay value={r.rating} size={18} />
                   {isMine && editingReviewId !== r.id && (
                     <>
                       <button
@@ -797,10 +817,10 @@ export default function BookDetail({
               {r.text && editingReviewId !== r.id && (
                 <div
                   style={{
-                    marginTop: 6,
-                    fontSize: 14,
+                    marginTop: 8,
+                    fontSize: 16,
                     color: SAGE_DEEP,
-                    lineHeight: 1.5,
+                    lineHeight: 1.6,
                   }}
                 >
                   {r.text}

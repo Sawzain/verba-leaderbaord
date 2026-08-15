@@ -272,6 +272,7 @@ export default function MemberProfilePage() {
         )}
 
         {profile.linked && !editing && (
+          <>
           <div
             style={{
               background: `${SAGE}66`,
@@ -347,22 +348,25 @@ export default function MemberProfilePage() {
               </button>
             )}
           </div>
-        )}
-      </div>
 
-      {profile.linked && !editing && (
-        <div style={{ marginTop: 22 }}>
           <div
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              color: SAGE_DARK,
-              letterSpacing: "0.5px",
-              marginBottom: 10,
+              marginTop: 22,
+              borderTop: `1px solid ${SAGE}55`,
+              paddingTop: 20,
             }}
           >
-            REVIEWS
-          </div>
+            <div
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 11,
+                color: SAGE_DARK,
+                letterSpacing: "0.5px",
+                marginBottom: 10,
+              }}
+            >
+              REVIEWS
+            </div>
 
           {(!profile.reviews || profile.reviews.length === 0) && (
             <div
@@ -410,8 +414,10 @@ export default function MemberProfilePage() {
               )}
             </Link>
           ))}
-        </div>
-      )}
+          </div>
+          </>
+        )}
+      </div>
 
       {profile.linked && editing && (
         <div

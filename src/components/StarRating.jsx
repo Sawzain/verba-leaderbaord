@@ -2,12 +2,12 @@ import { useState } from "react";
 import { MUTED, SAGE_DEEP } from "../theme";
 
 // Clickable stars for submitting a review.
-export function StarInput({ value, onChange }) {
+export function StarInput({ value, onChange, size = 26 }) {
   const [hover, setHover] = useState(0);
   const active = hover || value;
 
   return (
-    <span style={{ fontSize: 26 }}>
+    <span style={{ fontSize: size }}>
       {[1, 2, 3, 4, 5].map((n) => (
         <span
           key={n}
@@ -27,7 +27,7 @@ export function StarInput({ value, onChange }) {
       <span
         style={{
           marginLeft: 8,
-          fontSize: 13,
+          fontSize: Math.round(size * 0.5),
           color: SAGE_DEEP,
           verticalAlign: "middle",
         }}
