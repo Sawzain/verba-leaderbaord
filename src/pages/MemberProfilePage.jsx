@@ -274,55 +274,80 @@ export default function MemberProfilePage() {
 
       {profile.linked && !editing && (
         <>
-          {profile.bio && (
-            <p
-              style={{
-                color: SAGE_DEEP,
-                fontSize: 15,
-                lineHeight: 1.5,
-                marginTop: 0,
-              }}
-            >
-              {profile.bio}
-            </p>
-          )}
+          <div
+            style={{
+              background: PAPER,
+              borderRadius: 16,
+              padding: "22px 24px",
+              marginBottom: 22,
+            }}
+          >
+            {profile.bio && (
+              <p
+                style={{
+                  color: SAGE_DEEP,
+                  fontSize: 15,
+                  lineHeight: 1.5,
+                  marginTop: 0,
+                }}
+              >
+                {profile.bio}
+              </p>
+            )}
 
-          {profile.favoriteGenres?.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 6,
-                marginBottom: 18,
-              }}
-            >
-              {profile.favoriteGenres.map((g) => (
-                <span
-                  key={g}
-                  style={{
-                    background: SAGE_TINT,
-                    color: SAGE_DEEP,
-                    borderRadius: 20,
-                    padding: "4px 12px",
-                    fontSize: 12,
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  }}
-                >
-                  {g}
-                </span>
-              ))}
-            </div>
-          )}
+            {profile.favoriteGenres?.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 6,
+                  marginBottom: isOwner ? 16 : 0,
+                }}
+              >
+                {profile.favoriteGenres.map((g) => (
+                  <span
+                    key={g}
+                    style={{
+                      background: SAGE_TINT,
+                      color: SAGE_DEEP,
+                      borderRadius: 20,
+                      padding: "4px 12px",
+                      fontSize: 12,
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    }}
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            )}
 
-          {isOwner && (
-            <button
-              className="verba-btn"
-              onClick={startEditing}
-              style={{ ...secondaryBtn, marginBottom: 22 }}
-            >
-              Edit profile
-            </button>
-          )}
+            {!profile.bio && !(profile.favoriteGenres?.length > 0) && (
+              <p
+                style={{
+                  color: MUTED,
+                  fontStyle: "italic",
+                  fontSize: 14,
+                  marginTop: 0,
+                  marginBottom: isOwner ? 16 : 0,
+                }}
+              >
+                {isOwner
+                  ? "Add a bio and favorite genres to complete your profile."
+                  : "Hasn't shared a bio yet."}
+              </p>
+            )}
+
+            {isOwner && (
+              <button
+                className="verba-btn"
+                onClick={startEditing}
+                style={secondaryBtn}
+              >
+                Edit profile
+              </button>
+            )}
+          </div>
 
           <div
             style={{
