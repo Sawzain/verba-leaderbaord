@@ -226,7 +226,6 @@ export default function LeaderboardView({
         {pageItems.map((member, i) => {
           const displayRank = ranks.get(member._id);
           const isFirstPlace = displayRank === 1;
-          const isTopThree = displayRank <= 3;
 
           return (
             <div
@@ -238,7 +237,6 @@ export default function LeaderboardView({
                 gap: 14,
                 padding: "14px 16px",
                 borderRadius: 10,
-                background: isTopThree ? "transparent" : `${SAGE}66`,
                 borderBottom: "1px solid rgba(45,51,39,0.07)",
                 animationDelay: `${i * 25}ms`,
                 position: "relative",
@@ -307,7 +305,7 @@ export default function LeaderboardView({
               <div
                 className="verba-points-badge"
                 style={{
-                  background: isFirstPlace ? CLAY : SAGE_TINT,
+                  background: isFirstPlace ? CLAY : `${SAGE}66`,
                   color: isFirstPlace ? PAPER : SAGE_DEEP,
                   borderRadius: 7,
                   padding: "6px 13px",
