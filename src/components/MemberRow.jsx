@@ -127,7 +127,7 @@ export default function MemberRow({
               onClick={() => onStartEdit(member)}
               title="Click to edit"
               style={{
-                minWidth: 44,
+                width: 60,
                 textAlign: "center",
                 background: SAGE_TINT,
                 borderRadius: 8,
@@ -136,6 +136,7 @@ export default function MemberRow({
                 fontWeight: "bold",
                 color: SAGE_DEEP,
                 cursor: "pointer",
+                whiteSpace: "nowrap",
               }}
             >
               {member.points} book{member.points !== 1 ? "s" : ""}
