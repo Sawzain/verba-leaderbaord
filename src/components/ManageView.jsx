@@ -209,6 +209,7 @@ export default function ManageView({
             width: 420,
             maxWidth: "100%",
             boxSizing: "border-box",
+            marginLeft: "auto",
           }}
         >
           <input

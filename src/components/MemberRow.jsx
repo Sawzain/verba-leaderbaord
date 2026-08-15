@@ -45,7 +45,8 @@ export default function MemberRow({
         <div
           style={{
             flex: 1,
-            fontSize: 19,
+            fontSize: 22,
+            fontWeight: 600,
             color: INK,
             fontFamily: FONT_SERIF,
           }}

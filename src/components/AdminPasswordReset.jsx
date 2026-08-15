@@ -84,6 +84,7 @@ export default function AdminPasswordReset({ token }) {
           width: 420,
           maxWidth: "100%",
           boxSizing: "border-box",
+          marginLeft: "auto",
         }}
       >
         <input
