@@ -28,9 +28,9 @@ const primaryBtn = {
 };
 
 const secondaryBtn = {
-  background: "transparent",
+  background: PAPER,
   color: SAGE_DEEP,
-  border: `1.5px solid ${SAGE}`,
+  border: `1.5px solid ${SAGE_DEEP}`,
   borderRadius: 10,
   padding: "8px 18px",
   fontSize: 14,
@@ -103,7 +103,12 @@ export default function MemberProfilePage() {
 
   return (
     <div
-      style={{ padding: "24px", fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      style={{
+        padding: "24px",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        maxWidth: 640,
+        margin: "0 auto",
+      }}
     >
       <Link
         to="/app/leaderboard"
@@ -118,144 +123,154 @@ export default function MemberProfilePage() {
 
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          margin: "18px 0 20px",
+          background: PAPER,
+          borderRadius: 16,
+          padding: "22px 24px",
+          marginTop: 18,
+          marginBottom: 22,
         }}
       >
-        {profile.avatarUrl ? (
-          <img
-            src={profile.avatarUrl}
-            alt={profile.name}
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              objectFit: "cover",
-              flexShrink: 0,
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: avatarColor(profile.name),
-              color: PAPER,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 20,
-              fontWeight: "bold",
-              flexShrink: 0,
-            }}
-          >
-            {initials(profile.name)}
-          </div>
-        )}
-        <div>
-          <h1
-            style={{
-              fontFamily: FONT_SERIF,
-              color: SAGE_DEEP,
-              margin: 0,
-              fontSize: 26,
-            }}
-          >
-            {profile.name}
-          </h1>
-          <div style={{ color: MUTED, fontSize: 13, marginTop: 2 }}>
-            {profile.points} book{profile.points !== 1 ? "s" : ""} read
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
-          color: SAGE_DARK,
-          letterSpacing: "0.5px",
-          marginBottom: 10,
-        }}
-      >
-        BOOKS READ
-      </div>
-
-      {(!profile.booksRead || profile.booksRead.length === 0) && (
         <div
           style={{
-            color: MUTED,
-            fontStyle: "italic",
-            fontSize: 14,
-            marginBottom: 22,
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            marginBottom: 20,
           }}
         >
-          No books read yet.
-        </div>
-      )}
-
-      {profile.booksRead?.length > 0 && (
-        <div style={{ marginBottom: 22 }}>
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-            {(booksExpanded
-              ? profile.booksRead
-              : profile.booksRead.slice(0, 3)
-            ).map((title, i, arr) => (
-              <li
-                key={`${title}-${i}`}
-                style={{
-                  padding: "9px 4px",
-                  borderBottom:
-                    i < arr.length - 1 ? `1px solid ${SAGE}55` : "none",
-                  color: SAGE_DEEP,
-                  fontSize: 14,
-                }}
-              >
-                {title}
-              </li>
-            ))}
-          </ul>
-          {profile.booksRead.length > 3 && (
-            <button
-              className="verba-link-btn"
-              onClick={() => setBooksExpanded((v) => !v)}
+          {profile.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt={profile.name}
               style={{
-                background: "none",
-                border: "none",
-                color: SAGE_DEEP,
-                fontSize: 12,
-                textDecoration: "underline",
-                cursor: "pointer",
-                padding: 0,
-                marginTop: 8,
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                objectFit: "cover",
+                flexShrink: 0,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 56,
+                height: 56,
+                borderRadius: "50%",
+                background: avatarColor(profile.name),
+                color: PAPER,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+                fontWeight: "bold",
+                flexShrink: 0,
               }}
             >
-              {booksExpanded
-                ? "Show less"
-                : `Show ${profile.booksRead.length - 3} more`}
-            </button>
+              {initials(profile.name)}
+            </div>
           )}
+          <div>
+            <h1
+              style={{
+                fontFamily: FONT_SERIF,
+                color: SAGE_DEEP,
+                margin: 0,
+                fontSize: 26,
+              }}
+            >
+              {profile.name}
+            </h1>
+            <div style={{ color: MUTED, fontSize: 13, marginTop: 2 }}>
+              {profile.points} book{profile.points !== 1 ? "s" : ""} read
+            </div>
+          </div>
         </div>
-      )}
 
-      {!profile.linked && (
         <div
           style={{
-            background: SAGE,
-            borderRadius: 12,
-            padding: "14px 16px",
-            color: SAGE_DEEP,
-            fontStyle: "italic",
-            fontSize: 14,
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 11,
+            color: SAGE_DARK,
+            letterSpacing: "0.5px",
+            marginBottom: 10,
           }}
         >
-          Link your Discord account to unlock your full profile — bio, favorite
-          genres, and reviews will show up here once connected.
+          BOOKS READ
         </div>
-      )}
+
+        {(!profile.booksRead || profile.booksRead.length === 0) && (
+          <div
+            style={{
+              color: MUTED,
+              fontStyle: "italic",
+              fontSize: 14,
+            }}
+          >
+            No books read yet.
+          </div>
+        )}
+
+        {profile.booksRead?.length > 0 && (
+          <div>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              {(booksExpanded
+                ? profile.booksRead
+                : profile.booksRead.slice(0, 3)
+              ).map((title, i, arr) => (
+                <li
+                  key={`${title}-${i}`}
+                  style={{
+                    padding: "9px 4px",
+                    borderBottom:
+                      i < arr.length - 1 ? `1px solid ${SAGE}55` : "none",
+                    color: SAGE_DEEP,
+                    fontSize: 14,
+                  }}
+                >
+                  {title}
+                </li>
+              ))}
+            </ul>
+            {profile.booksRead.length > 3 && (
+              <button
+                className="verba-link-btn"
+                onClick={() => setBooksExpanded((v) => !v)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: SAGE_DEEP,
+                  fontSize: 12,
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  padding: 0,
+                  marginTop: 8,
+                }}
+              >
+                {booksExpanded
+                  ? "Show less"
+                  : `Show ${profile.booksRead.length - 3} more`}
+              </button>
+            )}
+          </div>
+        )}
+
+        {!profile.linked && (
+          <div
+            style={{
+              background: SAGE,
+              borderRadius: 12,
+              padding: "14px 16px",
+              color: SAGE_DEEP,
+              fontStyle: "italic",
+              fontSize: 14,
+              marginTop: 16,
+            }}
+          >
+            Link your Discord account to unlock your full profile — bio,
+            favorite genres, and reviews will show up here once connected.
+          </div>
+        )}
+      </div>
 
       {profile.linked && !editing && (
         <>
