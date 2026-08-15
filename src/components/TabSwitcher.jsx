@@ -8,7 +8,7 @@ import { SAGE_DEEP, SAGE_DARK, FONT_MONO } from "../theme";
 const TABS = [
   { to: "/app/reviews", label: "Reviews" },
   { to: "/app/leaderboard", label: "Leaderboard" },
-  { to: "/app/quotes", label: "Verba Wall" },
+  { to: "/app/quotes", label: "Verba-Wall" },
   { to: "/app/manage", label: "Manage" },
 ];
 
@@ -41,7 +41,12 @@ export default function TabSwitcher({ isAdmin }) {
       }}
     >
       {visibleTabs.map(({ to, label }) => (
-         <NavLink key={to} to={to} className="verba-tab-link" style={tabLinkStyle}>
+        <NavLink
+          key={to}
+          to={to}
+          className="verba-tab-link"
+          style={tabLinkStyle}
+        >
           {label}
         </NavLink>
       ))}
