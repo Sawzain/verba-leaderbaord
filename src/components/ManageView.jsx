@@ -32,7 +32,7 @@ const inputStyle = {
   fontSize: 15,
   fontFamily: FONT_SERIF,
   outline: "none",
-  background: `${SAGE}66`,
+  background: PAPER,
   color: INK,
   boxSizing: "border-box",
 };
