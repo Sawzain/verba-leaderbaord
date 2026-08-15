@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  SAGE,
   SAGE_DARK,
   SAGE_DEEP,
   PAPER,
@@ -65,7 +66,8 @@ export default function MemberRow({
                 width: 60,
                 padding: "6px 8px",
                 borderRadius: 8,
-                border: `1.5px solid ${SAGE_DARK}`,
+                border: `1px solid ${SAGE}`,
+                background: `${SAGE}66`,
                 fontSize: 14,
                 textAlign: "center",
                 fontFamily: FONT_SERIF,
@@ -130,7 +132,7 @@ export default function MemberRow({
               style={{
                 width: 68,
                 textAlign: "center",
-                background: SAGE_TINT,
+                background: `${SAGE}66`,
                 borderRadius: 8,
                 padding: "6px 8px",
                 fontSize: 16,

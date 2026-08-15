@@ -28,11 +28,11 @@ const cardStyle = {
 const inputStyle = {
   padding: "10px 14px",
   borderRadius: 10,
-  border: `1.5px solid ${MUTED}`,
+  border: `1px solid ${SAGE}`,
   fontSize: 15,
   fontFamily: FONT_SERIF,
   outline: "none",
-  background: PAPER,
+  background: `${SAGE}66`,
   color: INK,
   boxSizing: "border-box",
 };
