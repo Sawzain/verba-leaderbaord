@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { SAGE_DARK, MUTED, PAPER, CLAY } from "../theme";
+
+const WIDE_BREAKPOINT = 900;
 
 function getPageNumbers(current, total, siblings = 1) {
   const pages = [];
@@ -45,7 +48,28 @@ function pageNumberStyle(isCurrent) {
   };
 }
 
+// Uses more sibling page numbers on wide viewports, since there's room —
+// mobile stays tight (current ±1) so the row doesn't wrap awkwardly.
+function useResponsiveSiblings() {
+  const [siblings, setSiblings] = useState(
+    typeof window !== "undefined" && window.innerWidth >= WIDE_BREAKPOINT
+      ? 2
+      : 1,
+  );
+
+  useEffect(() => {
+    const update = () =>
+      setSiblings(window.innerWidth >= WIDE_BREAKPOINT ? 2 : 1);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return siblings;
+}
+
 export default function Pagination({ page, totalPages, goToPage }) {
+  const siblings = useResponsiveSiblings();
   if (totalPages <= 1) return null;
 
   return (
@@ -67,7 +91,7 @@ export default function Pagination({ page, totalPages, goToPage }) {
         ← Prev
       </button>
 
-      {getPageNumbers(page, totalPages).map((p, i) =>
+      {getPageNumbers(page, totalPages, siblings).map((p, i) =>
         p === "…" ? (
           <span
             key={`ellipsis-${i}`}

@@ -111,6 +111,8 @@ export default function ManageView({
   savingId,
   newName,
   setNewName,
+  newPoints,
+  setNewPoints,
   addMember,
   editingIndex,
   setEditingIndex,
@@ -214,6 +216,15 @@ export default function ManageView({
             onKeyDown={(e) => e.key === "Enter" && addMember()}
             placeholder="Name"
             style={{ ...inputStyle, flex: 1 }}
+          />
+          <input
+            type="number"
+            min={0}
+            value={newPoints}
+            onChange={(e) => setNewPoints(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addMember()}
+            placeholder="Points"
+            style={{ ...inputStyle, width: 80 }}
           />
 
           <button

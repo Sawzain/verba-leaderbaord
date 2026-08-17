@@ -111,6 +111,18 @@ router.post("/", requireApiKey, upload.single("cover"), async (req, res) => {
   }
 
   try {
+    // Case-insensitive duplicate check — mirrors the same guard on
+    // POST /api/members, since book titles are also typed in by hand.
+    const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existing = await Book.findOne({
+      title: new RegExp(`^${escaped}$`, "i"),
+    });
+    if (existing) {
+      return res
+        .status(409)
+        .json({ error: `"${title}" is already on the shelf` });
+    }
+
     let coverImage = "";
     let coverPublicId = "";
     if (req.file) {
@@ -202,7 +214,7 @@ router.patch("/:id/current-pick", requireApiKey, async (req, res) => {
 // POST: add a review
 router.post("/:id/reviews", requireAuth, async (req, res) => {
   const rating = Number(req.body.rating);
-  const text = (req.body.text || "").trim();
+  const text = (req.body.text || "").trim().slice(0, 2000);
 
   if (!rating || rating < 1 || rating > 5) {
     return res.status(400).json({ error: "Rating must be between 1 and 5" });

@@ -4,6 +4,7 @@ import {
   SAGE_DEEP,
   SAGE,
   PAPER,
+  MUTED,
   SAGE_TINT,
   FONT_SERIF,
   FONT_SANS,
@@ -101,6 +102,13 @@ export default function QuoteWallView({
   setBookFilter,
   sourceFilter,
   setSourceFilter,
+  favoriteOnly,
+  setFavoriteOnly,
+  search,
+  setSearch,
+  isAdmin,
+  onToggleFavorite,
+  onDeleteQuote,
   page,
   totalPages,
   goToPage,
@@ -210,33 +218,61 @@ export default function QuoteWallView({
           })}
         </div>
       </div>
-      {books.length > 0 && (
-        <div
+      <div style={{ maxWidth: 420, margin: "0 auto 16px" }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search quotes and poems…"
           style={{
-            display: "flex",
-            gap: 8,
-            flexWrap: "wrap",
-            justifyContent: "center",
-            marginBottom: 24,
+            width: "100%",
+            padding: "9px 14px",
+            borderRadius: 10,
+            border: `1px solid ${SAGE}`,
+            fontSize: 13.5,
+            fontFamily: FONT_SANS,
+            outline: "none",
+            background: PAPER,
+            color: SAGE_DEEP,
+            boxSizing: "border-box",
           }}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          justifyContent: "center",
+          marginBottom: 24,
+        }}
+      >
+        <button
+          onClick={() => setFavoriteOnly((v) => !v)}
+          style={chipStyle(favoriteOnly)}
         >
-          <button
-            onClick={() => setBookFilter("")}
-            style={chipStyle(bookFilter === "")}
-          >
-            All books
-          </button>
-          {books.map((b) => (
+          ★ Favorites
+        </button>
+        {books.length > 0 && (
+          <>
             <button
-              key={b}
-              onClick={() => setBookFilter(b)}
-              style={chipStyle(bookFilter === b)}
+              onClick={() => setBookFilter("")}
+              style={chipStyle(bookFilter === "")}
             >
-              {b}
+              All books
             </button>
-          ))}
-        </div>
-      )}
+            {books.map((b) => (
+              <button
+                key={b}
+                onClick={() => setBookFilter(b)}
+                style={chipStyle(bookFilter === b)}
+              >
+                {b}
+              </button>
+            ))}
+          </>
+        )}
+      </div>
 
       {loading ? (
         <p style={emptyStyle}>Gathering the leaves…</p>
@@ -244,11 +280,15 @@ export default function QuoteWallView({
         <p style={emptyStyle}>Couldn't load — try refreshing.</p>
       ) : quotes.length === 0 ? (
         <p style={emptyStyle}>
-          {sourceFilter === "poetry-corner"
-            ? "No poems pressed yet — drop one in #poetry-corner and it'll show up here."
-            : sourceFilter === "quotes-highlights"
-              ? "No quotes pressed yet — drop a line in #quotes-highlights and it'll show up here."
-              : "Nothing pressed yet — post in #quotes-highlights or #poetry-corner and it'll show up here."}
+          {search.trim()
+            ? `No matches for "${search.trim()}".`
+            : favoriteOnly
+              ? "No favorites yet."
+              : sourceFilter === "poetry-corner"
+              ? "No poems pressed yet — drop one in #poetry-corner and it'll show up here."
+              : sourceFilter === "quotes-highlights"
+                ? "No quotes pressed yet — drop a line in #quotes-highlights and it'll show up here."
+                : "Nothing pressed yet — post in #quotes-highlights or #poetry-corner and it'll show up here."}
         </p>
       ) : (
         <>
@@ -256,12 +296,72 @@ export default function QuoteWallView({
             {featured && (
               <div
                 style={{
+                  position: "relative",
                   border: `1px solid ${SAGE}`,
                   background: MUTED,
                   borderRadius: 10,
                   padding: "18px 20px",
                 }}
               >
+                {(isAdmin || featured.is_admin_favorite) && (
+                  <button
+                    onClick={
+                      isAdmin
+                        ? () =>
+                            onToggleFavorite(
+                              featured.id,
+                              !featured.is_admin_favorite,
+                            )
+                        : undefined
+                    }
+                    disabled={!isAdmin}
+                    aria-label={
+                      featured.is_admin_favorite
+                        ? "Remove from favorites"
+                        : "Mark as favorite"
+                    }
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      right: 14,
+                      background: "none",
+                      border: "none",
+                      cursor: isAdmin ? "pointer" : "default",
+                      fontSize: 17,
+                      color: featured.is_admin_favorite ? "#c9a227" : MUTED,
+                      padding: 0,
+                    }}
+                  >
+                    {featured.is_admin_favorite ? "★" : "☆"}
+                  </button>
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Delete this quote? This can't be undone.",
+                        )
+                      ) {
+                        onDeleteQuote(featured.id);
+                      }
+                    }}
+                    aria-label="Delete quote"
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      right: 40,
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 14,
+                      color: SAGE_DARK,
+                      padding: 0,
+                    }}
+                  >
+                    🗑
+                  </button>
+                )}
                 <div
                   style={{
                     fontSize: 11,
@@ -289,12 +389,68 @@ export default function QuoteWallView({
               <div
                 key={q.id}
                 style={{
+                  position: "relative",
                   border: `1px solid ${CARD_BORDER}`,
                   background: CARD_BG,
                   borderRadius: 10,
                   padding: "16px 18px",
                 }}
               >
+                {(isAdmin || q.is_admin_favorite) && (
+                  <button
+                    onClick={
+                      isAdmin
+                        ? () => onToggleFavorite(q.id, !q.is_admin_favorite)
+                        : undefined
+                    }
+                    disabled={!isAdmin}
+                    aria-label={
+                      q.is_admin_favorite
+                        ? "Remove from favorites"
+                        : "Mark as favorite"
+                    }
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      right: 14,
+                      background: "none",
+                      border: "none",
+                      cursor: isAdmin ? "pointer" : "default",
+                      fontSize: 17,
+                      color: q.is_admin_favorite ? "#c9a227" : MUTED,
+                      padding: 0,
+                    }}
+                  >
+                    {q.is_admin_favorite ? "★" : "☆"}
+                  </button>
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Delete this quote? This can't be undone.",
+                        )
+                      ) {
+                        onDeleteQuote(q.id);
+                      }
+                    }}
+                    aria-label="Delete quote"
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      right: 40,
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 14,
+                      color: SAGE_DARK,
+                      padding: 0,
+                    }}
+                  >
+                    🗑
+                  </button>
+                )}
                 <LeafMark size={15} />
                 <QuoteBody
                   text={q.quote_text}

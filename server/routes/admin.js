@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const requireApiKey = require("../middleware/apiKey");
+const { authLimiter } = require("../middleware/rateLimiters");
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get("/verify", requireApiKey, (req, res) => {
 // fresh temporary password and hands it back to the admin, who relays it to
 // the member out of band (Discord DM, in person, etc). The member can't
 // request this themselves; it requires the admin x-api-key.
-router.post("/reset-password", requireApiKey, async (req, res) => {
+router.post("/reset-password", authLimiter, requireApiKey, async (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
   if (!email) {
     return res.status(400).json({ error: "Email is required" });

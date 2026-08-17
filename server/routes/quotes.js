@@ -1,16 +1,6 @@
-// Express route: GET /api/quotes
-// Matches the pattern of server/routes/books.js etc. Your main data lives in
-// MongoDB, but quotes live in Supabase (captured by Twig) — so this route
-// talks to Supabase directly rather than going through a Mongoose model.
-// Mount in app.js the same way as the other routers:
-//
-//   const quotesRouter = require("./routes/quotes");
-//   app.use("/api/quotes", quotesRouter);
-//
-// npm install @supabase/supabase-js  (add to server/package.json)
-
 const express = require("express");
 const { createClient } = require("@supabase/supabase-js");
+const requireApiKey = require("../middleware/apiKey");
 const {
   SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
@@ -25,9 +15,6 @@ if (!SUPABASE_CONFIGURED) {
   );
 }
 
-// Lazy singleton: only construct the client the first time a request
-// actually needs it, so simply requiring this file (e.g. in tests, or
-// anywhere SUPABASE_* isn't set) never crashes the process.
 let _supabase = null;
 function getSupabase() {
   if (!SUPABASE_CONFIGURED) return null;
@@ -38,7 +25,7 @@ function getSupabase() {
 }
 
 // Mounted at /api/quotes in app.js, so this is the root: GET /api/quotes
-// e.g. /api/quotes?book=<title>&source=poetry-corner&featured=true&limit=30&offset=0
+// e.g. /api/quotes?book=<title>&source=poetry-corner&featured=true&favoriteOnly=true&limit=30&offset=0
 router.get("/", async (req, res) => {
   const supabase = getSupabase();
   if (!supabase) {
@@ -47,7 +34,15 @@ router.get("/", async (req, res) => {
       .json({ error: "Quotes are not configured on this server yet." });
   }
 
-  const { book, source, featured, limit = 30, offset = 0 } = req.query;
+  const {
+    book,
+    source,
+    featured,
+    favoriteOnly,
+    q,
+    limit = 30,
+    offset = 0,
+  } = req.query;
 
   let query = supabase
     .from("quotes")
@@ -58,6 +53,10 @@ router.get("/", async (req, res) => {
   if (book) query = query.eq("book_title", book);
   if (source) query = query.eq("source_channel", source); // 'quotes-highlights' | 'poetry-corner'
   if (featured === "true") query = query.eq("is_featured", true);
+  // Admin-curated "favorites" — separate flag from is_featured, toggled below.
+  if (favoriteOnly === "true") query = query.eq("is_admin_favorite", true);
+  // Free-text search — case-insensitive contains match against the quote/poem body.
+  if (q) query = query.ilike("quote_text", `%${q}%`);
   query = query.eq("is_approved", true); // never show unapproved content publicly
 
   const { data, error, count } = await query;
@@ -68,6 +67,56 @@ router.get("/", async (req, res) => {
   }
 
   res.json({ quotes: data, total: count });
+});
+
+// PATCH: admin-only toggle for the "favorite" flag (curated highlights,
+// not to be confused with is_featured which drives the sidebar's old
+// single-quote spotlight).
+router.patch("/:id/favorite", requireApiKey, async (req, res) => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return res
+      .status(503)
+      .json({ error: "Quotes are not configured on this server yet." });
+  }
+
+  const { data, error } = await supabase
+    .from("quotes")
+    .update({ is_admin_favorite: Boolean(req.body.favorite) })
+    .eq("id", req.params.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[quotes route] favorite toggle error:", error.message);
+    return res.status(500).json({ error: "Couldn't update favorite" });
+  }
+
+  res.json(data);
+});
+// DELETE: admin-only removal of a quote/poem — off-topic, spam, posted by
+// mistake, etc. Supabase is the source of truth here (Twig writes directly
+// to it), so this is a real delete, matching how reviews are hard-deleted
+// elsewhere in the app rather than soft-flipping is_approved.
+router.delete("/:id", requireApiKey, async (req, res) => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return res
+      .status(503)
+      .json({ error: "Quotes are not configured on this server yet." });
+  }
+
+  const { error } = await supabase
+    .from("quotes")
+    .delete()
+    .eq("id", req.params.id);
+
+  if (error) {
+    console.error("[quotes route] delete error:", error.message);
+    return res.status(500).json({ error: "Couldn't delete that quote" });
+  }
+
+  res.sendStatus(204);
 });
 
 module.exports = router;

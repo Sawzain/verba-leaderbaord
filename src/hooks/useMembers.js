@@ -18,6 +18,7 @@ export default function useMembers(token, enabled = true) {
   const [search, setSearch] = useState("");
 
   const [newName, setNewName] = useState("");
+  const [newPoints, setNewPoints] = useState(0);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editPoints, setEditPoints] = useState(0);
   const [savingId, setSavingId] = useState(null);
@@ -94,7 +95,7 @@ export default function useMembers(token, enabled = true) {
         },
         body: JSON.stringify({
           username: newName.trim(),
-          score: 0,
+          score: Math.max(0, Number(newPoints) || 0),
         }),
       });
 
@@ -114,6 +115,7 @@ export default function useMembers(token, enabled = true) {
         { name: saved.username, points: saved.score, _id: saved._id },
       ]);
       setNewName("");
+      setNewPoints(0);
       setError(null);
     });
 
@@ -329,6 +331,8 @@ export default function useMembers(token, enabled = true) {
     savingId,
     newName,
     setNewName,
+    newPoints,
+    setNewPoints,
     editingIndex,
     setEditingIndex,
     editPoints,

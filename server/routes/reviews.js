@@ -29,7 +29,7 @@ router.put("/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
       review.rating = rating;
     }
     if (req.body.text !== undefined) {
-      review.text = String(req.body.text).trim();
+      review.text = String(req.body.text).trim().slice(0, 2000);
     }
     // Marks the review as edited for display purposes (see BookDetail.jsx).
     review.updatedAt = new Date();

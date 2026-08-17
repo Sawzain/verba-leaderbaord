@@ -4,7 +4,7 @@ const reviewSchema = new mongoose.Schema({
   book: { type: mongoose.Schema.Types.ObjectId, ref: "Book", required: true },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
-  text: { type: String, trim: true, default: "" },
+  text: { type: String, trim: true, default: "", maxlength: 2000 },
   createdAt: { type: Date, default: Date.now },
   // Set only when a review is edited after creation (see PUT /api/reviews/:id)
   // — its presence, not its value, drives the "(edited)" badge in the UI.
