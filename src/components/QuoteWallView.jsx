@@ -118,14 +118,23 @@ export default function QuoteWallView({
   const [expandedIds, setExpandedIds] = useState(() => new Set());
   const [searchOpen, setSearchOpen] = useState(() => search.trim() !== "");
   const [stickyTop, setStickyTop] = useState(0);
+  const [isNarrow, setIsNarrow] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 640,
+  );
   useEffect(() => {
     const updateStickyTop = () => {
       const bar = document.querySelector(".verba-topbar");
       setStickyTop(bar ? bar.getBoundingClientRect().height : 0);
     };
+    const updateIsNarrow = () => setIsNarrow(window.innerWidth < 640);
     updateStickyTop();
+    updateIsNarrow();
     window.addEventListener("resize", updateStickyTop);
-    return () => window.removeEventListener("resize", updateStickyTop);
+    window.addEventListener("resize", updateIsNarrow);
+    return () => {
+      window.removeEventListener("resize", updateStickyTop);
+      window.removeEventListener("resize", updateIsNarrow);
+    };
   }, []);
   const toggleExpanded = (id) =>
     setExpandedIds((prev) => {
@@ -177,20 +186,21 @@ export default function QuoteWallView({
           position: "sticky",
           top: stickyTop,
           zIndex: 90,
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
+          display: isNarrow ? "flex" : "grid",
+          flexDirection: isNarrow ? "column" : undefined,
+          gridTemplateColumns: isNarrow ? undefined : "1fr auto 1fr",
           alignItems: "center",
           gap: 8,
           padding: "12px 28px",
           margin: "-12px -24px 16px",
         }}
       >
-        <div />
+        {!isNarrow && <div />}
         <div
           style={{
             display: "inline-flex",
             gap: 6,
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
             justifySelf: "center",
             background: SAGE_DEEP,
             padding: 3,
@@ -227,8 +237,8 @@ export default function QuoteWallView({
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-end",
-            justifySelf: "end",
+            justifyContent: "center",
+            justifySelf: isNarrow ? undefined : "end",
             gap: 6,
           }}
         >
