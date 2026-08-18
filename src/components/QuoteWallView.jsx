@@ -89,6 +89,12 @@ const SOURCE_TABS = [
   { value: "poetry-corner", label: "Poems" },
 ];
 
+const SORT_OPTIONS = [
+  { value: "latest", label: "Latest" },
+  { value: "interactions", label: "Most interactions (soon)" },
+  { value: "favorites", label: "★ Favorites" },
+];
+
 // Sage tint against the PAPER wrapper card, matching the treatment used
 // on Current Pick, review cards, and the profile bio box.
 const CARD_BG = `${SAGE}66`;
@@ -118,24 +124,27 @@ export default function QuoteWallView({
   const [expandedIds, setExpandedIds] = useState(() => new Set());
   const [searchOpen, setSearchOpen] = useState(() => search.trim() !== "");
   const [stickyTop, setStickyTop] = useState(0);
-  const [isNarrow, setIsNarrow] = useState(
-    () => typeof window !== "undefined" && window.innerWidth < 640,
-  );
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const sortMenuRef = useRef(null);
   useEffect(() => {
     const updateStickyTop = () => {
       const bar = document.querySelector(".verba-topbar");
       setStickyTop(bar ? bar.getBoundingClientRect().height : 0);
     };
-    const updateIsNarrow = () => setIsNarrow(window.innerWidth < 640);
     updateStickyTop();
-    updateIsNarrow();
     window.addEventListener("resize", updateStickyTop);
-    window.addEventListener("resize", updateIsNarrow);
-    return () => {
-      window.removeEventListener("resize", updateStickyTop);
-      window.removeEventListener("resize", updateIsNarrow);
-    };
+    return () => window.removeEventListener("resize", updateStickyTop);
   }, []);
+  useEffect(() => {
+    if (!sortMenuOpen) return;
+    const closeOnOutsideClick = (e) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target)) {
+        setSortMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+  }, [sortMenuOpen]);
   const toggleExpanded = (id) =>
     setExpandedIds((prev) => {
       const next = new Set(prev);
@@ -186,16 +195,15 @@ export default function QuoteWallView({
           position: "sticky",
           top: stickyTop,
           zIndex: 90,
-          display: isNarrow ? "flex" : "grid",
-          flexDirection: isNarrow ? "column" : undefined,
-          gridTemplateColumns: isNarrow ? undefined : "1fr auto 1fr",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
           gap: 8,
           padding: "12px 28px",
           margin: "-12px -24px 16px",
         }}
       >
-        {!isNarrow && <div />}
+        <div />
         <div
           style={{
             display: "inline-flex",
@@ -233,42 +241,103 @@ export default function QuoteWallView({
             );
           })}
         </div>
+
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            justifySelf: isNarrow ? undefined : "end",
+            justifyContent: "flex-end",
+            justifySelf: "end",
             gap: 6,
           }}
         >
-          <select
-            value={favoriteOnly ? "favorites" : sort}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "favorites") {
-                setFavoriteOnly(true);
-              } else {
-                setFavoriteOnly(false);
-                setSort(val);
-              }
-            }}
-            style={{
-              width: 90,
-              padding: "5px 6px",
-              borderRadius: 8,
-              border: `1px solid ${SAGE}`,
-              fontSize: 12,
-              fontFamily: FONT_SANS,
-              background: PAPER,
-              color: SAGE_DEEP,
-              cursor: "pointer",
-            }}
-          >
-            <option value="latest">Latest</option>
-            <option value="interactions">Most interactions</option>
-            <option value="favorites">★ Favorites</option>
-          </select>
+          <div ref={sortMenuRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setSortMenuOpen((o) => !o)}
+              aria-label="Sort quotes"
+              style={{
+                background:
+                  favoriteOnly || sort !== "latest" ? SAGE_TINT : PAPER,
+                border: `1px solid ${SAGE}`,
+                borderRadius: 8,
+                cursor: "pointer",
+                padding: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 8h10M6 12h7M6 16h4"
+                  stroke={SAGE_DARK}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M17 15l3 3 3-3"
+                  stroke={SAGE_DARK}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+            {sortMenuOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 4px)",
+                  right: 0,
+                  background: PAPER,
+                  border: `1px solid ${SAGE}`,
+                  borderRadius: 8,
+                  padding: 4,
+                  minWidth: 170,
+                  boxShadow: "0 4px 12px rgba(45,51,39,0.12)",
+                  zIndex: 100,
+                }}
+              >
+                {SORT_OPTIONS.map(({ value, label }) => {
+                  const active =
+                    value === "favorites"
+                      ? favoriteOnly
+                      : !favoriteOnly && sort === value;
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => {
+                        if (value === "favorites") {
+                          setFavoriteOnly(true);
+                        } else {
+                          setFavoriteOnly(false);
+                          setSort(value);
+                        }
+                        setSortMenuOpen(false);
+                      }}
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "6px 8px",
+                        borderRadius: 6,
+                        border: "none",
+                        background: active ? SAGE_TINT : "transparent",
+                        color: SAGE_DEEP,
+                        fontSize: 12,
+                        fontFamily: FONT_SANS,
+                        fontWeight: active ? 700 : 400,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           {searchOpen ? (
             <input
