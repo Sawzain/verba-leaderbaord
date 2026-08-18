@@ -39,10 +39,49 @@ if (!process.env.RESEND_API_KEY) {
 // so it must be required only after the checks above have passed.
 const app = require("./app");
 
+// serverSelectionTimeoutMS: fail fast (5s) instead of Mongoose's 30s default
+// if Atlas is unreachable, so a bad deploy or network issue surfaces in the
+// Render logs quickly instead of hanging requests silently.
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000,
+  })
   .then(() => console.log("Connected to MongoDB Atlas"))
   .catch((err) => console.error("Could not connect to MongoDB", err));
 
+// Logs disconnects/reconnects after the initial connection — helps
+// distinguish "never connected" from "was fine, then Atlas hiccuped."
+mongoose.connection.on("disconnected", () => {
+  console.warn("MongoDB disconnected");
+});
+mongoose.connection.on("reconnected", () => {
+  console.log("MongoDB reconnected");
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () =>
+  console.log(`Server running on port ${PORT}`),
+);
+
+// Render sends SIGTERM before killing a process on deploy/restart. Without
+// handling it, in-flight requests can get cut off mid-response and the
+// Mongo connection is torn down abruptly. This lets the HTTP server finish
+// serving current requests, then closes Mongo cleanly before exiting.
+function shutdown(signal) {
+  console.log(`${signal} received, shutting down gracefully`);
+  server.close(() => {
+    mongoose.connection.close(false, () => {
+      console.log("Closed out remaining connections");
+      process.exit(0);
+    });
+  });
+
+  // Force-exit if graceful shutdown takes too long (stuck connections, etc).
+  setTimeout(() => {
+    console.error("Forced shutdown after timeout");
+    process.exit(1);
+  }, 10000);
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

@@ -64,6 +64,7 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // GET: one book with its full review list, avgRating, and reviewCount
 router.get("/:id", async (req, res) => {
   try {
@@ -154,6 +155,22 @@ router.put("/:id", requireApiKey, upload.single("cover"), async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
     if (!book) return res.status(404).json({ error: "Book not found" });
+
+    // Same case-insensitive duplicate guard as POST, but excluding this
+    // book's own id — otherwise saving a book without changing its title
+    // would incorrectly flag itself as a duplicate.
+    if (title.toLowerCase() !== book.title.toLowerCase()) {
+      const escaped = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const existing = await Book.findOne({
+        _id: { $ne: book._id },
+        title: new RegExp(`^${escaped}$`, "i"),
+      });
+      if (existing) {
+        return res
+          .status(409)
+          .json({ error: `"${title}" is already on the shelf` });
+      }
+    }
 
     book.title = title;
     book.author = author;
