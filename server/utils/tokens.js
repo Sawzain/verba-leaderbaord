@@ -8,7 +8,7 @@ function signToken(user) {
       isAdmin: Boolean(user.isAdmin),
     },
     process.env.JWT_SECRET,
-    { expiresIn: "30d" },
+    { expiresIn: "7d" },
   );
 }
 

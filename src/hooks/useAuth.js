@@ -75,6 +75,34 @@ export default function useAuth() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // On every app load, if a token is already stored, validate it against
+  // the server and pick up the refreshed token from the response. This
+  // means an active user's session effectively rolls forward indefinitely,
+  // while an expired/invalidated token gets logged out immediately instead
+  // of silently failing on the next admin action.
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_ROOT}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((me) => {
+        persist(me.token || token, {
+          id: me.id,
+          name: me.name,
+          email: me.email || "",
+          isAdmin: Boolean(me.isAdmin),
+          emailVerified: Boolean(me.emailVerified),
+          avatarUrl: me.avatarUrl || "",
+          requireEmailVerification: Boolean(me.requireEmailVerification),
+        });
+      })
+      .catch((status) => {
+        if (status === 401) logout();
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const submit = async (path, payload) => {
     setAuthBusy(true);
     setAuthError(null);

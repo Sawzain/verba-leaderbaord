@@ -118,6 +118,11 @@ router.get("/me", requireAuth, async (req, res) => {
       emailVerified: Boolean(user?.emailVerified),
       avatarUrl: user?.avatarUrl || "",
       requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
+      // Rolling refresh: every successful /me call re-issues a fresh
+      // 7-day token, so an active user effectively never gets logged
+      // out mid-use, while an abandoned/stolen token still dies within
+      // a week of its last real use rather than lasting a full 30 days.
+      token: signToken(user),
     });
   } catch (err) {
     res.json({
