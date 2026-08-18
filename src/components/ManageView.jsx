@@ -219,35 +219,90 @@ export default function ManageView({
             style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
           />
 
-          <select
-            defaultValue={currentPickId || ""}
-            style={{
-              ...inputStyle,
-              flex: "1 1 160px",
-              minWidth: 0,
-              cursor: "pointer",
-              background: PAPER,
-              color: INK,
-              border: `1px solid ${SAGE}`,
-              fontFamily: FONT_SERIF,
-              WebkitAppearance: "none",
-              MozAppearance: "none",
-              appearance: "none",
-            }}
-          >
-            <option value="" style={{ background: PAPER, color: INK, fontFamily: FONT_SERIF }}>
-              Select completed book…
-            </option>
-            {books?.map((b) => (
-              <option
-                key={b._id}
-                value={b._id}
-                style={{ background: PAPER, color: INK, fontFamily: FONT_SERIF }}
-              >
-                {b.title}
-              </option>
-            ))}
-          </select>
+          {/* Custom themed dropdown */}
+          {(() => {
+            const [open, setOpen] = useState(false);
+            const [selectedId, setSelectedId] = useState(currentPickId || "");
+            const selectedBook = books?.find((b) => b._id === selectedId);
+
+            return (
+              <div style={{ position: "relative", flex: "1 1 160px", minWidth: 0 }}>
+                <button
+                  type="button"
+                  onClick={() => setOpen(!open)}
+                  style={{
+                    ...inputStyle,
+                    width: "100%",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {selectedBook ? selectedBook.title : "Select completed book…"}
+                  </span>
+                  <span style={{ fontSize: 10, marginLeft: 6, color: SAGE_DEEP }}>▼</span>
+                </button>
+
+                {open && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      right: 0,
+                      marginTop: 4,
+                      background: PAPER,
+                      border: `1px solid ${SAGE}`,
+                      borderRadius: 10,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      zIndex: 10,
+                      maxHeight: 180,
+                      overflowY: "auto",
+                    }}
+                  >
+                    <div
+                      onClick={() => {
+                        setSelectedId("");
+                        setOpen(false);
+                      }}
+                      style={{
+                        padding: "8px 12px",
+                        cursor: "pointer",
+                        fontSize: 15,
+                        fontFamily: FONT_SERIF,
+                        color: SAGE_DEEP,
+                        borderBottom: `1px solid ${SAGE_TINT}`,
+                      }}
+                    >
+                      Select completed book…
+                    </div>
+                    {books?.map((b) => (
+                      <div
+                        key={b._id}
+                        onClick={() => {
+                          setSelectedId(b._id);
+                          setOpen(false);
+                        }}
+                        style={{
+                          padding: "8px 12px",
+                          cursor: "pointer",
+                          fontSize: 15,
+                          fontFamily: FONT_SERIF,
+                          color: INK,
+                          background: selectedId === b._id ? SAGE_TINT : "transparent",
+                        }}
+                      >
+                        {b.title}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           <input
             type="number"
