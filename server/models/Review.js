@@ -16,5 +16,7 @@ const reviewSchema = new mongoose.Schema({
 // requests. The API layer just turns that rejection into a friendly error —
 // the guarantee lives here, not in application logic that could be raced.
 reviewSchema.index({ book: 1, user: 1 }, { unique: true });
+// Speeds up member-profile review lookups (Review.find({ user: score.userId }))
+reviewSchema.index({ user: 1 });
 
 module.exports = mongoose.model("Review", reviewSchema);

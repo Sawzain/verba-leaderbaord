@@ -88,7 +88,7 @@ export default function useMembers(token, enabled = true) {
     }
   };
 
-  const addMember = () =>
+  const addMember = (bookId) =>
     withAuthError(async () => {
       if (!newName.trim()) return;
       const startingScore = Math.max(0, Number(newPoints) || 0);
@@ -115,9 +115,33 @@ export default function useMembers(token, enabled = true) {
       }
 
       const saved = await response.json();
+      let finalScore = saved.score;
+
+      // If a book was selected in the dropdown, log it as read too —
+      // reuses the same endpoint MemberRow's "+" button hits, so points
+      // and ActivityLog stay consistent with that flow.
+      if (bookId) {
+        try {
+          const readRes = await fetch(`${API_BASE}/${saved._id}/mark-read`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ bookId }),
+          });
+          if (readRes.ok) {
+            const readBody = await readRes.json();
+            finalScore = readBody.score ?? finalScore;
+          }
+        } catch {
+          // Non-fatal — member was still created successfully.
+        }
+      }
+
       setMembers((prev) => [
         ...prev,
-        { name: saved.username, points: saved.score, _id: saved._id },
+        { name: saved.username, points: finalScore, _id: saved._id },
       ]);
       setNewName("");
       setNewPoints("");

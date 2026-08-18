@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const multer = require("multer");
 const compression = require("compression");
 const { uploadsDir } = require("./config/cloudinary");
@@ -17,6 +18,8 @@ const app = express();
 // Trust Render's proxy so rate limiting keys off the real client IP,
 // not the proxy's.
 app.set("trust proxy", 1);
+
+app.use(helmet());
 
 const allowedOrigin = process.env.FRONTEND_ORIGIN;
 app.use(cors(allowedOrigin ? { origin: allowedOrigin } : {}));
@@ -51,6 +54,23 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ error: err.message });
   }
   next(err);
+});
+// Catches any request that didn't match a route above (typo'd URL, bad
+// API client, bot scanning for endpoints). Without this, Express's
+// default 404 sends an HTML page — fine for a browser, useless for the
+// frontend which always expects JSON.
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
+// Final safety net — catches anything thrown or passed via next(err) that
+// no route or the multer handler above dealt with. Without this, an
+// unhandled error currently leaks Express's default HTML stack trace
+// page to the client, which in production exposes internals (file paths,
+// stack frames) to anyone who triggers a bug.
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ error: "Something went wrong" });
 });
 
 module.exports = app;
