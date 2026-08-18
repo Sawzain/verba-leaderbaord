@@ -172,26 +172,26 @@ export default function QuoteWallView({
           Words worth pressing between pages
         </p>
       </div>
-
       <div
         style={{
           position: "sticky",
           top: stickyTop,
           zIndex: 90,
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "1fr auto 1fr",
           alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
           gap: 8,
           padding: "12px 28px",
           margin: "-12px -24px 16px",
         }}
       >
+        <div />
         <div
           style={{
             display: "inline-flex",
             gap: 6,
             flexWrap: "wrap",
+            justifySelf: "center",
             background: SAGE_DEEP,
             padding: 3,
             borderRadius: 10,
@@ -223,11 +223,12 @@ export default function QuoteWallView({
             );
           })}
         </div>
-
         <div
           style={{
             display: "flex",
             alignItems: "center",
+            justifyContent: "flex-end",
+            justifySelf: "end",
             gap: 6,
           }}
         >
@@ -243,7 +244,8 @@ export default function QuoteWallView({
               }
             }}
             style={{
-              padding: "5px 8px",
+              width: 108,
+              padding: "5px 6px",
               borderRadius: 8,
               border: `1px solid ${SAGE}`,
               fontSize: 12,
