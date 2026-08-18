@@ -178,7 +178,11 @@ export default function QuoteWallView({
           position: "sticky",
           top: stickyTop,
           zIndex: 90,
-          textAlign: "center",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 8,
           padding: "12px 28px",
           margin: "-12px -24px 16px",
         }}
@@ -191,7 +195,6 @@ export default function QuoteWallView({
             background: SAGE_DEEP,
             padding: 3,
             borderRadius: 10,
-            maxWidth: "100%",
           }}
         >
           {SOURCE_TABS.map(({ value, label }) => {
@@ -220,97 +223,99 @@ export default function QuoteWallView({
             );
           })}
         </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8,
-          marginBottom: 16,
-        }}
-      >
-        <select
-          value={favoriteOnly ? "favorites" : sort}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "favorites") {
-              setFavoriteOnly(true);
-            } else {
-              setFavoriteOnly(false);
-              setSort(val);
-            }
-          }}
+
+        <div
           style={{
-            padding: "7px 10px",
-            borderRadius: 8,
-            border: `1px solid ${SAGE}`,
-            fontSize: 12.5,
-            fontFamily: FONT_SANS,
-            background: PAPER,
-            color: SAGE_DEEP,
-            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          <option value="latest">Latest</option>
-          <option value="interactions">Most interactions (soon)</option>
-          <option value="favorites">★ Favorites</option>
-        </select>
-
-        {searchOpen ? (
-          <input
-            autoFocus
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onBlur={() => {
-              if (!search.trim()) setSearchOpen(false);
+          <select
+            value={favoriteOnly ? "favorites" : sort}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "favorites") {
+                setFavoriteOnly(true);
+              } else {
+                setFavoriteOnly(false);
+                setSort(val);
+              }
             }}
-            placeholder="Search quotes, poems, or names…"
             style={{
-              padding: "7px 12px",
+              padding: "5px 8px",
               borderRadius: 8,
               border: `1px solid ${SAGE}`,
-              fontSize: 12.5,
+              fontSize: 12,
               fontFamily: FONT_SANS,
-              outline: "none",
               background: PAPER,
               color: SAGE_DEEP,
-              width: 200,
-              boxSizing: "border-box",
-            }}
-          />
-        ) : (
-          <button
-            onClick={() => setSearchOpen(true)}
-            aria-label="Search quotes and poems"
-            style={{
-              background: "none",
-              border: "none",
               cursor: "pointer",
-              padding: 4,
-              display: "flex",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-                stroke={SAGE_DARK}
-                strokeWidth="2"
-              />
-              <line
-                x1="16.5"
-                y1="16.5"
-                x2="21"
-                y2="21"
-                stroke={SAGE_DARK}
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-        )}
+            <option value="latest">Latest</option>
+            <option value="interactions">Most interactions (soon)</option>
+            <option value="favorites">★ Favorites</option>
+          </select>
+
+          {searchOpen ? (
+            <input
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onBlur={() => {
+                if (!search.trim()) setSearchOpen(false);
+              }}
+              placeholder="Search…"
+              style={{
+                padding: "5px 10px",
+                borderRadius: 8,
+                border: `1px solid ${SAGE}`,
+                fontSize: 12,
+                fontFamily: FONT_SANS,
+                outline: "none",
+                background: PAPER,
+                color: SAGE_DEEP,
+                width: 130,
+                boxSizing: "border-box",
+              }}
+            />
+          ) : (
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search quotes and poems"
+              style={{
+                background: PAPER,
+                border: `1px solid ${SAGE}`,
+                borderRadius: 8,
+                cursor: "pointer",
+                padding: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke={SAGE_DARK}
+                  strokeWidth="2"
+                />
+                <line
+                  x1="16.5"
+                  y1="16.5"
+                  x2="21"
+                  y2="21"
+                  stroke={SAGE_DARK}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       <div
