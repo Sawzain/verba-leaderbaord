@@ -244,7 +244,7 @@ export default function QuoteWallView({
               }
             }}
             style={{
-              width: 108,
+              width: 90,
               padding: "5px 6px",
               borderRadius: 8,
               border: `1px solid ${SAGE}`,
@@ -256,7 +256,7 @@ export default function QuoteWallView({
             }}
           >
             <option value="latest">Latest</option>
-            <option value="interactions">Most interactions (soon)</option>
+            <option value="interactions">Most interactions</option>
             <option value="favorites">★ Favorites</option>
           </select>
 
