@@ -1,4 +1,12 @@
-import { SAGE_DARK, SAGE_DEEP, PAPER, MUTED, SAGE, SAGE_TINT, DANGER_LIGHT } from "../theme";
+import {
+  SAGE_DARK,
+  SAGE_DEEP,
+  PAPER,
+  MUTED,
+  SAGE,
+  SAGE_TINT,
+  DANGER_LIGHT,
+} from "../theme";
 import { StarDisplay } from "./StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import RatingSummary from "./RatingSummary";
@@ -81,7 +89,7 @@ export default function BookCard({
               right: 8,
               display: "flex",
               flexDirection: "column",
-              gap: 6,
+              gap: 8,
               zIndex: 2,
             }}
           >
@@ -102,8 +110,8 @@ export default function BookCard({
                     : "Set as current pick"
                 }
                 style={{
-                  width: 26,
-                  height: 26,
+                  width: 40,
+                  height: 40,
                   borderRadius: "50%",
                   border: "none",
                   background: book.isCurrentPick
@@ -111,7 +119,7 @@ export default function BookCard({
                     : "rgba(20,20,20,0.55)",
                   color: PAPER,
                   cursor: "pointer",
-                  fontSize: 13,
+                  fontSize: 15,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -132,14 +140,14 @@ export default function BookCard({
                 aria-label={`Remove ${book.title}`}
                 title="Remove book"
                 style={{
-                  width: 26,
-                  height: 26,
+                  width: 40,
+                  height: 40,
                   borderRadius: "50%",
                   border: "none",
                   background: "rgba(20,20,20,0.55)",
                   color: DANGER_LIGHT,
                   cursor: "pointer",
-                  fontSize: 12,
+                  fontSize: 14,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

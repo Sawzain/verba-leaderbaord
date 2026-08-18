@@ -16,6 +16,17 @@ import {
 // title + mono eyebrow, link out to the full page). Lives in the sidebar
 // on Leaderboard and Verba Wall, the two wide-layout pages that don't
 // already show book info in their main column.
+
+function pickedAgoLabel(currentPickSetAt) {
+  if (!currentPickSetAt) return null;
+  const days = Math.floor(
+    (Date.now() - new Date(currentPickSetAt).getTime()) / (1000 * 60 * 60 * 24),
+  );
+  if (days <= 0) return "Picked today";
+  if (days === 1) return "Picked 1 day ago";
+  return `Picked ${days} days ago`;
+}
+
 export default function CurrentPickPreview({ books = [], loading }) {
   const currentPick = books.find((b) => b.isCurrentPick);
 
@@ -114,6 +125,18 @@ export default function CurrentPickPreview({ books = [], loading }) {
                 {currentPick.author}
               </div>
             )}
+            {pickedAgoLabel(currentPick.currentPickSetAt) && (
+              <div
+                style={{
+                  fontFamily: FONT_MONO,
+                  fontSize: 11,
+                  color: MUTED,
+                  marginTop: 2,
+                }}
+              >
+                {pickedAgoLabel(currentPick.currentPickSetAt)}
+              </div>
+            )}
             <div style={{ marginTop: 6 }}>
               {currentPick.avgRating ? (
                 <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -123,7 +146,9 @@ export default function CurrentPickPreview({ books = [], loading }) {
                   </span>
                 </span>
               ) : (
-                <span style={{ fontSize: 11, color: MUTED, fontStyle: "italic" }}>
+                <span
+                  style={{ fontSize: 11, color: MUTED, fontStyle: "italic" }}
+                >
                   No reviews yet
                 </span>
               )}

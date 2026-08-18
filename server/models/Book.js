@@ -6,6 +6,7 @@ const bookSchema = new mongoose.Schema({
   coverImage: { type: String, default: "" },
   coverPublicId: { type: String, default: "" },
   isCurrentPick: { type: Boolean, default: false },
+  currentPickSetAt: { type: Date, default: null },
   addedAt: { type: Date, default: Date.now },
 });
 

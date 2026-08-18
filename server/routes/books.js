@@ -217,12 +217,25 @@ router.patch("/:id/current-pick", requireApiKey, async (req, res) => {
     if (makeCurrent) {
       await Book.updateMany(
         { _id: { $ne: book._id } },
-        { isCurrentPick: false },
+        { isCurrentPick: false, currentPickSetAt: null },
       );
     }
     book.isCurrentPick = makeCurrent;
+    if (makeCurrent) {
+      const requestedDate = req.body?.currentPickSetAt
+        ? new Date(req.body.currentPickSetAt)
+        : new Date();
+      book.currentPickSetAt = isNaN(requestedDate.getTime())
+        ? new Date()
+        : requestedDate;
+    } else {
+      book.currentPickSetAt = null;
+    }
     await book.save();
-    res.json({ isCurrentPick: book.isCurrentPick });
+    res.json({
+      isCurrentPick: book.isCurrentPick,
+      currentPickSetAt: book.currentPickSetAt,
+    });
   } catch (err) {
     res.status(400).json({ error: "Couldn't update the current pick" });
   }
