@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { API_ROOT } from "./useMembers";
 
 const API_BASE = `${API_ROOT}/quotes`;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 15;
 const SEARCH_DEBOUNCE_MS = 350;
 
 export default function useQuotes(enabled = true) {

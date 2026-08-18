@@ -224,7 +224,7 @@ export default function ManageView({
             value={newPoints}
             onChange={(e) => setNewPoints(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
-            placeholder="Starting books (optional)"
+            placeholder="Starting books"
             title="Starting books read — leave blank to start at 0"
             style={{ ...inputStyle, width: 150, flexShrink: 0 }}
           />
