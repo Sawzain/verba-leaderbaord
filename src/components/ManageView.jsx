@@ -10,15 +10,102 @@ import {
   DANGER,
   DANGER_LIGHT,
   DANGER_DARK,
+  SAGE_TINT, // ✅ ADD THIS MISSING IMPORT
 } from "../theme";
 import MemberRow from "./MemberRow";
 import AdminPasswordReset from "./AdminPasswordReset";
 import AuthPanel from "./AuthPanel";
 
-// AppShell no longer wraps pages in a frosted cream panel (removed in the
-// full-site revamp) — this view owns its own PAPER card against the SAGE
-// page background, same pattern as Leaderboard/Verba Wall. Applied to both
-// the locked-out AdminGate states and the main admin content below.
+// Custom dropdown component to avoid useState inside render
+function BookDropdown({ books, currentPickId, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(currentPickId || "");
+  const selectedBook = books?.find((b) => b._id === selectedId);
+
+  return (
+    <div style={{ position: "relative", flex: "1 1 160px", minWidth: 0 }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          ...inputStyle,
+          width: "100%",
+          textAlign: "left",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontFamily: FONT_SERIF, // ✅ Match the font
+        }}
+      >
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {selectedBook ? selectedBook.title : "Select completed book…"}
+        </span>
+        <span style={{ fontSize: 10, marginLeft: 6, color: SAGE_DEEP }}>▼</span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            marginTop: 4,
+            background: PAPER,
+            border: `1px solid ${SAGE}`,
+            borderRadius: 10,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            zIndex: 10,
+            maxHeight: 180,
+            overflowY: "auto",
+          }}
+        >
+          <div
+            onClick={() => {
+              setSelectedId("");
+              onSelect("");
+              setOpen(false);
+            }}
+            style={{
+              padding: "8px 12px",
+              cursor: "pointer",
+              fontSize: 15,
+              fontFamily: FONT_SERIF,
+              color: SAGE_DEEP,
+              borderBottom: `1px solid ${SAGE_TINT}`,
+            }}
+          >
+            Select completed book…
+          </div>
+          {books?.map((b) => (
+            <div
+              key={b._id}
+              onClick={() => {
+                setSelectedId(b._id);
+                onSelect(b._id);
+                setOpen(false);
+              }}
+              style={{
+                padding: "8px 12px",
+                cursor: "pointer",
+                fontSize: 15,
+                fontFamily: FONT_SERIF,
+                color: INK,
+                background: selectedId === b._id ? SAGE_TINT : "transparent",
+                ...(b.isCurrentPick && { fontWeight: "bold" }), // ✅ Highlight current pick
+              }}
+            >
+              {b.title}
+              {b.isCurrentPick && " 📖"}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const cardStyle = {
   background: PAPER,
   border: "1px solid rgba(45,51,39,0.08)",
@@ -37,8 +124,6 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
-// Admin access is an isAdmin flag on a normal account, not a separate key —
-// so this gate reuses the same login/signup form members use elsewhere.
 function AdminGate({ auth }) {
   if (auth.isLoggedIn) {
     return (
@@ -122,11 +207,11 @@ export default function ManageView({
   saveEdit,
   adjustPoints,
   removeMember,
-  markRead, // NEW — from useMembers
-  linkAccount, // NEW — from useMembers
-  books, // NEW — from useBooks(), for the mark-read dropdown
-  currentPickId, // NEW — from useBooks(), dropdown default
-  unlinkedUsers, // NEW — unlinked Discord accounts, for the link dropdown
+  markRead,
+  linkAccount,
+  books,
+  currentPickId,
+  unlinkedUsers,
 }) {
   const isAdmin = auth.isLoggedIn && Boolean(auth.user?.isAdmin);
 
@@ -143,6 +228,9 @@ export default function ManageView({
       removeMember(id);
     }
   };
+
+  // ✅ State for the book dropdown
+  const [selectedBookId, setSelectedBookId] = useState(currentPickId || "");
 
   return (
     <div style={{ ...cardStyle, padding: "24px" }}>
@@ -219,90 +307,12 @@ export default function ManageView({
             style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
           />
 
-          {/* Custom themed dropdown */}
-          {(() => {
-            const [open, setOpen] = useState(false);
-            const [selectedId, setSelectedId] = useState(currentPickId || "");
-            const selectedBook = books?.find((b) => b._id === selectedId);
-
-            return (
-              <div style={{ position: "relative", flex: "1 1 160px", minWidth: 0 }}>
-                <button
-                  type="button"
-                  onClick={() => setOpen(!open)}
-                  style={{
-                    ...inputStyle,
-                    width: "100%",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {selectedBook ? selectedBook.title : "Select completed book…"}
-                  </span>
-                  <span style={{ fontSize: 10, marginLeft: 6, color: SAGE_DEEP }}>▼</span>
-                </button>
-
-                {open && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: 0,
-                      right: 0,
-                      marginTop: 4,
-                      background: PAPER,
-                      border: `1px solid ${SAGE}`,
-                      borderRadius: 10,
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                      zIndex: 10,
-                      maxHeight: 180,
-                      overflowY: "auto",
-                    }}
-                  >
-                    <div
-                      onClick={() => {
-                        setSelectedId("");
-                        setOpen(false);
-                      }}
-                      style={{
-                        padding: "8px 12px",
-                        cursor: "pointer",
-                        fontSize: 15,
-                        fontFamily: FONT_SERIF,
-                        color: SAGE_DEEP,
-                        borderBottom: `1px solid ${SAGE_TINT}`,
-                      }}
-                    >
-                      Select completed book…
-                    </div>
-                    {books?.map((b) => (
-                      <div
-                        key={b._id}
-                        onClick={() => {
-                          setSelectedId(b._id);
-                          setOpen(false);
-                        }}
-                        style={{
-                          padding: "8px 12px",
-                          cursor: "pointer",
-                          fontSize: 15,
-                          fontFamily: FONT_SERIF,
-                          color: INK,
-                          background: selectedId === b._id ? SAGE_TINT : "transparent",
-                        }}
-                      >
-                        {b.title}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+          {/* ✅ Use the custom dropdown component */}
+          <BookDropdown
+            books={books}
+            currentPickId={currentPickId}
+            onSelect={(bookId) => setSelectedBookId(bookId)}
+          />
 
           <input
             type="number"
@@ -317,7 +327,10 @@ export default function ManageView({
 
           <button
             className="verba-btn"
-            onClick={addMember}
+            onClick={() => {
+              // ✅ Pass the selected book ID to addMember
+              addMember(selectedBookId);
+            }}
             style={{
               background: SAGE_DARK,
               color: PAPER,
