@@ -19,6 +19,7 @@ import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import EmptyState from "./EmptyState";
 import RatingSummary from "./RatingSummary";
 import { buttonInteractionStyles } from "../styles/buttonInteractions";
+import { useConfirm, useToast } from "../UIFeedbackContext";
 
 export default function BookDetail({
   book,
@@ -50,6 +51,9 @@ export default function BookDetail({
   const [resendBusy, setResendBusy] = useState(false);
   const [resendMessage, setResendMessage] = useState(null);
 
+  const confirm = useConfirm();
+  const showToast = useToast();
+
   // Safely derive reviews list, count, and average rating
   const reviews = book?.reviews || [];
   const bookId = book?._id || book?.id;
@@ -63,24 +67,30 @@ export default function BookDetail({
       : null);
 
   const handleRemoveReview = async (reviewId) => {
-    if (!window.confirm("Remove this review? This can't be undone.")) return;
+    const confirmed = await confirm(
+      "Remove this review? This can't be undone.",
+    );
+    if (!confirmed) return;
     setRemovingId(reviewId);
     try {
       await onRemoveReview(reviewId);
     } catch (err) {
-      window.alert(err.message || "Couldn't remove that review.");
+      showToast(err.message || "Couldn't remove that review.");
     } finally {
       setRemovingId(null);
     }
   };
 
   const handleRemoveMyReview = async (reviewId) => {
-    if (!window.confirm("Delete your review? This can't be undone.")) return;
+    const confirmed = await confirm(
+      "Delete your review? This can't be undone.",
+    );
+    if (!confirmed) return;
     setRemovingId(reviewId);
     try {
       await onRemoveMyReview(reviewId);
     } catch (err) {
-      window.alert(err.message || "Couldn't delete your review.");
+      showToast(err.message || "Couldn't delete your review.");
     } finally {
       setRemovingId(null);
     }

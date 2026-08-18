@@ -4,6 +4,7 @@ import TwoColumnLayout from "../components/TwoColumnLayout";
 import ReaderIndexPreview from "../components/ReaderIndexPreview";
 import CurrentPickPreview from "../components/CurrentPickPreview";
 import RecentActivityPreview from "../components/RecentActivityPreview";
+import { useToast } from "../UIFeedbackContext";
 
 export default function QuotesPage() {
   const {
@@ -14,6 +15,7 @@ export default function QuotesPage() {
     booksState,
     activityState,
   } = useOutletContext();
+  const showToast = useToast();
 
   const handleToggleFavorite = (quoteId, nextValue) =>
     quotesState.toggleFavorite(auth.token, quoteId, nextValue);
@@ -22,7 +24,7 @@ export default function QuotesPage() {
     try {
       await quotesState.deleteQuote(auth.token, quoteId);
     } catch (err) {
-      window.alert(err.message || "Couldn't delete that quote.");
+      showToast(err.message || "Couldn't delete that quote.");
     }
   };
 

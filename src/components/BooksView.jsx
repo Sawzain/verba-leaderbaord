@@ -13,6 +13,7 @@ import BookCard from "./BookCard";
 import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
 import EmptyState from "./EmptyState";
+import { useConfirm, useToast } from "../UIFeedbackContext";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
 export default function BooksView({
@@ -37,6 +38,8 @@ export default function BooksView({
   initialBookId,
 }) {
   const navigate = useNavigate();
+  const confirm = useConfirm();
+  const showToast = useToast();
   const [selectedId, setSelectedId] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -122,15 +125,17 @@ export default function BooksView({
   };
 
   const handleRemove = async (id, title) => {
-    if (!window.confirm(`Remove "${title}"? This deletes its reviews too.`))
-      return;
+    const confirmed = await confirm(
+      `Remove "${title}"? This deletes its reviews too.`,
+    );
+    if (!confirmed) return;
     try {
       await removeBook(adminKey, id);
       if (selectedId === id) {
         closeBook();
       }
     } catch (err) {
-      window.alert(err.message || "Couldn't remove that book.");
+      showToast(err.message || "Couldn't remove that book.");
     }
   };
 
@@ -138,7 +143,7 @@ export default function BooksView({
     try {
       await setCurrentPick(adminKey, id);
     } catch (err) {
-      window.alert(err.message || "Couldn't update the current pick.");
+      showToast(err.message || "Couldn't update the current pick.");
     }
   };
 

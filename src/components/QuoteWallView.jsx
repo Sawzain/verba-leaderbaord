@@ -10,6 +10,7 @@ import {
   FONT_SANS,
 } from "../theme";
 import Pagination from "./Pagination";
+import { useConfirm } from "../UIFeedbackContext";
 
 // Long poems are common on the Wall — anything over this line count
 // collapses by default with a "Read more" toggle, so scrolling through
@@ -121,6 +122,7 @@ export default function QuoteWallView({
   totalPages,
   goToPage,
 }) {
+  const confirm = useConfirm();
   const [expandedIds, setExpandedIds] = useState(() => new Set());
   const [searchOpen, setSearchOpen] = useState(() => search.trim() !== "");
   const [stickyTop, setStickyTop] = useState(0);
@@ -495,14 +497,11 @@ export default function QuoteWallView({
                 )}
                 {isAdmin && (
                   <button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Delete this quote? This can't be undone.",
-                        )
-                      ) {
-                        onDeleteQuote(featured.id);
-                      }
+                    onClick={async () => {
+                      const confirmed = await confirm(
+                        "Delete this quote? This can't be undone.",
+                      );
+                      if (confirmed) onDeleteQuote(featured.id);
                     }}
                     aria-label="Delete quote"
                     style={{
@@ -584,14 +583,11 @@ export default function QuoteWallView({
                 )}
                 {isAdmin && (
                   <button
-                    onClick={() => {
-                      if (
-                        window.confirm(
-                          "Delete this quote? This can't be undone.",
-                        )
-                      ) {
-                        onDeleteQuote(q.id);
-                      }
+                    onClick={async () => {
+                      const confirmed = await confirm(
+                        "Delete this quote? This can't be undone.",
+                      );
+                      if (confirmed) onDeleteQuote(q.id);
                     }}
                     aria-label="Delete quote"
                     style={{
