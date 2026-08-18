@@ -10,6 +10,7 @@ export const SAGE_DEEP = "#2D3327";
 export const PAPER = "#F5F1DF";
 export const INK = "#2D2D28";
 export const MUTED = "#8A8E7A";
+export const PLACEHOLDER = "#999"; // or "#aaa" or whatever matches your browser default
 
 // Soft tinted fills — for badges/pills that need to sit quietly against
 // PAPER without competing with CLAY, which is reserved for emphasis.
