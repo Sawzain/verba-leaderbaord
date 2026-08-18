@@ -8,6 +8,7 @@ import {
   INK,
   SAGE_TINT,
   FONT_SERIF,
+  PLACEHOLDER,
 } from "../theme";
 
 export default function MemberRow({
@@ -36,7 +37,7 @@ export default function MemberRow({
         display: "flex",
         flexDirection: "column",
         padding: "12px 0",
-        borderBottom: "1px solid rgba(45,51,39,0.08)",
+        borderBottom: `1px solid ${SAGE_TINT}`,
         gap: 6,
         opacity: isSaving ? 0.6 : 1,
         transition: "opacity 0.15s",
@@ -71,6 +72,7 @@ export default function MemberRow({
                 fontSize: 14,
                 textAlign: "center",
                 fontFamily: FONT_SERIF,
+                color: INK,
               }}
             />
             <button
@@ -84,6 +86,7 @@ export default function MemberRow({
                 padding: "6px 12px",
                 cursor: "pointer",
                 fontSize: 13,
+                fontFamily: FONT_SERIF,
               }}
             >
               Save
@@ -97,6 +100,7 @@ export default function MemberRow({
                 border: "none",
                 cursor: "pointer",
                 fontSize: 13,
+                fontFamily: FONT_SERIF,
               }}
             >
               ✕
@@ -121,6 +125,7 @@ export default function MemberRow({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                fontFamily: FONT_SERIF,
               }}
             >
               −
@@ -140,10 +145,10 @@ export default function MemberRow({
                 color: SAGE_DEEP,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
+                fontFamily: FONT_SERIF,
               }}
             >
               {member.points} book{member.points !== 1 ? "s" : ""}
-              {/* {member.points} pt */}
             </div>
 
             {showBookPicker ? (
@@ -164,16 +169,28 @@ export default function MemberRow({
                   border: `1.5px solid ${SAGE_DARK}`,
                   fontFamily: FONT_SERIF,
                   maxWidth: 130,
+                  color: INK,
+                  background: PAPER,
                 }}
               >
-                <option value="" disabled>
+                <option value="" disabled style={{ color: PLACEHOLDER }}>
                   Which book?
                 </option>
                 {books.map((b) => {
                   const isRead = member.completedBooks?.includes(b._id);
                   return (
-                    <option key={b._id} value={b._id} disabled={isRead}>
-                      {b.title} {isRead ? "✓ (already read)" : b.isCurrentPick ? "(current)" : ""}
+                    <option
+                      key={b._id}
+                      value={b._id}
+                      disabled={isRead}
+                      style={{ color: isRead ? MUTED : INK }}
+                    >
+                      {b.title}{" "}
+                      {isRead
+                        ? "✓ (already read)"
+                        : b.isCurrentPick
+                          ? "(current)"
+                          : ""}
                     </option>
                   );
                 })}
@@ -195,6 +212,7 @@ export default function MemberRow({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  fontFamily: FONT_SERIF,
                 }}
               >
                 +
@@ -214,6 +232,7 @@ export default function MemberRow({
                 cursor: isSaving ? "default" : "pointer",
                 fontSize: 16,
                 marginLeft: 4,
+                fontFamily: FONT_SERIF,
               }}
             >
               🗑
@@ -240,13 +259,15 @@ export default function MemberRow({
                   padding: "3px 6px",
                   border: `1px solid ${SAGE_DARK}`,
                   fontFamily: FONT_SERIF,
+                  color: INK,
+                  background: PAPER,
                 }}
               >
-                <option value="" disabled>
+                <option value="" disabled style={{ color: PLACEHOLDER }}>
                   Link to Discord account…
                 </option>
                 {unlinkedUsers.map((u) => (
-                  <option key={u._id} value={u._id}>
+                  <option key={u._id} value={u._id} style={{ color: INK }}>
                     {u.name}
                   </option>
                 ))}
@@ -262,6 +283,7 @@ export default function MemberRow({
                   cursor: "pointer",
                   textDecoration: "underline",
                   padding: 0,
+                  fontFamily: FONT_SERIF,
                 }}
               >
                 Link Discord account
