@@ -91,7 +91,7 @@ const SOURCE_TABS = [
 
 const SORT_OPTIONS = [
   { value: "latest", label: "Latest" },
-  { value: "interactions", label: "Most interactions (soon)" },
+  { value: "interactions", label: "Most interactions" },
   { value: "favorites", label: "★ Favorites" },
 ];
 
@@ -252,7 +252,10 @@ export default function QuoteWallView({
             minWidth: 0,
           }}
         >
-          <div ref={sortMenuRef} style={{ position: "relative", flexShrink: 0 }}>
+          <div
+            ref={sortMenuRef}
+            style={{ position: "relative", flexShrink: 0 }}
+          >
             <button
               onClick={() => setSortMenuOpen((o) => !o)}
               aria-label="Sort quotes"
@@ -340,66 +343,63 @@ export default function QuoteWallView({
             )}
           </div>
 
-          {searchOpen ? (
+          <button
+            onClick={() => setSearchOpen((o) => !o)}
+            aria-label="Search quotes and poems"
+            style={{
+              background: searchOpen ? SAGE_TINT : PAPER,
+              border: `1px solid ${SAGE}`,
+              borderRadius: 8,
+              cursor: "pointer",
+              padding: 6,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+                stroke={SAGE_DARK}
+                strokeWidth="2"
+              />
+              <line
+                x1="16.5"
+                y1="16.5"
+                x2="21"
+                y2="21"
+                stroke={SAGE_DARK}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+        {searchOpen && (
+          <div style={{ gridColumn: "1 / -1", marginTop: 8 }}>
             <input
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onBlur={() => {
-                if (!search.trim()) setSearchOpen(false);
-              }}
               placeholder="Search…"
               style={{
-                padding: "5px 10px",
+                padding: "8px 12px",
                 borderRadius: 8,
                 border: `1px solid ${SAGE}`,
-                fontSize: 12,
+                fontSize: 14,
                 fontFamily: FONT_SANS,
                 outline: "none",
                 background: PAPER,
                 color: SAGE_DEEP,
                 width: "100%",
-                minWidth: 0,
-                maxWidth: 130,
                 boxSizing: "border-box",
               }}
             />
-          ) : (
-            <button
-              onClick={() => setSearchOpen(true)}
-              aria-label="Search quotes and poems"
-              style={{
-                background: PAPER,
-                border: `1px solid ${SAGE}`,
-                borderRadius: 8,
-                cursor: "pointer",
-                padding: 6,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="7"
-                  stroke={SAGE_DARK}
-                  strokeWidth="2"
-                />
-                <line
-                  x1="16.5"
-                  y1="16.5"
-                  x2="21"
-                  y2="21"
-                  stroke={SAGE_DARK}
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       <div
