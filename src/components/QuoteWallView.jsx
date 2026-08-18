@@ -600,6 +600,11 @@ function QuoteMeta({ quote }) {
       <span>
         {quote.display_name}
         {quote.book_title ? ` · ${quote.book_title}` : ""}
+        {quote.reaction_count > 0 && (
+          <span style={{ marginLeft: 8, color: SAGE_DEEP }}>
+            👍 {quote.reaction_count}
+          </span>
+        )}
       </span>
       <a
         href={quote.discord_message_url}
