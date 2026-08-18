@@ -146,12 +146,14 @@ export default function MemberRow({
               {/* {member.points} pt */}
             </div>
 
-            {showBookPicker && onMarkRead ? (
+            {showBookPicker ? (
               <select
                 autoFocus
-                defaultValue={currentPickId || ""}
+                defaultValue=""
                 onChange={(e) => {
-                  if (e.target.value) onMarkRead(member._id, e.target.value);
+                  if (e.target.value && onMarkRead) {
+                    onMarkRead(member._id, e.target.value);
+                  }
                   setShowBookPicker(false);
                 }}
                 onBlur={() => setShowBookPicker(false)}
@@ -167,20 +169,18 @@ export default function MemberRow({
                 <option value="" disabled>
                   Which book?
                 </option>
-                {books.map((b) => (
-                  <option key={b._id} value={b._id}>
-                    {b.title}
-                    {b.isCurrentPick ? " (current)" : ""}
-                  </option>
-                ))}
+                {books.map((b) => {
+                  const isRead = member.completedBooks?.includes(b._id);
+                  return (
+                    <option key={b._id} value={b._id} disabled={isRead}>
+                      {b.title} {isRead ? "✓ (already read)" : b.isCurrentPick ? "(current)" : ""}
+                    </option>
+                  );
+                })}
               </select>
             ) : (
               <button
-                onClick={() =>
-                  onMarkRead
-                    ? setShowBookPicker(true)
-                    : onAdjustPoints(member._id, 1)
-                }
+                onClick={() => setShowBookPicker(true)}
                 disabled={isSaving}
                 aria-label={`Mark ${member.name} as finished a book`}
                 style={{
