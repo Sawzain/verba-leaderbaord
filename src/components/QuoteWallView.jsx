@@ -249,9 +249,10 @@ export default function QuoteWallView({
             justifyContent: "flex-end",
             justifySelf: "end",
             gap: 6,
+            minWidth: 0,
           }}
         >
-          <div ref={sortMenuRef} style={{ position: "relative" }}>
+          <div ref={sortMenuRef} style={{ position: "relative", flexShrink: 0 }}>
             <button
               onClick={() => setSortMenuOpen((o) => !o)}
               aria-label="Sort quotes"
@@ -357,7 +358,9 @@ export default function QuoteWallView({
                 outline: "none",
                 background: PAPER,
                 color: SAGE_DEEP,
-                width: 130,
+                width: "100%",
+                minWidth: 0,
+                maxWidth: 130,
                 boxSizing: "border-box",
               }}
             />
