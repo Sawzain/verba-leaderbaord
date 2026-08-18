@@ -36,14 +36,14 @@ function BookDropdown({ books, currentPickId, onSelect }) {
           justifyContent: "space-between",
           alignItems: "center",
           fontFamily: FONT_SERIF,
-          color: selectedBook ? INK : SAGE_DEEP,
+          color: INK,
         }}
       >
         <span style={{
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
-          color: selectedBook ? INK : SAGE_DEEP,
+          color: INK,
         }}>
           {selectedBook ? selectedBook.title : "Select completed book…"}
         </span>
