@@ -26,6 +26,14 @@ body {
     transform: rotate(360deg);
   }
 }
+@keyframes verba-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
 /* Hover/active feedback for buttons and links */
 button,
 a {

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  SAGE_DARK,
   SAGE_DEEP,
   MUTED,
   PAPER,
@@ -13,6 +12,7 @@ import BookCard from "./BookCard";
 import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
 import EmptyState from "./EmptyState";
+import { SkeletonBookCard } from "./Skeleton";
 import { useConfirm, useToast } from "../UIFeedbackContext";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
@@ -241,21 +241,29 @@ export default function BooksView({
       )}
 
       {loading && (
-        <div style={{ padding: 20, textAlign: "center", color: MUTED }}>
+        <div>
           <div
+            className="verba-books-grid"
             style={{
-              width: 28,
-              height: 28,
-              margin: "0 auto 14px",
-              border: `3px solid ${MUTED}`,
-              borderTopColor: SAGE_DARK,
-              borderRadius: "50%",
-              animation: "verba-spin 0.8s linear infinite",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(120px, 180px))",
+              gap: 12,
             }}
-          />
-          <div style={{ fontStyle: "italic" }}>Loading books…</div>
+          >
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonBookCard key={i} />
+            ))}
+          </div>
           {showSlowHint && (
-            <div style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
+            <div
+              style={{
+                marginTop: 14,
+                textAlign: "center",
+                fontSize: 13,
+                color: MUTED,
+                opacity: 0.85,
+              }}
+            >
               Still on it — this is taking longer than usual, but hang tight.
             </div>
           )}

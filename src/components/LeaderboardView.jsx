@@ -15,6 +15,7 @@ import Pagination from "./Pagination";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 import EmptyState from "./EmptyState";
 import MemberPreviewCard from "./MemberPreviewCard";
+import { SkeletonMemberRow } from "./Skeleton";
 import { Link } from "react-router-dom";
 import { API_ROOT } from "../hooks/useMembers";
 
@@ -193,21 +194,22 @@ export default function LeaderboardView({
       )}
 
       {loading && (
-        <div style={{ padding: 40, textAlign: "center", color: SAGE_DARK }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              margin: "0 auto 14px",
-              border: `3px solid ${PAPER}`,
-              borderTopColor: SAGE_DARK,
-              borderRadius: "50%",
-              animation: "verba-spin 0.8s linear infinite",
-            }}
-          />
-          <div style={{ fontStyle: "italic" }}>Loading leaderboard…</div>
+        <div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonMemberRow key={i} />
+            ))}
+          </div>
           {showSlowHint && (
-            <div style={{ marginTop: 8, fontSize: 13, opacity: 0.85 }}>
+            <div
+              style={{
+                marginTop: 14,
+                textAlign: "center",
+                fontSize: 13,
+                color: SAGE_DARK,
+                opacity: 0.85,
+              }}
+            >
               Still on it — this is taking longer than usual, but hang tight.
             </div>
           )}
