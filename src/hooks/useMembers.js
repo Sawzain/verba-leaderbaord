@@ -18,7 +18,11 @@ export default function useMembers(token, enabled = true) {
   const [search, setSearch] = useState("");
 
   const [newName, setNewName] = useState("");
-  const [newPoints, setNewPoints] = useState(0);
+  // Starting score for a brand-new member — mainly useful when migrating
+  // someone who already has books read elsewhere (e.g. a legacy sheet)
+  // rather than everyone starting at 0. Kept as a string in state so the
+  // input can be empty while typing; coerced to a number on submit.
+  const [newPoints, setNewPoints] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [editPoints, setEditPoints] = useState(0);
   const [savingId, setSavingId] = useState(null);
@@ -87,6 +91,7 @@ export default function useMembers(token, enabled = true) {
   const addMember = () =>
     withAuthError(async () => {
       if (!newName.trim()) return;
+      const startingScore = Math.max(0, Number(newPoints) || 0);
       const response = await fetch(API_BASE, {
         method: "POST",
         headers: {
@@ -95,7 +100,7 @@ export default function useMembers(token, enabled = true) {
         },
         body: JSON.stringify({
           username: newName.trim(),
-          score: Math.max(0, Number(newPoints) || 0),
+          score: startingScore,
         }),
       });
 
@@ -115,7 +120,7 @@ export default function useMembers(token, enabled = true) {
         { name: saved.username, points: saved.score, _id: saved._id },
       ]);
       setNewName("");
-      setNewPoints(0);
+      setNewPoints("");
       setError(null);
     });
 

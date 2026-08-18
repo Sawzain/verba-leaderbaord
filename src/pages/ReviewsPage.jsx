@@ -16,9 +16,6 @@ export default function ReviewsPage() {
   } = useOutletContext();
   const { bookId } = useParams();
 
-  const featuredQuote =
-    quotesState.quotes.find((q) => q.featured) || quotesState.quotes[0];
-
   return (
     <TwoColumnLayout
       main={
@@ -50,7 +47,7 @@ export default function ReviewsPage() {
             sorted={membersState.sorted}
             memberCount={membersState.members.length}
           />
-          <VerbaWallPreview quote={featuredQuote} />
+          <VerbaWallPreview quotes={quotesState.quotes} />
           <RecentActivityPreview
             activity={activityState.activity}
             quotes={quotesState.quotes}

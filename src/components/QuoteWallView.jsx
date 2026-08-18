@@ -106,6 +106,8 @@ export default function QuoteWallView({
   setFavoriteOnly,
   search,
   setSearch,
+  sort,
+  setSort,
   isAdmin,
   onToggleFavorite,
   onDeleteQuote,
@@ -114,6 +116,7 @@ export default function QuoteWallView({
   goToPage,
 }) {
   const [expandedIds, setExpandedIds] = useState(() => new Set());
+  const [searchOpen, setSearchOpen] = useState(() => search.trim() !== "");
   const [stickyTop, setStickyTop] = useState(0);
   useEffect(() => {
     const updateStickyTop = () => {
@@ -218,24 +221,96 @@ export default function QuoteWallView({
           })}
         </div>
       </div>
-      <div style={{ maxWidth: 420, margin: "0 auto 16px" }}>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search quotes and poems…"
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          marginBottom: 16,
+        }}
+      >
+        <select
+          value={favoriteOnly ? "favorites" : sort}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === "favorites") {
+              setFavoriteOnly(true);
+            } else {
+              setFavoriteOnly(false);
+              setSort(val);
+            }
+          }}
           style={{
-            width: "100%",
-            padding: "9px 14px",
-            borderRadius: 10,
+            padding: "7px 10px",
+            borderRadius: 8,
             border: `1px solid ${SAGE}`,
-            fontSize: 13.5,
+            fontSize: 12.5,
             fontFamily: FONT_SANS,
-            outline: "none",
             background: PAPER,
             color: SAGE_DEEP,
-            boxSizing: "border-box",
+            cursor: "pointer",
           }}
-        />
+        >
+          <option value="latest">Latest</option>
+          <option value="interactions">Most interactions (soon)</option>
+          <option value="favorites">★ Favorites</option>
+        </select>
+
+        {searchOpen ? (
+          <input
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onBlur={() => {
+              if (!search.trim()) setSearchOpen(false);
+            }}
+            placeholder="Search quotes, poems, or names…"
+            style={{
+              padding: "7px 12px",
+              borderRadius: 8,
+              border: `1px solid ${SAGE}`,
+              fontSize: 12.5,
+              fontFamily: FONT_SANS,
+              outline: "none",
+              background: PAPER,
+              color: SAGE_DEEP,
+              width: 200,
+              boxSizing: "border-box",
+            }}
+          />
+        ) : (
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search quotes and poems"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 4,
+              display: "flex",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle
+                cx="11"
+                cy="11"
+                r="7"
+                stroke={SAGE_DARK}
+                strokeWidth="2"
+              />
+              <line
+                x1="16.5"
+                y1="16.5"
+                x2="21"
+                y2="21"
+                stroke={SAGE_DARK}
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        )}
       </div>
 
       <div
@@ -247,12 +322,6 @@ export default function QuoteWallView({
           marginBottom: 24,
         }}
       >
-        <button
-          onClick={() => setFavoriteOnly((v) => !v)}
-          style={chipStyle(favoriteOnly)}
-        >
-          ★ Favorites
-        </button>
         {books.length > 0 && (
           <>
             <button
@@ -285,10 +354,10 @@ export default function QuoteWallView({
             : favoriteOnly
               ? "No favorites yet."
               : sourceFilter === "poetry-corner"
-              ? "No poems pressed yet — drop one in #poetry-corner and it'll show up here."
-              : sourceFilter === "quotes-highlights"
-                ? "No quotes pressed yet — drop a line in #quotes-highlights and it'll show up here."
-                : "Nothing pressed yet — post in #quotes-highlights or #poetry-corner and it'll show up here."}
+                ? "No poems pressed yet — drop one in #poetry-corner and it'll show up here."
+                : sourceFilter === "quotes-highlights"
+                  ? "No quotes pressed yet — drop a line in #quotes-highlights and it'll show up here."
+                  : "Nothing pressed yet — post in #quotes-highlights or #poetry-corner and it'll show up here."}
         </p>
       ) : (
         <>

@@ -40,24 +40,38 @@ router.get("/", async (req, res) => {
     featured,
     favoriteOnly,
     q,
+    sort = "latest", // "latest" | "interactions"
     limit = 30,
     offset = 0,
   } = req.query;
 
-  let query = supabase
-    .from("quotes")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(Number(offset), Number(offset) + Number(limit) - 1);
+  let query = supabase.from("quotes").select("*", { count: "exact" });
 
   if (book) query = query.eq("book_title", book);
   if (source) query = query.eq("source_channel", source); // 'quotes-highlights' | 'poetry-corner'
   if (featured === "true") query = query.eq("is_featured", true);
   // Admin-curated "favorites" — separate flag from is_featured, toggled below.
   if (favoriteOnly === "true") query = query.eq("is_admin_favorite", true);
-  // Free-text search — case-insensitive contains match against the quote/poem body.
-  if (q) query = query.ilike("quote_text", `%${q}%`);
+  // Free-text search — matches quote/poem body, author name, or book title.
+  // Escape % and , since they're meaningful to Supabase's .or() filter syntax.
+  if (q) {
+    const safe = q.replace(/[%,]/g, "\\$&");
+    query = query.or(
+      `quote_text.ilike.%${safe}%,display_name.ilike.%${safe}%,book_title.ilike.%${safe}%`,
+    );
+  }
   query = query.eq("is_approved", true); // never show unapproved content publicly
+
+  // "interactions" needs reaction_count, which Twig doesn't populate yet —
+  // safe to enable now, it just ties back to created_at until real data exists.
+  if (sort === "interactions") {
+    query = query
+      .order("reaction_count", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+  } else {
+    query = query.order("created_at", { ascending: false });
+  }
+  query = query.range(Number(offset), Number(offset) + Number(limit) - 1);
 
   const { data, error, count } = await query;
 

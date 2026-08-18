@@ -217,14 +217,16 @@ export default function ManageView({
             placeholder="Name"
             style={{ ...inputStyle, flex: 1 }}
           />
+
           <input
             type="number"
             min={0}
             value={newPoints}
             onChange={(e) => setNewPoints(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
-            placeholder="Points"
-            style={{ ...inputStyle, width: 80 }}
+            placeholder="Starting books (optional)"
+            title="Starting books read — leave blank to start at 0"
+            style={{ ...inputStyle, width: 150, flexShrink: 0 }}
           />
 
           <button

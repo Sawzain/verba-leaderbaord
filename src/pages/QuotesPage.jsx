@@ -41,6 +41,8 @@ export default function QuotesPage() {
           setFavoriteOnly={quotesState.setFavoriteOnly}
           search={quotesState.search}
           setSearch={quotesState.setSearch}
+          sort={quotesState.sort}
+          setSort={quotesState.setSort}
           isAdmin={isAdmin}
           onToggleFavorite={handleToggleFavorite}
           onDeleteQuote={handleDeleteQuote}

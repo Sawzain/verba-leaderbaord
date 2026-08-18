@@ -13,6 +13,7 @@ export default function useQuotes(enabled = true) {
   const [sourceFilter, setSourceFilter] = useState(""); // "" | "quotes-highlights" | "poetry-corner"
   const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("latest"); // "latest" | "interactions"
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -23,6 +24,7 @@ export default function useQuotes(enabled = true) {
       source = "",
       favOnly = false,
       searchText = "",
+      sortValue = "latest",
       targetPage = 1,
     ) => {
       setLoading(true);
@@ -33,6 +35,7 @@ export default function useQuotes(enabled = true) {
         if (source) params.set("source", source);
         if (favOnly) params.set("favoriteOnly", "true");
         if (searchText.trim()) params.set("q", searchText.trim());
+        if (sortValue && sortValue !== "latest") params.set("sort", sortValue);
         params.set("limit", PAGE_SIZE);
         params.set("offset", (targetPage - 1) * PAGE_SIZE);
 
@@ -61,13 +64,28 @@ export default function useQuotes(enabled = true) {
     if (!enabled) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, 1);
+      fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, sort, 1);
     }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(debounceRef.current);
-  }, [enabled, bookFilter, sourceFilter, favoriteOnly, search, fetchQuotes]);
+  }, [
+    enabled,
+    bookFilter,
+    sourceFilter,
+    favoriteOnly,
+    search,
+    sort,
+    fetchQuotes,
+  ]);
 
   const goToPage = (targetPage) =>
-    fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, targetPage);
+    fetchQuotes(
+      bookFilter,
+      sourceFilter,
+      favoriteOnly,
+      search,
+      sort,
+      targetPage,
+    );
 
   const toggleFavorite = async (token, quoteId, nextValue) => {
     const res = await fetch(`${API_BASE}/${quoteId}/favorite`, {
@@ -80,7 +98,14 @@ export default function useQuotes(enabled = true) {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || "Couldn't update favorite");
-    await fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, page);
+    await fetchQuotes(
+      bookFilter,
+      sourceFilter,
+      favoriteOnly,
+      search,
+      sort,
+      page,
+    );
     return body;
   };
 
@@ -93,7 +118,14 @@ export default function useQuotes(enabled = true) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || "Couldn't delete that quote");
     }
-    await fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, page);
+    await fetchQuotes(
+      bookFilter,
+      sourceFilter,
+      favoriteOnly,
+      search,
+      sort,
+      page,
+    );
   };
 
   return {
@@ -108,6 +140,8 @@ export default function useQuotes(enabled = true) {
     setFavoriteOnly,
     search,
     setSearch,
+    sort,
+    setSort,
     page,
     totalPages,
     total,
@@ -115,6 +149,6 @@ export default function useQuotes(enabled = true) {
     toggleFavorite,
     deleteQuote,
     refetch: () =>
-      fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, page),
+      fetchQuotes(bookFilter, sourceFilter, favoriteOnly, search, sort, page),
   };
 }

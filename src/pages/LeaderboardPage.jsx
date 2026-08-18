@@ -10,9 +10,6 @@ export default function LeaderboardPage() {
     useOutletContext();
   const { sorted, members, loading } = membersState;
 
-  const featuredQuote =
-    quotesState.quotes.find((q) => q.featured) || quotesState.quotes[0];
-
   return (
     <TwoColumnLayout
       main={
@@ -30,8 +27,11 @@ export default function LeaderboardPage() {
             books={booksState.books}
             loading={booksState.loading}
           />
-          <RecentActivityPreview activity={activityState.activity} quotes={quotesState.quotes} />
-          <VerbaWallPreview quote={featuredQuote} />
+          <RecentActivityPreview
+            activity={activityState.activity}
+            quotes={quotesState.quotes}
+          />
+          <VerbaWallPreview quotes={quotesState.quotes} />
         </>
       }
     />
