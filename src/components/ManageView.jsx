@@ -35,10 +35,16 @@ function BookDropdown({ books, currentPickId, onSelect }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          fontFamily: FONT_SERIF, // ✅ Match the font
+          fontFamily: FONT_SERIF,
+          color: selectedBook ? INK : SAGE_DEEP,
         }}
       >
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          color: selectedBook ? INK : SAGE_DEEP,
+        }}>
           {selectedBook ? selectedBook.title : "Select completed book…"}
         </span>
         <span style={{ fontSize: 10, marginLeft: 6, color: SAGE_DEEP }}>▼</span>
@@ -93,7 +99,7 @@ function BookDropdown({ books, currentPickId, onSelect }) {
                 fontFamily: FONT_SERIF,
                 color: INK,
                 background: selectedId === b._id ? SAGE_TINT : "transparent",
-                ...(b.isCurrentPick && { fontWeight: "bold" }), // ✅ Highlight current pick
+                ...(b.isCurrentPick && { fontWeight: "bold" }),
               }}
             >
               {b.title}
