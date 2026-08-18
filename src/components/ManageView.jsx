@@ -10,7 +10,7 @@ import {
   DANGER,
   DANGER_LIGHT,
   DANGER_DARK,
-  SAGE_TINT, // ✅ ADD THIS MISSING IMPORT
+  SAGE_TINT,
 } from "../theme";
 import MemberRow from "./MemberRow";
 import AdminPasswordReset from "./AdminPasswordReset";
@@ -36,15 +36,17 @@ function BookDropdown({ books, currentPickId, onSelect }) {
           justifyContent: "space-between",
           alignItems: "center",
           fontFamily: FONT_SERIF,
-          color: selectedBook ? INK : MUTED,
+          color: selectedBook ? INK : "#999",
         }}
       >
-        <span style={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          color: selectedBook ? INK : MUTED,
-        }}>
+        <span
+          style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            color: selectedBook ? INK : "#999",
+          }}
+        >
           {selectedBook ? selectedBook.title : "Select completed book…"}
         </span>
         <span style={{ fontSize: 10, marginLeft: 6, color: SAGE_DEEP }}>▼</span>
@@ -235,7 +237,6 @@ export default function ManageView({
     }
   };
 
-  // ✅ State for the book dropdown
   const [selectedBookId, setSelectedBookId] = useState(currentPickId || "");
 
   return (
@@ -313,7 +314,6 @@ export default function ManageView({
             style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
           />
 
-          {/* ✅ Use the custom dropdown component */}
           <BookDropdown
             books={books}
             currentPickId={currentPickId}
@@ -334,7 +334,6 @@ export default function ManageView({
           <button
             className="verba-btn"
             onClick={() => {
-              // ✅ Pass the selected book ID to addMember
               addMember(selectedBookId);
             }}
             style={{
