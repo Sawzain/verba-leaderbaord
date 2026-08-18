@@ -207,6 +207,7 @@ export default function ManageView({
             borderRadius: 12,
             padding: "16px",
             display: "flex",
+            flexWrap: "wrap",
             gap: 8,
           }}
         >
@@ -215,8 +216,25 @@ export default function ManageView({
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
             placeholder="Name"
-            style={{ ...inputStyle, flex: 1 }}
+            style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
           />
+
+          <select
+            defaultValue={currentPickId || ""}
+            style={{
+              ...inputStyle,
+              flex: "1 1 160px",
+              minWidth: 0,
+              cursor: "pointer",
+            }}
+          >
+            <option value="">Select completed book…</option>
+            {books?.map((b) => (
+              <option key={b._id} value={b._id}>
+                {b.title}
+              </option>
+            ))}
+          </select>
 
           <input
             type="number"
@@ -224,9 +242,9 @@ export default function ManageView({
             value={newPoints}
             onChange={(e) => setNewPoints(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
-            placeholder="Starting books"
-            title="Starting books read — leave blank to start at 0"
-            style={{ ...inputStyle, width: 150, flexShrink: 0 }}
+            placeholder="Starting count"
+            title="Starting books count — leave blank to start at 0"
+            style={{ ...inputStyle, flex: "1 1 100px", minWidth: 0 }}
           />
 
           <button
@@ -241,6 +259,7 @@ export default function ManageView({
               fontSize: 15,
               cursor: "pointer",
               fontFamily: FONT_SERIF,
+              flexShrink: 0,
             }}
           >
             Add
