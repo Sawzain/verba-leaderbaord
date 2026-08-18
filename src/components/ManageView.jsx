@@ -227,16 +227,23 @@ export default function ManageView({
               minWidth: 0,
               cursor: "pointer",
               background: PAPER,
-              color: SAGE_DEEP,
-              border: `1px solid ${SAGE_DARK}`,
+              color: INK,
+              border: `1px solid ${SAGE}`,
               fontFamily: FONT_SERIF,
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              appearance: "none",
             }}
           >
-            <option value="" style={{ background: PAPER, color: SAGE_DEEP }}>
+            <option value="" style={{ background: PAPER, color: INK, fontFamily: FONT_SERIF }}>
               Select completed book…
             </option>
             {books?.map((b) => (
-              <option key={b._id} value={b._id} style={{ background: PAPER, color: SAGE_DEEP }}>
+              <option
+                key={b._id}
+                value={b._id}
+                style={{ background: PAPER, color: INK, fontFamily: FONT_SERIF }}
+              >
                 {b.title}
               </option>
             ))}
