@@ -99,7 +99,7 @@ export default function QuoteWallView({
   quotes,
   loading,
   error,
-  books = [],
+  allBooks = [],
   bookFilter,
   setBookFilter,
   sourceFilter,
@@ -538,7 +538,7 @@ export default function QuoteWallView({
                   onToggle={() => toggleExpanded(featured.id)}
                   fontSize={17}
                 />
-                <QuoteMeta quote={featured} books={books} />
+                <QuoteMeta quote={featured} books={allBooks} />
               </div>
             )}
 
@@ -612,7 +612,7 @@ export default function QuoteWallView({
                   onToggle={() => toggleExpanded(q.id)}
                   fontSize={15.5}
                 />
-                <QuoteMeta quote={q} books={books} />
+                <QuoteMeta quote={q} books={allBooks} />
               </div>
             ))}
           </div>
