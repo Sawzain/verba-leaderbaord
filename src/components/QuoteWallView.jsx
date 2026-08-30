@@ -11,6 +11,7 @@ import {
 } from "../theme";
 import Pagination from "./Pagination";
 import LeafMark from "./LeafMark";
+import { SkeletonQuoteCard } from "./Skeleton";
 import { useConfirm } from "../UIFeedbackContext";
 
 // Long poems are common on the Wall — anything over this line count
@@ -427,7 +428,12 @@ export default function QuoteWallView({
       </div>
 
       {loading ? (
-        <p style={emptyStyle}>Gathering the leaves…</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <SkeletonQuoteCard featured />
+          <SkeletonQuoteCard />
+          <SkeletonQuoteCard />
+          <SkeletonQuoteCard />
+        </div>
       ) : error ? (
         <p style={emptyStyle}>Couldn't load — try refreshing.</p>
       ) : quotes.length === 0 ? (

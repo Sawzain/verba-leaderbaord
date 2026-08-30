@@ -13,6 +13,7 @@ import {
   SAGE_TINT,
 } from "../theme";
 import MemberRow from "./MemberRow";
+import { SkeletonManageRow } from "./Skeleton";
 import AdminPasswordReset from "./AdminPasswordReset";
 import AuthPanel from "./AuthPanel";
 
@@ -391,15 +392,10 @@ export default function ManageView({
       </div>
 
       {loading && (
-        <div
-          style={{
-            color: MUTED,
-            fontStyle: "italic",
-            padding: "20px 0",
-            textAlign: "center",
-          }}
-        >
-          Loading members…
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SkeletonManageRow key={i} />
+          ))}
         </div>
       )}
 

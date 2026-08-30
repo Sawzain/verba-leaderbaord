@@ -1,4 +1,4 @@
-import { SAGE_DARK, SAGE_TINT, MUTED } from "../theme";
+import { SAGE_DARK, SAGE_TINT, MUTED, SAGE } from "../theme";
 
 // Base shimmering placeholder box. Built from SAGE_DARK at low, staggered
 // opacity stops so it reads as a lighter/darker sweep against PAPER
@@ -74,6 +74,66 @@ export function SkeletonBookCard() {
           <Skeleton width="40%" height={15} />
         </div>
       </div>
+    </div>
+  );
+}
+
+// Mirrors the real quote/poem card in QuoteWallView.jsx — same
+// CARD_BG/CARD_BORDER shell and padding, with shimmering lines standing
+// in for wrapped quote text plus a meta row (name · book / "View →").
+export function SkeletonQuoteCard({ featured = false }) {
+  return (
+    <div
+      style={{
+        border: `1px solid ${SAGE}`,
+        background: featured ? MUTED : `${SAGE}66`,
+        borderRadius: 10,
+        padding: featured ? "18px 20px" : "16px 18px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <Skeleton width="95%" height={15} />
+        <Skeleton width="88%" height={15} />
+        <Skeleton width="55%" height={15} />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Skeleton width="35%" height={12} />
+        <Skeleton width={50} height={12} />
+      </div>
+    </div>
+  );
+}
+
+// Mirrors the real MemberRow.jsx layout in ManageView — name bar on the
+// left, the −/points-pill/+/trash cluster on the right, same sizes as
+// the live buttons so the swap-in doesn't jump.
+export function SkeletonManageRow() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "12px 0",
+        borderBottom: `1px solid ${SAGE_TINT}`,
+      }}
+    >
+      <div style={{ flex: 1 }}>
+        <Skeleton width="40%" height={16} />
+      </div>
+      <Skeleton width={34} height={34} borderRadius="50%" />
+      <Skeleton width={68} height={28} borderRadius={8} />
+      <Skeleton width={34} height={34} borderRadius="50%" />
+      <Skeleton width={16} height={16} />
     </div>
   );
 }
