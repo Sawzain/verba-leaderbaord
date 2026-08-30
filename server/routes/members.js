@@ -8,6 +8,8 @@ const Book = require("../models/Book");
 const Review = require("../models/Review");
 const GENRES = require("../config/genres");
 const logger = require("../utils/logger");
+const validate = require("../middleware/validate");
+const { addMemberSchema, updateMemberSchema } = require("../schemas/memberSchemas");
 
 const router = express.Router();
 
@@ -127,13 +129,8 @@ router.get("/", async (req, res) => {
 });
 
 // POST: Add a new member
-router.post("/", requireApiKey, async (req, res) => {
-  const username = (req.body.username || "").trim();
-  const score = Number(req.body.score) || 0;
-
-  if (!username) {
-    return res.status(400).json({ error: "Name is required" });
-  }
+router.post("/", requireApiKey, validate(addMemberSchema), async (req, res) => {
+  const { username, score } = req.body;
 
   try {
     // Case-insensitive duplicate check — leaderboard names are added
@@ -232,7 +229,7 @@ router.get("/stats", async (req, res) => {
   res.json({ booksRead: distinctBooks.length });
 });
 // PUT: Update score (and optionally name) by id
-router.put("/:id", requireApiKey, async (req, res) => {
+router.put("/:id", requireApiKey, validate(updateMemberSchema), async (req, res) => {
   try {
     const current = await Score.findById(req.params.id);
     if (!current) {

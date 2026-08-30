@@ -2,11 +2,13 @@ const express = require("express");
 const Review = require("../models/Review");
 const authorizeReviewOwnerOrAdmin = require("../middleware/reviewAuth");
 const { revokeReviewPoints } = require("../utils/points");
+const validate = require("../middleware/validate");
+const { editReviewSchema } = require("../schemas/reviewSchemas");
 
 const router = express.Router();
 
 // PUT: edit a review — the review's own author, or an admin
-router.put("/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
+router.put("/:id", authorizeReviewOwnerOrAdmin, validate(editReviewSchema), async (req, res) => {
   try {
     const review = await Review.findById(req.params.id).populate(
       "user",
@@ -20,13 +22,7 @@ router.put("/:id", authorizeReviewOwnerOrAdmin, async (req, res) => {
     }
 
     if (req.body.rating !== undefined) {
-      const rating = Number(req.body.rating);
-      if (!rating || rating < 1 || rating > 5) {
-        return res
-          .status(400)
-          .json({ error: "Rating must be between 1 and 5" });
-      }
-      review.rating = rating;
+      review.rating = req.body.rating;
     }
     if (req.body.text !== undefined) {
       review.text = String(req.body.text).trim().slice(0, 2000);

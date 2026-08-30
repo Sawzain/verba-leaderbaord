@@ -6,6 +6,8 @@ const Score = require("../Score");
 const requireAuth = require("../middleware/auth");
 const { authLimiter } = require("../middleware/rateLimiters");
 const { signToken } = require("../utils/tokens");
+const validate = require("../middleware/validate");
+const { registerSchema, resetPasswordSchema } = require("../schemas/authSchemas");
 const {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -26,21 +28,8 @@ const router = express.Router();
 // Separate from the admin x-api-key: this is a real login so a review is
 // always tied to one specific person, not just whatever name they typed.
 
-router.post("/register", authLimiter, async (req, res) => {
-  const name = (req.body.name || "").trim();
-  const email = (req.body.email || "").trim().toLowerCase();
-  const password = req.body.password || "";
-
-  if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ error: "Name, email, and password are required" });
-  }
-  if (password.length < 8) {
-    return res
-      .status(400)
-      .json({ error: "Password must be at least 8 characters" });
-  }
+router.post("/register", authLimiter, validate(registerSchema), async (req, res) => {
+  const { name, email, password } = req.body;
 
   try {
     const existing = await User.findOne({ email });
@@ -241,20 +230,8 @@ router.post("/forgot-password", authLimiter, async (req, res) => {
   res.json(genericResponse);
 });
 
-router.post("/reset-password", authLimiter, async (req, res) => {
-  const token = (req.body.token || "").trim();
-  const password = req.body.password || "";
-
-  if (!token) {
-    return res
-      .status(400)
-      .json({ error: "This reset link is invalid or has expired." });
-  }
-  if (password.length < 8) {
-    return res
-      .status(400)
-      .json({ error: "Password must be at least 8 characters" });
-  }
+router.post("/reset-password", authLimiter, validate(resetPasswordSchema), async (req, res) => {
+  const { token, password } = req.body;
 
   try {
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
