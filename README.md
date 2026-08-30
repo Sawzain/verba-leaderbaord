@@ -54,17 +54,23 @@ member per book. Admins can add books with a cover image, remove books,
 and mark one book as the "current pick" shown on the public landing page.
 Each book has its own page at `/app/reviews/:bookId`, linked from the
 leaderboard preview card, member profile reviews, and the landing page's
-current-pick teaser.
+current-pick teaser. On a book's page, each review's author name links
+back to that member's profile (`/app/members/:id`) when they're linked to
+a Discord account; unlinked reviewers show as plain text since there's no
+profile page to send them to.
 
 **Verba Wall** — a scrollable, paginated wall of quotes and poems pulled
 from the club's `#quotes-highlights` and `#poetry-corner` Discord channels.
 Content is captured automatically by the Twig Discord bot (a separate
 project) and written to a shared Supabase table; this app only reads from
 it via `GET /api/quotes`. A toggle switches between Quotes, Poems, and All,
-and posts can optionally be filtered by book. See `SUPABASE_URL` /
-`SUPABASE_SERVICE_ROLE_KEY` below for the required env vars — without
-them, the Verba Wall tab still renders but shows a "not configured" error
-instead of content.
+and posts can optionally be filtered by book. When a quote's `book_title`
+(set by Twig) matches a title in the currently-loaded books list, it
+links to that book's page — matching is exact and case-insensitive, so a
+mistyped or older title just falls back to plain text rather than
+guessing. See `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` below for the
+required env vars — without them, the Verba Wall tab still renders but
+shows a "not configured" error instead of content.
 
 **Accounts & admin access** — there's no separate admin key to type in
 anymore. Admin access is an `isAdmin` flag on a normal member account. Log
@@ -78,6 +84,27 @@ access, set `isAdmin: true` directly on a user's document in MongoDB
 The legacy shared `API_KEY` still works as a fallback for the same
 admin-only routes (useful for scripts or before you've granted anyone the
 `isAdmin` flag), sent as an `x-api-key` header.
+
+## Security & backend middleware
+
+- **Helmet** — `app.use(helmet())` sets Express's response security headers
+  (CSP, HSTS, etc.) using Helmet's defaults; no custom configuration.
+- **CORS** — locked to `FRONTEND_ORIGIN` when it's set; wide open otherwise,
+  which is fine for local dev but `FRONTEND_ORIGIN` should always be set
+  in production.
+- **Passwords** — hashed with bcrypt (`bcryptjs`) before being stored;
+  plaintext passwords are never persisted.
+- **Login tokens (JWT)** — signed with `JWT_SECRET` on login/register and
+  expire after 7 days. `requireAuth` (any logged-in member) and
+  `requireAdminAccount` (must have `isAdmin: true`) are separate middleware
+  in `middleware/auth.js`, composed per-route depending on what a route
+  needs.
+- **Rate limiting** — login and register are limited to 10 attempts per
+  15 minutes per IP (`middleware/rateLimiters.js`), to slow down
+  brute-force attempts without needing a captcha. `app.set("trust proxy", 1)`
+  is set so this keys off the real client IP on Render, not the proxy's.
+- **Compression** — gzip compression is applied to all responses via the
+  `compression` middleware.
 
 ## Layout
 
