@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   SAGE_DARK,
   SAGE_DEEP,
@@ -98,6 +99,7 @@ export default function QuoteWallView({
   quotes,
   loading,
   error,
+  books = [],
   bookFilter,
   setBookFilter,
   sourceFilter,
@@ -536,7 +538,7 @@ export default function QuoteWallView({
                   onToggle={() => toggleExpanded(featured.id)}
                   fontSize={17}
                 />
-                <QuoteMeta quote={featured} />
+                <QuoteMeta quote={featured} books={books} />
               </div>
             )}
 
@@ -610,7 +612,7 @@ export default function QuoteWallView({
                   onToggle={() => toggleExpanded(q.id)}
                   fontSize={15.5}
                 />
-                <QuoteMeta quote={q} />
+                <QuoteMeta quote={q} books={books} />
               </div>
             ))}
           </div>
@@ -669,7 +671,17 @@ function QuoteBody({ text, expanded, onToggle, fontSize }) {
   );
 }
 
-function QuoteMeta({ quote }) {
+function QuoteMeta({ quote, books = [] }) {
+  // Quotes only carry a book_title string (written by Twig into Supabase),
+  // not a Mongo book id — so match by title against the loaded books list.
+  // Exact, case-insensitive match only: a near-miss title just falls back
+  // to plain text rather than risk linking to the wrong book.
+  const matchedBook = quote.book_title
+    ? books.find(
+        (b) => b.title?.toLowerCase() === quote.book_title.toLowerCase(),
+      )
+    : null;
+
   return (
     <div
       style={{
@@ -682,7 +694,20 @@ function QuoteMeta({ quote }) {
     >
       <span>
         {quote.display_name}
-        {quote.book_title ? ` · ${quote.book_title}` : ""}
+        {quote.book_title &&
+          (matchedBook ? (
+            <>
+              {" · "}
+              <Link
+                to={`/app/reviews/${matchedBook._id}`}
+                style={{ color: SAGE_DARK, textDecoration: "underline" }}
+              >
+                {quote.book_title}
+              </Link>
+            </>
+          ) : (
+            ` · ${quote.book_title}`
+          ))}
         {quote.reaction_count > 0 && (
           <span style={{ marginLeft: 8, color: SAGE_DEEP }}>
             👍 {quote.reaction_count}

@@ -51,6 +51,7 @@ export default function QuotesPage() {
           page={quotesState.page}
           totalPages={quotesState.totalPages}
           goToPage={quotesState.goToPage}
+          books={booksState.books}
         />
       }
       sidebar={
