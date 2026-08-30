@@ -12,6 +12,7 @@ import {
   DANGER_LIGHT,
   CLAY,
 } from "../theme";
+import { Link } from "react-router-dom";
 import { StarDisplay, StarInput } from "./StarRating";
 import AuthPanel from "./AuthPanel";
 import BookForm from "./BookForm";
@@ -690,20 +691,40 @@ export default function BookDetail({
                   alignItems: "center",
                 }}
               >
-                <span
-                  style={{
-                    fontSize: 17,
-                    fontWeight: "bold",
-                    color: SAGE_DEEP,
-                    flex: 1,
-                    minWidth: 0,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {r.reviewer}
-                </span>
+                {r.memberId ? (
+                  <Link
+                    to={`/app/members/${r.memberId}`}
+                    style={{
+                      fontSize: 17,
+                      fontWeight: "bold",
+                      color: SAGE_DEEP,
+                      flex: 1,
+                      minWidth: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      textDecoration: "none",
+                    }}
+                    className="verba-link-btn"
+                  >
+                    {r.reviewer}
+                  </Link>
+                ) : (
+                  <span
+                    style={{
+                      fontSize: 17,
+                      fontWeight: "bold",
+                      color: SAGE_DEEP,
+                      flex: 1,
+                      minWidth: 0,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {r.reviewer}
+                  </span>
+                )}
                 <div
                   style={{
                     display: "flex",

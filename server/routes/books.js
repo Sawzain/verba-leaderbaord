@@ -78,6 +78,21 @@ router.get("/:id", async (req, res) => {
 
     if (!book) return res.status(404).json({ error: "Book not found" });
 
+    // Resolve each reviewer's linked leaderboard entry (Score._id) in one
+    // query, so review cards can link to a member profile. Reviewers who
+    // aren't linked to a Score just get memberId: null.
+    const reviewerIds = [
+      ...new Set(reviews.map((r) => r.user?._id?.toString()).filter(Boolean)),
+    ];
+    const linkedScores = await Score.find({
+      userId: { $in: reviewerIds },
+    })
+      .select("_id userId")
+      .lean();
+    const memberIdByUserId = new Map(
+      linkedScores.map((s) => [s.userId.toString(), s._id.toString()]),
+    );
+
     const totalRating = reviews.reduce((acc, r) => acc + r.rating, 0);
     const avgRating = reviews.length
       ? Math.round((totalRating / reviews.length) * 10) / 10
@@ -95,6 +110,7 @@ router.get("/:id", async (req, res) => {
         edited: Boolean(r.updatedAt),
         reviewer: r.user?.name || "Former member",
         userId: r.user?._id?.toString() || null,
+        memberId: memberIdByUserId.get(r.user?._id?.toString()) || null,
       })),
     });
   } catch (err) {
@@ -291,6 +307,7 @@ router.post("/:id/reviews", requireAuth, async (req, res) => {
       edited: false,
       reviewer: req.userName,
       userId: req.userId,
+      memberId: linkedScore?._id?.toString() || null,
     });
   } catch (err) {
     if (err.code === 11000) {
