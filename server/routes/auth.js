@@ -18,6 +18,7 @@ const {
   DISCORD_REDIRECT_URI,
   DISCORD_CONFIGURED,
 } = require("../config/env");
+const logger = require("../utils/logger");
 
 const router = express.Router();
 
@@ -385,7 +386,7 @@ router.get("/discord/callback", async (req, res) => {
     const jwtToken = signToken(user);
     res.redirect(`${FRONTEND_REDIRECT}?token=${encodeURIComponent(jwtToken)}`);
   } catch (err) {
-    console.error("Discord auth failed", err);
+    logger.error("Discord auth failed", err);
     res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
   }
 });

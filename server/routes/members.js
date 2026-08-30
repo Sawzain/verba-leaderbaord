@@ -7,6 +7,7 @@ const User = require("../models/User");
 const Book = require("../models/Book");
 const Review = require("../models/Review");
 const GENRES = require("../config/genres");
+const logger = require("../utils/logger");
 
 const router = express.Router();
 
@@ -152,7 +153,7 @@ router.post("/", requireApiKey, async (req, res) => {
     await newEntry.save();
     res.json(newEntry);
   } catch (err) {
-    console.error("POST /api/members failed:", err);
+    logger.error("POST /api/members failed", err);
     res.status(500).json({ error: "Failed to add entry" });
   }
 });

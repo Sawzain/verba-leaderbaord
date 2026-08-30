@@ -12,6 +12,7 @@ const booksRouter = require("./routes/books");
 const reviewsRouter = require("./routes/reviews");
 const quotesRouter = require("./routes/quotes");
 const activityRouter = require("./routes/activity");
+const logger = require("./utils/logger");
 
 const app = express();
 
@@ -69,7 +70,7 @@ app.use((req, res) => {
 // page to the client, which in production exposes internals (file paths,
 // stack frames) to anyone who triggers a bug.
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
+  logger.error("Unhandled error", err);
   res.status(500).json({ error: "Something went wrong" });
 });
 
