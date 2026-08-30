@@ -10,22 +10,93 @@ const GENRES = require("../config/genres");
 
 const router = express.Router();
 
-// GET: Fetch all members, each enriched with their most recent activity
-// (book finished or review written) so the leaderboard can show a small
-// line of "what they've been up to" under their name.
+// GET: Fetch members. Two modes, switched by the presence of page/limit
+// query params — this is deliberate, not an accident of the diff:
+//
+// - No page/limit (legacy, default): returns the full array exactly as
+//   before. Manage's admin list depends on having everyone in memory for
+//   full-roster search and its edit/optimistic-update flows, so this
+//   path is untouched.
+// - page/limit present: returns { members, total, page, totalPages },
+//   the same shape as GET /api/books. Powers the public Leaderboard.
+//   Rank is computed once across the FULL sorted roster (so page 2
+//   correctly starts at rank 11, not rank 1) using a lightweight
+//   username/score-only query, but the expensive ActivityLog enrichment
+//   only runs for the current page's members — this is the actual cost
+//   reduction over the legacy path, which ran that aggregate for
+//   everyone on every request.
 router.get("/", async (req, res) => {
+  const paginated = req.query.page !== undefined || req.query.limit !== undefined;
+
   try {
-    const scores = await Score.find();
+    if (!paginated) {
+      const scores = await Score.find();
+
+      const latestByScore = await ActivityLog.aggregate([
+        { $sort: { createdAt: -1 } },
+        { $group: { _id: "$scoreId", doc: { $first: "$$ROOT" } } },
+      ]);
+
+      const bookIds = latestByScore.map((e) => e.doc.bookId).filter(Boolean);
+      const books = await Book.find({ _id: { $in: bookIds } }, "title").lean();
+      const bookTitleById = new Map(books.map((b) => [String(b._id), b.title]));
+
+      const activityByScoreId = new Map(
+        latestByScore.map((e) => [
+          String(e._id),
+          {
+            type: e.doc.type,
+            bookTitle: bookTitleById.get(String(e.doc.bookId)) || null,
+          },
+        ]),
+      );
+
+      const enriched = scores.map((s) => {
+        const obj = s.toObject();
+        obj.latestActivity = activityByScoreId.get(String(s._id)) || null;
+        return obj;
+      });
+
+      return res.json(enriched);
+    }
+
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
+    const skip = (page - 1) * limit;
+
+    // Lightweight full-roster query, just for computing rank and total —
+    // ties share a rank, mirroring the leaderboard's existing tie logic.
+    const allSorted = await Score.find({}, "username score")
+      .sort({ score: -1, username: 1 })
+      .lean();
+
+    const rankById = new Map();
+    let rank = 0;
+    let prevScore = null;
+    allSorted.forEach((s, i) => {
+      if (s.score !== prevScore) {
+        rank = i + 1;
+        prevScore = s.score;
+      }
+      rankById.set(String(s._id), rank);
+    });
+
+    const pageIds = allSorted.slice(skip, skip + limit).map((s) => s._id);
+    const pageScores = await Score.find({ _id: { $in: pageIds } });
+    // $in doesn't preserve order, so re-sort to match the ranked order.
+    const scoreById = new Map(pageScores.map((s) => [String(s._id), s]));
+    const orderedScores = pageIds
+      .map((id) => scoreById.get(String(id)))
+      .filter(Boolean);
 
     const latestByScore = await ActivityLog.aggregate([
+      { $match: { scoreId: { $in: pageIds } } },
       { $sort: { createdAt: -1 } },
       { $group: { _id: "$scoreId", doc: { $first: "$$ROOT" } } },
     ]);
-
     const bookIds = latestByScore.map((e) => e.doc.bookId).filter(Boolean);
     const books = await Book.find({ _id: { $in: bookIds } }, "title").lean();
     const bookTitleById = new Map(books.map((b) => [String(b._id), b.title]));
-
     const activityByScoreId = new Map(
       latestByScore.map((e) => [
         String(e._id),
@@ -36,13 +107,19 @@ router.get("/", async (req, res) => {
       ]),
     );
 
-    const enriched = scores.map((s) => {
+    const enriched = orderedScores.map((s) => {
       const obj = s.toObject();
+      obj.rank = rankById.get(String(s._id));
       obj.latestActivity = activityByScoreId.get(String(s._id)) || null;
       return obj;
     });
 
-    res.json(enriched);
+    res.json({
+      members: enriched,
+      total: allSorted.length,
+      page,
+      totalPages: Math.max(1, Math.ceil(allSorted.length / limit)),
+    });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch data" });
   }

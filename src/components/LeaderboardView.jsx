@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   SAGE,
   SAGE_DARK,
@@ -19,18 +19,18 @@ import { SkeletonMemberRow } from "./Skeleton";
 import { Link } from "react-router-dom";
 import { API_ROOT } from "../hooks/useMembers";
 
-const PAGE_SIZE = 10;
-
 export default function LeaderboardView({
-  sorted,
-  memberCount,
+  members,
+  total,
+  page,
+  totalPages,
+  goToPage,
   loading,
   totalBooksRead = 0,
   totalQuotes = 0,
 }) {
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [page, setPage] = useState(1);
   const showSlowHint = useSlowLoadHint(loading);
 
   const [previewId, setPreviewId] = useState(null);
@@ -45,36 +45,14 @@ export default function LeaderboardView({
       .catch(() => {});
   };
 
-  const visible = useMemo(() => {
-    if (!search.trim()) return sorted;
+  // Search only filters the currently loaded page, not the whole
+  // leaderboard, so Prev/Next is hidden while searching — same
+  // convention as BooksView's book grid.
+  const pageItems = useMemo(() => {
+    if (!search.trim()) return members;
     const q = search.trim().toLowerCase();
-    return sorted.filter((m) => m.name.toLowerCase().includes(q));
-  }, [sorted, search]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
-  const pageItems = useMemo(
-    () => visible.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
-    [visible, safePage],
-  );
-
-  const ranks = useMemo(() => {
-    const map = new Map();
-    let rank = 0;
-    let prevPoints = null;
-    sorted.forEach((m, i) => {
-      if (m.points !== prevPoints) {
-        rank = i + 1;
-        prevPoints = m.points;
-      }
-      map.set(m._id, rank);
-    });
-    return map;
-  }, [sorted]);
+    return members.filter((m) => m.name.toLowerCase().includes(q));
+  }, [members, search]);
 
   return (
     <div
@@ -102,7 +80,7 @@ export default function LeaderboardView({
           >
             Reading leaderboard
           </div>
-          {memberCount > 5 && !searchOpen && (
+          {total > 5 && !searchOpen && (
             <button
               onClick={() => setSearchOpen(true)}
               aria-label="Search readers"
@@ -152,7 +130,7 @@ export default function LeaderboardView({
           }}
         >
           <span style={{ whiteSpace: "nowrap" }}>
-            {memberCount} MEMBER{memberCount !== 1 ? "S" : ""}
+            {total} MEMBER{total !== 1 ? "S" : ""}
             <span aria-hidden="true" style={{ margin: "0 8px" }}>
               ·
             </span>
@@ -167,7 +145,7 @@ export default function LeaderboardView({
         </div>
       </div>
 
-      {memberCount > 5 && searchOpen && (
+      {total > 5 && searchOpen && (
         <div style={{ marginBottom: 12 }}>
           <input
             autoFocus
@@ -216,17 +194,17 @@ export default function LeaderboardView({
         </div>
       )}
 
-      {!loading && sorted.length === 0 && (
+      {!loading && total === 0 && (
         <EmptyState message="No members yet. Add some in Manage!" />
       )}
 
-      {!loading && sorted.length > 0 && visible.length === 0 && (
+      {!loading && members.length > 0 && pageItems.length === 0 && (
         <EmptyState message={`No readers match "${search}".`} />
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {pageItems.map((member, i) => {
-          const displayRank = ranks.get(member._id);
+          const displayRank = member.rank;
           const isFirstPlace = displayRank === 1;
 
           return (
@@ -324,7 +302,9 @@ export default function LeaderboardView({
         })}
       </div>
 
-      <Pagination page={safePage} totalPages={totalPages} goToPage={setPage} />
+      {!search.trim() && (
+        <Pagination page={page} totalPages={totalPages} goToPage={goToPage} />
+      )}
     </div>
   );
 }
