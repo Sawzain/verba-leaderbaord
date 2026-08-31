@@ -25,6 +25,34 @@ const logger = require("../utils/logger");
 
 const router = express.Router();
 
+// In-memory store for short-lived, single-use Discord OAuth exchange
+// codes. Needed because of a real browser behavior, not a hypothetical:
+// Firefox's Total Cookie Protection (and similar per-site storage
+// partitioning in other browsers) stores a cookie set while
+// onrender.com is the top-level page — which briefly happens during the
+// OAuth redirect chain below — in a DIFFERENT partition than one set via
+// a cross-site fetch made from the Vercel frontend. So a cookie set
+// directly on this callback's redirect is invisible to the frontend's
+// later apiFetch calls, even though the exact same cookie set via a
+// normal login POST works fine. Instead, this route hands the frontend
+// a short-lived code; the frontend redeems it via its own fetch (POST
+// /discord/exchange, called from Vercel like any other request), which
+// sets the cookie in the correct, consistently-readable partition.
+//
+// A single Render instance's memory is fine for this app's scale. If
+// this ever runs on multiple instances behind a load balancer, move
+// this to a shared store (Mongo, Redis) — an in-memory Map isn't
+// visible across instances.
+const pendingDiscordExchanges = new Map();
+const EXCHANGE_CODE_TTL_MS = 60 * 1000;
+
+function pruneExpiredExchanges() {
+  const now = Date.now();
+  for (const [code, entry] of pendingDiscordExchanges) {
+    if (entry.expiresAt < now) pendingDiscordExchanges.delete(code);
+  }
+}
+
 // ===================== Member accounts (for reviews) =====================
 // Separate from the admin x-api-key: this is a real login so a review is
 // always tied to one specific person, not just whatever name they typed.
@@ -363,16 +391,37 @@ router.get("/discord/callback", async (req, res) => {
     }
 
     const jwtToken = signToken(user);
-    setAuthCookies(res, jwtToken);
-    // No more ?token= in the URL — the cookie above is the actual
-    // session. Previously the JWT was passed through the redirect URL,
-    // which meant it could end up in browser history and any referrer
-    // headers; the cookie doesn't have that exposure.
-    res.redirect(FRONTEND_REDIRECT);
+    const exchangeCode = crypto.randomBytes(24).toString("hex");
+    pruneExpiredExchanges();
+    pendingDiscordExchanges.set(exchangeCode, {
+      token: jwtToken,
+      expiresAt: Date.now() + EXCHANGE_CODE_TTL_MS,
+    });
+    // No ?token= in the URL — this code is short-lived and single-use,
+    // and on its own grants nothing without being redeemed at
+    // /discord/exchange within the next 60 seconds.
+    res.redirect(`${FRONTEND_REDIRECT}?discordExchange=${exchangeCode}`);
   } catch (err) {
     logger.error("Discord auth failed", err);
     res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
   }
+});
+
+// POST: completes Discord login. See the comment on
+// pendingDiscordExchanges above for why this extra round-trip exists —
+// this is the fetch that actually sets a cookie the frontend can read.
+router.post("/discord/exchange", (req, res) => {
+  pruneExpiredExchanges();
+  const code = req.body?.code;
+  const entry = code ? pendingDiscordExchanges.get(code) : null;
+  if (!entry) {
+    return res.status(400).json({
+      error: "This login link has expired. Please try logging in again.",
+    });
+  }
+  pendingDiscordExchanges.delete(code); // single-use
+  setAuthCookies(res, entry.token);
+  res.json({ ok: true });
 });
 
 // POST: clear the session. Didn't need to exist before this migration —

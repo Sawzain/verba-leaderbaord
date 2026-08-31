@@ -37,31 +37,61 @@ export default function useAuth() {
       .finally(() => setAuthReady(true));
   }, []);
 
-  // Discord's redirect back here no longer carries a token in the URL —
-  // the server sets the session cookie directly on that response before
-  // redirecting. Just surface an error param if the Discord flow failed;
-  // the session check below picks up a successful login's cookie on its
-  // own.
+  // Discord's redirect back here carries a short-lived, single-use
+  // exchange code rather than the session itself — see the comment on
+  // pendingDiscordExchanges in server/routes/auth.js for why: a cookie
+  // set directly on that redirect isn't reliably readable by this
+  // frontend's later cross-site requests in browsers with strict
+  // storage partitioning (Firefox's Total Cookie Protection, notably).
+  // Redeeming the code via our own fetch (this effect) sets the cookie
+  // in a partition our later requests can actually read.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const discordError = params.get("authError");
-    if (discordError) {
-      setAuthError("Discord login didn't work. Please try again.");
-      params.delete("authError");
+    const discordExchange = params.get("discordExchange");
+
+    const stripParams = (keys) => {
+      keys.forEach((k) => params.delete(k));
       const cleanUrl =
         window.location.pathname +
         (params.toString() ? `?${params}` : "") +
         window.location.hash;
       window.history.replaceState({}, "", cleanUrl);
+    };
+
+    if (discordError) {
+      setAuthError("Discord login didn't work. Please try again.");
+      stripParams(["authError"]);
+      return;
     }
+
+    if (!discordExchange) return;
+
+    apiFetch(`${API_ROOT}/auth/discord/exchange`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: discordExchange }),
+    })
+      .then((res) => (res.ok ? checkSession() : Promise.reject()))
+      .catch(() =>
+        setAuthError("Discord login didn't work. Please try again."),
+      )
+      .finally(() => stripParams(["discordExchange"]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // On every app load, ask the server whether the session cookie (if any)
   // is still valid — this replaces the old "read token from localStorage,
   // assume it's good" check. A valid session gets its cookie rolled
   // forward another 7 days (see /me on the server); an invalid or
-  // missing one just resolves to logged-out.
+  // missing one just resolves to logged-out. Skipped when a Discord
+  // exchange is in flight (the effect above calls checkSession itself
+  // once the exchange completes) — running both would briefly flash a
+  // logged-out state before the exchange resolves.
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("discordExchange")) {
+      return;
+    }
     checkSession();
   }, [checkSession]);
 
