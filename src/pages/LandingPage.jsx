@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import useBooks from "../hooks/useBooks";
+import useMembers from "../hooks/useMembers";
+import { useAuthContext } from "../AuthContext";
 import { StarDisplay } from "../components/StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import Footer, { DISCORD_INVITE_URL } from "../components/Footer";
@@ -51,6 +53,18 @@ export default function LandingPage() {
   const { books, loading } = useBooks();
   const currentPick = books.find((b) => b.isCurrentPick);
 
+  // Mirrors AppShell's myMemberId resolution — AccountChip's "View
+  // Profile" link needs the Score document's _id, not the logged-in
+  // User's own id, so it has to be cross-referenced against the member
+  // list. Without this, the landing page's account menu silently omits
+  // the link (myMemberId defaults to null in AccountChip).
+  const auth = useAuthContext();
+  const membersState = useMembers(null, true);
+  const myMemberId = auth.isLoggedIn
+    ? membersState.members.find((m) => m.userId === auth.user?.id)?._id ||
+      null
+    : null;
+
   return (
     <div
       style={{
@@ -82,7 +96,7 @@ export default function LandingPage() {
           }}
         >
           <Header />
-          <AccountChip />
+          <AccountChip myMemberId={myMemberId} />
         </div>
       </div>
 
