@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
+const { COOKIE_NAME } = require("./auth");
 
 // Authorizes either the admin (x-api-key) or the review's own author
-// (Bearer token) to edit/remove a review — a member manages their own
+// (session cookie) to edit/remove a review — a member manages their own
 // review, an admin can still step in for abusive or off-topic ones.
 function authorizeReviewOwnerOrAdmin(req, res, next) {
   const key = req.headers["x-api-key"];
@@ -10,8 +11,7 @@ function authorizeReviewOwnerOrAdmin(req, res, next) {
     return next();
   }
 
-  const header = req.headers["authorization"] || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+  const token = req.cookies?.[COOKIE_NAME] || null;
   if (!token) {
     return res.status(401).json({ error: "Log in to do that" });
   }

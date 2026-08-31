@@ -11,6 +11,7 @@ import {
   DANGER,
 } from "../theme";
 import { API_ROOT } from "../hooks/useMembers";
+import apiFetch from "../utils/apiFetch";
 
 const inputStyle = {
   padding: "10px 14px",
@@ -39,11 +40,10 @@ export default function AdminPasswordReset({ token }) {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch(`${API_ROOT}/admin/reset-password`, {
+      const res = await apiFetch(`${API_ROOT}/admin/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ email: email.trim() }),
       });

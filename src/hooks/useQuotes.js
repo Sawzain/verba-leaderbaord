@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { API_ROOT } from "./useMembers";
+import apiFetch from "../utils/apiFetch";
 
 const API_BASE = `${API_ROOT}/quotes`;
 const PAGE_SIZE = 15;
@@ -87,12 +88,14 @@ export default function useQuotes(enabled = true) {
       targetPage,
     );
 
+  // `token` no longer used internally — auth now travels via an httpOnly
+  // session cookie through apiFetch — kept so existing callers don't
+  // need their call sites changed.
   const toggleFavorite = async (token, quoteId, nextValue) => {
-    const res = await fetch(`${API_BASE}/${quoteId}/favorite`, {
+    const res = await apiFetch(`${API_BASE}/${quoteId}/favorite`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ favorite: nextValue }),
     });
@@ -110,9 +113,8 @@ export default function useQuotes(enabled = true) {
   };
 
   const deleteQuote = async (token, quoteId) => {
-    const res = await fetch(`${API_BASE}/${quoteId}`, {
+    const res = await apiFetch(`${API_BASE}/${quoteId}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));

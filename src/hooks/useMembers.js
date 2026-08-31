@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import apiFetch from "../utils/apiFetch";
 
 // In dev, Vite proxies /api to the Express server (see vite.config.js),
 // so the frontend never needs to know the backend's host or port.
@@ -10,6 +11,10 @@ const API_BASE = `${API_ROOT}/members`;
 // actually needs them is active, instead of fetching on every /app/* mount
 // regardless of which tab you're on. Once loaded, `hasLoaded` keeps the
 // data cached so switching tabs back and forth doesn't refetch.
+// `token` is no longer used internally (auth now travels via an httpOnly
+// session cookie through apiFetch — see src/utils/apiFetch.js) but is
+// kept as a parameter so existing callers passing auth.token don't need
+// to change their call site.
 export default function useMembers(token, enabled = true) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(enabled);
@@ -92,11 +97,10 @@ export default function useMembers(token, enabled = true) {
     withAuthError(async () => {
       if (!newName.trim()) return;
       const startingScore = Math.max(0, Number(newPoints) || 0);
-      const response = await fetch(API_BASE, {
+      const response = await apiFetch(API_BASE, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           username: newName.trim(),
@@ -122,11 +126,10 @@ export default function useMembers(token, enabled = true) {
       // and ActivityLog stay consistent with that flow.
       if (bookId) {
         try {
-          const readRes = await fetch(`${API_BASE}/${saved._id}/mark-read`, {
+          const readRes = await apiFetch(`${API_BASE}/${saved._id}/mark-read`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ bookId }),
           });
@@ -150,9 +153,8 @@ export default function useMembers(token, enabled = true) {
 
   const removeMember = (id) =>
     withAuthError(async () => {
-      const response = await fetch(`${API_BASE}/${id}`, {
+      const response = await apiFetch(`${API_BASE}/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.status === 401 || response.status === 403) {
@@ -186,11 +188,10 @@ export default function useMembers(token, enabled = true) {
 
       setSavingId(id);
       try {
-        const response = await fetch(`${API_BASE}/${id}`, {
+        const response = await apiFetch(`${API_BASE}/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ score: nextPoints }),
         });
@@ -228,11 +229,10 @@ export default function useMembers(token, enabled = true) {
 
       setSavingId(id);
       try {
-        const response = await fetch(`${API_BASE}/${id}/mark-read`, {
+        const response = await apiFetch(`${API_BASE}/${id}/mark-read`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ bookId }),
         });
@@ -267,11 +267,10 @@ export default function useMembers(token, enabled = true) {
     withAuthError(async () => {
       setSavingId(id);
       try {
-        const response = await fetch(`${API_BASE}/${id}/link`, {
+        const response = await apiFetch(`${API_BASE}/${id}/link`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ userId }),
         });
@@ -316,11 +315,10 @@ export default function useMembers(token, enabled = true) {
       setEditingIndex(null);
 
       try {
-        const response = await fetch(`${API_BASE}/${id}`, {
+        const response = await apiFetch(`${API_BASE}/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ score: nextPoints }),
         });

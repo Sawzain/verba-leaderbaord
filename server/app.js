@@ -3,7 +3,9 @@ const cors = require("cors");
 const helmet = require("helmet");
 const multer = require("multer");
 const compression = require("compression");
+const cookieParser = require("cookie-parser");
 const { uploadsDir } = require("./config/cloudinary");
+const { csrfProtection } = require("./middleware/csrf");
 
 const membersRouter = require("./routes/members");
 const authRouter = require("./routes/auth");
@@ -22,8 +24,18 @@ app.set("trust proxy", 1);
 
 app.use(helmet());
 
+// credentials: true is required for the session cookie (set on
+// /api/auth/*) to be sent on cross-origin requests — the frontend
+// (Vercel) and this API (Render) live on different domains. Browsers
+// reject a wildcard origin combined with credentials, so allowedOrigin
+// must be an explicit value in any environment relying on cookie auth;
+// `true` here means "reflect the request's Origin header back", which
+// still works with credentials but is looser than a fixed value — set
+// FRONTEND_ORIGIN in production.
 const allowedOrigin = process.env.FRONTEND_ORIGIN;
-app.use(cors(allowedOrigin ? { origin: allowedOrigin } : {}));
+app.use(cors({ origin: allowedOrigin || true, credentials: true }));
+app.use(cookieParser());
+app.use(csrfProtection);
 app.use(express.json());
 app.use(compression());
 

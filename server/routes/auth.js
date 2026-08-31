@@ -8,6 +8,7 @@ const { authLimiter } = require("../middleware/rateLimiters");
 const { signToken } = require("../utils/tokens");
 const validate = require("../middleware/validate");
 const { registerSchema, resetPasswordSchema } = require("../schemas/authSchemas");
+const { setAuthCookies, clearAuthCookies } = require("../utils/authCookies");
 const {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -50,8 +51,8 @@ router.post("/register", authLimiter, validate(registerSchema), async (req, res)
 
     sendVerificationEmail(user, verificationToken).catch(() => {});
 
+    setAuthCookies(res, signToken(user));
     res.json({
-      token: signToken(user),
       user: {
         id: user._id,
         name: user.name,
@@ -80,8 +81,8 @@ router.post("/login", authLimiter, async (req, res) => {
     if (!match)
       return res.status(401).json({ error: "Invalid email or password" });
 
+    setAuthCookies(res, signToken(user));
     res.json({
-      token: signToken(user),
       user: {
         id: user._id,
         name: user.name,
@@ -100,6 +101,12 @@ router.post("/login", authLimiter, async (req, res) => {
 router.get("/me", requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId).lean();
+    // Rolling refresh: every successful /me call re-issues a fresh
+    // 7-day cookie, so an active user effectively never gets logged out
+    // mid-use, while an abandoned/stolen session still dies within a
+    // week of its last real use rather than lasting a full 7 days from
+    // login regardless of activity.
+    setAuthCookies(res, signToken(user));
     res.json({
       id: req.userId,
       name: req.userName,
@@ -108,11 +115,6 @@ router.get("/me", requireAuth, async (req, res) => {
       emailVerified: Boolean(user?.emailVerified),
       avatarUrl: user?.avatarUrl || "",
       requireEmailVerification: REQUIRE_EMAIL_VERIFICATION,
-      // Rolling refresh: every successful /me call re-issues a fresh
-      // 7-day token, so an active user effectively never gets logged
-      // out mid-use, while an abandoned/stolen token still dies within
-      // a week of its last real use rather than lasting a full 30 days.
-      token: signToken(user),
     });
   } catch (err) {
     res.json({
@@ -361,11 +363,26 @@ router.get("/discord/callback", async (req, res) => {
     }
 
     const jwtToken = signToken(user);
-    res.redirect(`${FRONTEND_REDIRECT}?token=${encodeURIComponent(jwtToken)}`);
+    setAuthCookies(res, jwtToken);
+    // No more ?token= in the URL — the cookie above is the actual
+    // session. Previously the JWT was passed through the redirect URL,
+    // which meant it could end up in browser history and any referrer
+    // headers; the cookie doesn't have that exposure.
+    res.redirect(FRONTEND_REDIRECT);
   } catch (err) {
     logger.error("Discord auth failed", err);
     res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
   }
+});
+
+// POST: clear the session. Didn't need to exist before this migration —
+// logging out used to just mean forgetting the token in localStorage,
+// nothing server-side to undo. An httpOnly cookie can only be cleared by
+// a server response, so this route is now required for logout to work
+// at all.
+router.post("/logout", (req, res) => {
+  clearAuthCookies(res);
+  res.json({ ok: true });
 });
 
 module.exports = router;

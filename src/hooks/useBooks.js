@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { API_ROOT } from "./useMembers";
+import apiFetch from "../utils/apiFetch";
 
 const API_BASE = `${API_ROOT}/books`;
 
@@ -44,15 +45,18 @@ export default function useBooks(enabled = true) {
     return body;
   };
 
+  // `token` params below are no longer used internally — auth now
+  // travels via an httpOnly session cookie through apiFetch (see
+  // src/utils/apiFetch.js) — but are kept so existing callers passing
+  // adminKey/auth.token don't need their call sites changed.
   const addBook = async (token, { title, author, file }) => {
     const form = new FormData();
     form.append("title", title);
     form.append("author", author);
     if (file) form.append("cover", file);
 
-    const res = await fetch(API_BASE, {
+    const res = await apiFetch(API_BASE, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
       body: form,
     });
     const body = await res.json().catch(() => ({}));
@@ -72,9 +76,8 @@ export default function useBooks(enabled = true) {
     form.append("author", author);
     if (file) form.append("cover", file);
 
-    const res = await fetch(`${API_BASE}/${id}`, {
+    const res = await apiFetch(`${API_BASE}/${id}`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
       body: form,
     });
     const body = await res.json().catch(() => ({}));
@@ -94,9 +97,8 @@ export default function useBooks(enabled = true) {
   };
 
   const removeBook = async (token, id) => {
-    const res = await fetch(`${API_BASE}/${id}`, {
+    const res = await apiFetch(`${API_BASE}/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -120,9 +122,8 @@ export default function useBooks(enabled = true) {
     );
 
     try {
-      const res = await fetch(`${API_BASE}/${id}/current-pick`, {
+      const res = await apiFetch(`${API_BASE}/${id}/current-pick`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok)
@@ -144,11 +145,10 @@ export default function useBooks(enabled = true) {
   };
 
   const addReview = async (token, bookId, { rating, text }) => {
-    const res = await fetch(`${API_BASE}/${bookId}/reviews`, {
+    const res = await apiFetch(`${API_BASE}/${bookId}/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ rating, text }),
     });
@@ -161,9 +161,8 @@ export default function useBooks(enabled = true) {
   };
 
   const removeReview = async (token, reviewId) => {
-    const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
+    const res = await apiFetch(`${API_ROOT}/reviews/${reviewId}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -173,9 +172,8 @@ export default function useBooks(enabled = true) {
   };
 
   const removeMyReview = async (token, reviewId) => {
-    const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
+    const res = await apiFetch(`${API_ROOT}/reviews/${reviewId}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -185,11 +183,10 @@ export default function useBooks(enabled = true) {
   };
 
   const editReview = async (token, reviewId, { rating, text }) => {
-    const res = await fetch(`${API_ROOT}/reviews/${reviewId}`, {
+    const res = await apiFetch(`${API_ROOT}/reviews/${reviewId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ rating, text }),
     });

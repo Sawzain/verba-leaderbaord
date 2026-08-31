@@ -9,7 +9,7 @@ afterEach(() => db.clear());
 afterAll(() => db.disconnect());
 
 describe("POST /api/auth/register", () => {
-  test("creates a new account and returns a token", async () => {
+  test("creates a new account and sets a session cookie", async () => {
     const res = await request(app).post("/api/auth/register").send({
       name: "Alex",
       email: "alex@example.com",
@@ -17,7 +17,7 @@ describe("POST /api/auth/register", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body.token).toBeTruthy();
+    expect(res.headers["set-cookie"]).toBeTruthy();
     expect(res.body.user.email).toBe("alex@example.com");
     expect(res.body.user.isAdmin).toBe(false);
   });
@@ -69,7 +69,7 @@ describe("POST /api/auth/login", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body.token).toBeTruthy();
+    expect(res.headers["set-cookie"]).toBeTruthy();
     expect(res.body.user.email).toBe("alex@example.com");
   });
 
@@ -100,35 +100,34 @@ describe("POST /api/auth/login", () => {
 });
 
 describe("GET /api/auth/me", () => {
-  test("rejects a request with no token", async () => {
+  test("rejects a request with no session", async () => {
     const res = await request(app).get("/api/auth/me");
     expect(res.status).toBe(401);
   });
 
-  test("rejects an invalid token", async () => {
+  test("rejects an invalid session cookie", async () => {
     const res = await request(app)
       .get("/api/auth/me")
-      .set("Authorization", "Bearer not-a-real-token");
+      .set("Cookie", "verba_token=not-a-real-token");
 
     expect(res.status).toBe(401);
   });
 
-  test("returns the logged-in user's info with a valid token", async () => {
-    const registerRes = await request(app).post("/api/auth/register").send({
+  test("returns the logged-in user's info with a valid session", async () => {
+    // request.agent persists cookies across calls, like a real browser —
+    // needed here since the session now lives in an httpOnly cookie set
+    // by /register rather than a token in the response body.
+    const agent = request.agent(app);
+    await agent.post("/api/auth/register").send({
       name: "Alex",
       email: "alex@example.com",
       password: "password123",
     });
-    const token = registerRes.body.token;
 
-    const res = await request(app)
-      .get("/api/auth/me")
-      .set("Authorization", `Bearer ${token}`);
+    const res = await agent.get("/api/auth/me");
 
     expect(res.status).toBe(200);
     expect(res.body.email).toBe("alex@example.com");
     expect(res.body.name).toBe("Alex");
-    // Rolling refresh — /me always re-issues a fresh token (see auth.js).
-    expect(res.body.token).toBeTruthy();
   });
 });
