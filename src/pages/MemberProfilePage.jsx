@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuthContext } from "../AuthContext";
 import useMemberProfile from "../hooks/useMemberProfile";
+import Pagination from "../components/Pagination";
 import {
   SAGE,
   SAGE_DARK,
@@ -41,9 +42,18 @@ const secondaryBtn = {
 
 export default function MemberProfilePage() {
   const { id } = useParams();
-  const { user, token } = useAuthContext();
-  const { profile, genres, loading, error, saving, updateProfile } =
-    useMemberProfile(id, token);
+  const { user } = useAuthContext();
+  const {
+    profile,
+    genres,
+    loading,
+    error,
+    saving,
+    updateProfile,
+    reviewsPage,
+    reviewsTotalPages,
+    goToReviewsPage,
+  } = useMemberProfile(id);
   const [editing, setEditing] = useState(false);
   const [draftBio, setDraftBio] = useState("");
   const [draftGenres, setDraftGenres] = useState([]);
@@ -414,6 +424,14 @@ export default function MemberProfilePage() {
               )}
             </Link>
           ))}
+
+          {reviewsTotalPages > 1 && (
+            <Pagination
+              page={reviewsPage}
+              totalPages={reviewsTotalPages}
+              goToPage={goToReviewsPage}
+            />
+          )}
           </div>
           </>
         )}

@@ -13,6 +13,7 @@ import BookForm from "./BookForm";
 import BookDetail from "./BookDetail";
 import EmptyState from "./EmptyState";
 import { SkeletonBookCard } from "./Skeleton";
+import SetCurrentPickDialog from "./SetCurrentPickDialog";
 import { useConfirm, useToast } from "../UIFeedbackContext";
 import useSlowLoadHint from "../hooks/useSlowLoadHint";
 
@@ -47,6 +48,9 @@ export default function BooksView({
   const [search, setSearch] = useState("");
   const showSlowHint = useSlowLoadHint(loading);
   const [showAddForm, setShowAddForm] = useState(false);
+  // Book pending a "set as current pick" date confirmation — only used
+  // when setting (not unsetting), since unsetting needs no date.
+  const [pendingCurrentPick, setPendingCurrentPick] = useState(null);
 
   // The URL is the source of truth for which book (if any) is open —
   // /app/reviews/:bookId. This effect keeps local selection state in sync
@@ -139,9 +143,26 @@ export default function BooksView({
     }
   };
 
-  const handleToggleCurrentPick = async (id) => {
+  // Unsetting needs no date, so it proceeds immediately. Setting opens
+  // SetCurrentPickDialog first — see confirmSetCurrentPick below for the
+  // actual API call once a date is chosen.
+  const handleToggleCurrentPick = async (book) => {
+    if (book.isCurrentPick) {
+      try {
+        await setCurrentPick(adminKey, book._id);
+      } catch (err) {
+        showToast(err.message || "Couldn't update the current pick.");
+      }
+      return;
+    }
+    setPendingCurrentPick(book);
+  };
+
+  const confirmSetCurrentPick = async (date) => {
+    const book = pendingCurrentPick;
+    setPendingCurrentPick(null);
     try {
-      await setCurrentPick(adminKey, id);
+      await setCurrentPick(adminKey, book._id, date);
     } catch (err) {
       showToast(err.message || "Couldn't update the current pick.");
     }
@@ -321,7 +342,7 @@ export default function BooksView({
             canRemove={isAdminUnlocked}
             onRemove={() => handleRemove(book._id, book.title)}
             canManageCurrentPick={isAdminUnlocked}
-            onToggleCurrentPick={() => handleToggleCurrentPick(book._id)}
+            onToggleCurrentPick={() => handleToggleCurrentPick(book)}
           />
         ))}
       </div>
@@ -331,6 +352,14 @@ export default function BooksView({
           there might be more matches on other pages. */}
       {!search.trim() && (
         <Pagination page={page} totalPages={totalPages} goToPage={goToPage} />
+      )}
+
+      {pendingCurrentPick && (
+        <SetCurrentPickDialog
+          bookTitle={pendingCurrentPick.title}
+          onConfirm={confirmSetCurrentPick}
+          onCancel={() => setPendingCurrentPick(null)}
+        />
       )}
     </div>
   );

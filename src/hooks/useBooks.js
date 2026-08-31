@@ -110,7 +110,7 @@ export default function useBooks(enabled = true) {
     await loadBooks(page);
   };
 
-  const setCurrentPick = async (token, id) => {
+  const setCurrentPick = async (token, id, date) => {
     const previous = books;
     // Optimistic: flip locally right away so the star responds instantly,
     // instead of waiting on the round-trip to the DB.
@@ -124,6 +124,8 @@ export default function useBooks(enabled = true) {
     try {
       const res = await apiFetch(`${API_BASE}/${id}/current-pick`, {
         method: "PATCH",
+        headers: date ? { "Content-Type": "application/json" } : undefined,
+        body: date ? JSON.stringify({ currentPickSetAt: date }) : undefined,
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok)

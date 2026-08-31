@@ -312,9 +312,22 @@ router.get("/:id/profile", async (req, res) => {
       score.userId,
       "bio favoriteGenres avatarUrl",
     );
-    const reviews = await Review.find({ user: score.userId })
-      .populate("book", "title")
-      .sort({ createdAt: -1 });
+
+    const reviewsPage = Math.max(1, parseInt(req.query.reviewsPage) || 1);
+    const reviewsLimit = Math.min(
+      50,
+      Math.max(1, parseInt(req.query.reviewsLimit) || 10),
+    );
+    const reviewsSkip = (reviewsPage - 1) * reviewsLimit;
+
+    const [reviews, reviewsTotal] = await Promise.all([
+      Review.find({ user: score.userId })
+        .populate("book", "title")
+        .sort({ createdAt: -1 })
+        .skip(reviewsSkip)
+        .limit(reviewsLimit),
+      Review.countDocuments({ user: score.userId }),
+    ]);
 
     res.json({
       ...base,
@@ -333,6 +346,9 @@ router.get("/:id/profile", async (req, res) => {
         text: r.text,
         createdAt: r.createdAt,
       })),
+      reviewsTotal,
+      reviewsPage,
+      reviewsTotalPages: Math.max(1, Math.ceil(reviewsTotal / reviewsLimit)),
       // Discord role tiers aren't wired up yet — placeholder until the
       // Twig-side Supabase sync exists.
       discordRoles: null,
