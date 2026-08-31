@@ -7,7 +7,6 @@ import useUIFeedback from "./hooks/useUIFeedback";
 import { UIFeedbackContext } from "./UIFeedbackContext";
 import ConfirmDialog from "./components/ConfirmDialog";
 import Toast from "./components/Toast";
-import { buttonInteractionStyles } from "./styles/buttonInteractions";
 
 // Route-level code splitting: each page only downloads its JS when the
 // user actually navigates there, instead of all pages bundling into the
@@ -29,7 +28,6 @@ export default function App() {
   return (
     <AuthContext.Provider value={auth}>
       <UIFeedbackContext.Provider value={uiFeedback}>
-        <style>{buttonInteractionStyles}</style>
         <ConfirmDialog />
         <Toast />
         <Suspense fallback={null}>

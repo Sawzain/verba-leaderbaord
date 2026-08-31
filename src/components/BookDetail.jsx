@@ -19,7 +19,7 @@ import BookForm from "./BookForm";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
 import EmptyState from "./EmptyState";
 import RatingSummary from "./RatingSummary";
-import { buttonInteractionStyles } from "../styles/buttonInteractions";
+
 import { useConfirm, useToast } from "../UIFeedbackContext";
 
 export default function BookDetail({

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import useBooks from "../hooks/useBooks";
 import useMembers from "../hooks/useMembers";
+import { Skeleton } from "../components/Skeleton";
 import { useAuthContext } from "../AuthContext";
 import { StarDisplay } from "../components/StarRating";
 import { resolveCoverUrl } from "../utils/resolveCoverUrl";
@@ -16,10 +17,10 @@ import {
   FONT_SERIF,
   FONT_SANS,
 } from "../theme";
-import { buttonInteractionStyles } from "../styles/buttonInteractions";
+
 
 const TOPBAR_MAX_WIDTH = 1400;
-const CONTENT_MAX_WIDTH = 900;
+const CONTENT_MAX_WIDTH = 760;
 
 const sectionHeading = {
   fontSize: 13,
@@ -50,7 +51,7 @@ const ctaButtonStyle = {
 };
 
 export default function LandingPage() {
-  const { books, loading } = useBooks();
+  const { books, loading, error } = useBooks();
   const currentPick = books.find((b) => b.isCurrentPick);
 
   // Mirrors AppShell's myMemberId resolution — AccountChip's "View
@@ -61,8 +62,7 @@ export default function LandingPage() {
   const auth = useAuthContext();
   const membersState = useMembers(null, true);
   const myMemberId = auth.isLoggedIn
-    ? membersState.members.find((m) => m.userId === auth.user?.id)?._id ||
-      null
+    ? membersState.members.find((m) => m.userId === auth.user?.id)?._id || null
     : null;
 
   return (
@@ -205,14 +205,16 @@ export default function LandingPage() {
                 alignItems: "center",
                 gap: 8,
                 marginTop: 16,
-                background: "transparent",
+                background: `${SAGE}66`,
                 color: SAGE_DEEP,
                 border: `1px solid ${SAGE_DEEP}`,
                 borderRadius: 10,
-                padding: "9px 17px",
+                padding: "10px 19px",
                 fontSize: 14,
+                fontWeight: "bold",
                 fontFamily: FONT_SERIF,
                 textDecoration: "none",
+                boxShadow: "0 4px 14px rgba(45, 60, 45, 0.06)",
               }}
             >
               Join us on Discord
@@ -226,11 +228,30 @@ export default function LandingPage() {
           <div style={sectionStyle}>
             <div style={sectionHeading}>Current pick</div>
             {loading && (
-              <div style={{ color: MUTED, fontStyle: "italic", fontSize: 14 }}>
-                Loading…
+              <div style={{ display: "flex", gap: 16 }}>
+                <Skeleton width={72} height={96} borderRadius={8} />
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8,
+                    paddingTop: 2,
+                  }}
+                >
+                  <Skeleton width="60%" height={17} />
+                  <Skeleton width="35%" height={13} />
+                  <Skeleton width="45%" height={12} />
+                </div>
               </div>
             )}
-            {!loading && !currentPick && (
+            {!loading && error && (
+              <div style={{ color: MUTED, fontStyle: "italic", fontSize: 14 }}>
+                Couldn't load the current pick — try refreshing.
+              </div>
+            )}
+            {!loading && !error && !currentPick && (
               <div style={{ color: MUTED, fontStyle: "italic", fontSize: 14 }}>
                 {books.length === 0
                   ? "Nothing on the shelf yet — check back soon."
