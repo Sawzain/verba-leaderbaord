@@ -100,6 +100,7 @@ export default function QuoteWallView({
   loading,
   error,
   allBooks = [],
+  bookOptions = [],
   bookFilter,
   setBookFilter,
   sourceFilter,
@@ -149,7 +150,6 @@ export default function QuoteWallView({
       return next;
     });
 
-  const books = [...new Set(quotes.map((q) => q.book_title).filter(Boolean))];
   // Only pin a featured quote on page 1, so it doesn't appear to duplicate
   // across pages as you paginate.
   const featured = page === 1 ? quotes.find((q) => q.is_featured) : null;
@@ -408,7 +408,7 @@ export default function QuoteWallView({
           marginBottom: 24,
         }}
       >
-        {books.length > 0 && (
+        {bookOptions.length > 0 && (
           <>
             <button
               onClick={() => setBookFilter("")}
@@ -416,7 +416,7 @@ export default function QuoteWallView({
             >
               All books
             </button>
-            {books.map((b) => (
+            {bookOptions.map((b) => (
               <button
                 key={b}
                 onClick={() => setBookFilter(b)}

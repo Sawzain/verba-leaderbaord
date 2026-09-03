@@ -18,6 +18,7 @@ export default function useQuotes(enabled = true) {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [bookOptions, setBookOptions] = useState([]);
 
   const fetchQuotes = useCallback(
     async (
@@ -78,6 +79,17 @@ export default function useQuotes(enabled = true) {
     fetchQuotes,
   ]);
 
+  // Distinct book-title list for the filter chips — fetched once, not
+  // derived from the paginated `quotes` array (which only ever holds the
+  // current page and would make chips appear/disappear as you paginate).
+  useEffect(() => {
+    if (!enabled) return;
+    fetch(`${API_BASE}/books`)
+      .then((res) => (res.ok ? res.json() : { books: [] }))
+      .then((data) => setBookOptions(data.books ?? []))
+      .catch(() => setBookOptions([]));
+  }, [enabled]);
+
   const goToPage = (targetPage) =>
     fetchQuotes(
       bookFilter,
@@ -134,6 +146,7 @@ export default function useQuotes(enabled = true) {
     quotes,
     loading,
     error,
+    bookOptions,
     bookFilter,
     setBookFilter,
     sourceFilter,

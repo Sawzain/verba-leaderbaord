@@ -83,6 +83,37 @@ router.get("/", async (req, res) => {
   res.json({ quotes: data, total: count });
 });
 
+// GET /api/quotes/books — distinct list of book titles that have at least
+// one approved quote, independent of pagination/filters. Powers the Verba
+// Wall's book-filter chips, which previously derived their options from
+// whatever 15 quotes happened to be on the current page — breaking as soon
+// as you paginated or applied any filter.
+router.get("/books", async (req, res) => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return res
+      .status(503)
+      .json({ error: "Quotes are not configured on this server yet." });
+  }
+
+  const { data, error } = await supabase
+    .from("quotes")
+    .select("book_title")
+    .eq("is_approved", true)
+    .not("book_title", "is", null);
+
+  if (error) {
+    console.error("[quotes route] books list error:", error.message);
+    return res.status(500).json({ error: "Failed to fetch book list" });
+  }
+
+  const books = [...new Set(data.map((r) => r.book_title))].sort((a, b) =>
+    a.localeCompare(b),
+  );
+
+  res.json({ books });
+});
+
 // PATCH: admin-only toggle for the "favorite" flag (curated highlights,
 // not to be confused with is_featured which drives the sidebar's old
 // single-quote spotlight).
