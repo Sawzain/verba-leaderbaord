@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { API_ROOT } from "./useMembers";
 
 const API_BASE = `${API_ROOT}/members`;
@@ -50,8 +50,21 @@ export default function useLeaderboard(enabled = true) {
   }, []);
 
   useEffect(() => {
-    if (enabled && !hasLoaded) loadPage(1);
-  }, [enabled, hasLoaded, loadPage]);
+    if (enabled && !hasLoaded) loadPage(1, search);
+  }, [enabled, hasLoaded, loadPage, search]);
+
+  // Debounced re-fetch, reset to page 1, whenever the search text changes
+  // (after the initial load) — same 350ms pattern as useQuotes.js.
+  const debounceRef = useRef(null);
+  useEffect(() => {
+    if (!enabled || !hasLoaded) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      loadPage(1, search);
+    }, 350);
+    return () => clearTimeout(debounceRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   return {
     members,
@@ -60,6 +73,8 @@ export default function useLeaderboard(enabled = true) {
     page,
     totalPages,
     total,
-    goToPage: loadPage,
+    search,
+    setSearch,
+    goToPage: (targetPage) => loadPage(targetPage, search),
   };
 }

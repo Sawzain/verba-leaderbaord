@@ -9,7 +9,10 @@ const Review = require("../models/Review");
 const GENRES = require("../config/genres");
 const logger = require("../utils/logger");
 const validate = require("../middleware/validate");
-const { addMemberSchema, updateMemberSchema } = require("../schemas/memberSchemas");
+const {
+  addMemberSchema,
+  updateMemberSchema,
+} = require("../schemas/memberSchemas");
 
 const router = express.Router();
 
@@ -29,7 +32,8 @@ const router = express.Router();
 //   reduction over the legacy path, which ran that aggregate for
 //   everyone on every request.
 router.get("/", async (req, res) => {
-  const paginated = req.query.page !== undefined || req.query.limit !== undefined;
+  const paginated =
+    req.query.page !== undefined || req.query.limit !== undefined;
 
   try {
     if (!paginated) {
@@ -66,9 +70,13 @@ router.get("/", async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 10));
     const skip = (page - 1) * limit;
+    const search = (req.query.search || "").trim();
 
     // Lightweight full-roster query, just for computing rank and total —
     // ties share a rank, mirroring the leaderboard's existing tie logic.
+    // Rank is always computed against the FULL unfiltered roster, even
+    // when searching, so a member's number stays their true leaderboard
+    // rank rather than re-numbering within just the search results.
     const allSorted = await Score.find({}, "username score")
       .sort({ score: -1, username: 1 })
       .lean();
@@ -84,7 +92,13 @@ router.get("/", async (req, res) => {
       rankById.set(String(s._id), rank);
     });
 
-    const pageIds = allSorted.slice(skip, skip + limit).map((s) => s._id);
+    const matching = search
+      ? allSorted.filter((s) =>
+          s.username.toLowerCase().includes(search.toLowerCase()),
+        )
+      : allSorted;
+
+    const pageIds = matching.slice(skip, skip + limit).map((s) => s._id);
     const pageScores = await Score.find({ _id: { $in: pageIds } });
     // $in doesn't preserve order, so re-sort to match the ranked order.
     const scoreById = new Map(pageScores.map((s) => [String(s._id), s]));
@@ -119,9 +133,9 @@ router.get("/", async (req, res) => {
 
     res.json({
       members: enriched,
-      total: allSorted.length,
+      total: matching.length,
       page,
-      totalPages: Math.max(1, Math.ceil(allSorted.length / limit)),
+      totalPages: Math.max(1, Math.ceil(matching.length / limit)),
     });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch data" });
@@ -229,42 +243,47 @@ router.get("/stats", async (req, res) => {
   res.json({ booksRead: distinctBooks.length });
 });
 // PUT: Update score (and optionally name) by id
-router.put("/:id", requireApiKey, validate(updateMemberSchema), async (req, res) => {
-  try {
-    const current = await Score.findById(req.params.id);
-    if (!current) {
-      return res.status(404).json({ error: "Member not found" });
-    }
-
-    const update = {};
-    if (req.body.score !== undefined) update.score = req.body.score;
-    if (req.body.username !== undefined) update.username = req.body.username;
-
-    // If this update is lowering the score (the "−" button), also remove
-    // the most recent book_read activity entry, so the "already read"
-    // block on the + button clears in sync with the point being undone.
-    if (
-      req.body.score !== undefined &&
-      Number(req.body.score) < current.score
-    ) {
-      const lastRead = await ActivityLog.findOne({
-        scoreId: current._id,
-        type: "book_read",
-      }).sort({ createdAt: -1 });
-      if (lastRead) {
-        await ActivityLog.deleteOne({ _id: lastRead._id });
+router.put(
+  "/:id",
+  requireApiKey,
+  validate(updateMemberSchema),
+  async (req, res) => {
+    try {
+      const current = await Score.findById(req.params.id);
+      if (!current) {
+        return res.status(404).json({ error: "Member not found" });
       }
+
+      const update = {};
+      if (req.body.score !== undefined) update.score = req.body.score;
+      if (req.body.username !== undefined) update.username = req.body.username;
+
+      // If this update is lowering the score (the "−" button), also remove
+      // the most recent book_read activity entry, so the "already read"
+      // block on the + button clears in sync with the point being undone.
+      if (
+        req.body.score !== undefined &&
+        Number(req.body.score) < current.score
+      ) {
+        const lastRead = await ActivityLog.findOne({
+          scoreId: current._id,
+          type: "book_read",
+        }).sort({ createdAt: -1 });
+        if (lastRead) {
+          await ActivityLog.deleteOne({ _id: lastRead._id });
+        }
+      }
+
+      const updated = await Score.findByIdAndUpdate(req.params.id, update, {
+        new: true,
+      });
+
+      res.json(updated);
+    } catch (err) {
+      res.status(400).json({ error: "Invalid member id" });
     }
-
-    const updated = await Score.findByIdAndUpdate(req.params.id, update, {
-      new: true,
-    });
-
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: "Invalid member id" });
-  }
-});
+  },
+);
 
 // GET: a single member's public profile. If they've linked a Discord
 // account, also include their bio, favorite genres, and reviews — those

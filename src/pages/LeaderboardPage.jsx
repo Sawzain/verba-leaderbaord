@@ -22,6 +22,8 @@ export default function LeaderboardPage() {
           loading={leaderboard.loading}
           totalBooksRead={activityState.booksRead}
           totalQuotes={quotesState.total}
+          search={leaderboard.search}
+          setSearch={leaderboard.setSearch}
         />
       }
       sidebar={

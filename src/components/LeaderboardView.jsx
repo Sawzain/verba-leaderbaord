@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   SAGE,
   SAGE_DARK,
@@ -28,9 +28,10 @@ export default function LeaderboardView({
   loading,
   totalBooksRead = 0,
   totalQuotes = 0,
+  search,
+  setSearch,
 }) {
-  const [search, setSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(search.trim() !== "");
   const showSlowHint = useSlowLoadHint(loading);
 
   const [previewId, setPreviewId] = useState(null);
@@ -44,15 +45,6 @@ export default function LeaderboardView({
       })
       .catch(() => {});
   };
-
-  // Search only filters the currently loaded page, not the whole
-  // leaderboard, so Prev/Next is hidden while searching — same
-  // convention as BooksView's book grid.
-  const pageItems = useMemo(() => {
-    if (!search.trim()) return members;
-    const q = search.trim().toLowerCase();
-    return members.filter((m) => m.name.toLowerCase().includes(q));
-  }, [members, search]);
 
   return (
     <div
@@ -198,12 +190,12 @@ export default function LeaderboardView({
         <EmptyState message="No members yet. Add some in Manage!" />
       )}
 
-      {!loading && members.length > 0 && pageItems.length === 0 && (
+      {!loading && total > 0 && members.length === 0 && search.trim() && (
         <EmptyState message={`No readers match "${search}".`} />
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {pageItems.map((member, i) => {
+        {members.map((member, i) => {
           const displayRank = member.rank;
           const isFirstPlace = displayRank === 1;
 
@@ -302,9 +294,7 @@ export default function LeaderboardView({
         })}
       </div>
 
-      {!search.trim() && (
-        <Pagination page={page} totalPages={totalPages} goToPage={goToPage} />
-      )}
+      <Pagination page={page} totalPages={totalPages} goToPage={goToPage} />
     </div>
   );
 }
