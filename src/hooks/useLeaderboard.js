@@ -17,11 +17,17 @@ export default function useLeaderboard(enabled = true) {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState("");
 
-  const loadPage = useCallback((targetPage = 1) => {
+  const loadPage = useCallback((targetPage = 1, searchText = "") => {
     setLoading(true);
     setError(null);
-    return fetch(`${API_BASE}?page=${targetPage}&limit=${PAGE_SIZE}`)
+    const params = new URLSearchParams({
+      page: targetPage,
+      limit: PAGE_SIZE,
+    });
+    if (searchText.trim()) params.set("search", searchText.trim());
+    return fetch(`${API_BASE}?${params.toString()}`)
       .then((res) => {
         if (!res.ok) throw new Error("Server responded with an error");
         return res.json();
