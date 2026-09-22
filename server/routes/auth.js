@@ -338,8 +338,12 @@ router.get("/discord/callback", async (req, res) => {
         redirect_uri: DISCORD_REDIRECT_URI,
       }),
     });
-    if (!tokenRes.ok) throw new Error("Discord token exchange failed");
     const tokenBody = await tokenRes.json();
+    if (!tokenRes.ok) {
+      throw new Error(
+        `Discord token exchange failed: ${tokenRes.status} ${JSON.stringify(tokenBody)}`,
+      );
+    }
 
     const profileRes = await fetch("https://discord.com/api/users/@me", {
       headers: { Authorization: `Bearer ${tokenBody.access_token}` },
