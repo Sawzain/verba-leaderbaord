@@ -18,6 +18,13 @@ const isProd = process.env.NODE_ENV === "production";
 const baseCookieOptions = {
   secure: isProd,
   sameSite: isProd ? "none" : "lax",
+  // Partitioned (CHIPS) lets a cross-site cookie work even when the
+  // browser blocks third-party cookies outright — Brave blocks them by
+  // default and has no exception without this flag; Firefox's Total
+  // Cookie Protection merely partitions instead of rejecting, which is
+  // why this was only ever visible in Brave. Only meaningful alongside
+  // Secure + SameSite=None, so gate it on isProd the same way.
+  partitioned: isProd,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, matches the JWT's own expiry
   path: "/",
 };
