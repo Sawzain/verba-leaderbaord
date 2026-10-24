@@ -68,6 +68,7 @@ export default async function handler(req, res) {
       { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } },
     );
     if (memberRes.status === 404) {
+      console.log("Blocked login: not in server", profile.id);
       res.writeHead(302, { Location: "/?authError=not_in_server" });
       return res.end();
     }
