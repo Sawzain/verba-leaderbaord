@@ -341,6 +341,7 @@ router.get("/discord/callback", async (req, res) => {
     const tokenBody = await tokenRes.json();
     if (!tokenRes.ok) {
       if (tokenRes.status === 429) {
+        console.warn("Discord token exchange rate limited (429)", JSON.stringify(tokenBody));
         return res.redirect(`${FRONTEND_REDIRECT}?authError=discord_rate_limited`);
       }
       throw new Error(
