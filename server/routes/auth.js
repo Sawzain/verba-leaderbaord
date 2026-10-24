@@ -407,6 +407,7 @@ router.get("/discord/callback", async (req, res) => {
     // No ?token= in the URL — this code is short-lived and single-use,
     // and on its own grants nothing without being redeemed at
     // /discord/exchange within the next 60 seconds.
+    console.log("Discord callback OK for user", String(user._id));
     res.redirect(`${FRONTEND_REDIRECT}?discordExchange=${exchangeCode}`);
   } catch (err) {
     logger.error(`Discord auth failed: ${err.message}`);
@@ -421,6 +422,7 @@ router.get("/discord/callback", async (req, res) => {
 router.post("/discord/exchange", (req, res) => {
   pruneExpiredExchanges();
   const code = req.body?.code;
+  console.log("Discord exchange called, code present:", Boolean(code), "known:", pendingDiscordExchanges.has(code));
   const entry = code ? pendingDiscordExchanges.get(code) : null;
   if (!entry) {
     return res.status(400).json({
