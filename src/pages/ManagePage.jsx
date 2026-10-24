@@ -5,7 +5,7 @@ export default function ManagePage() {
   const { auth, membersState, booksState, unlinkedUsersState } = useOutletContext();
   const {
     members, filteredMembers, search, setSearch, loading, error, setError,
-    savingId, newName, setNewName, newPoints, setNewPoints,
+    savingId, newName, setNewName, newDiscordId, setNewDiscordId, newPoints, setNewPoints,
     editingIndex, setEditingIndex, editPoints, setEditPoints,
     addMember, removeMember, adjustPoints, startEdit, saveEdit,
     markRead, linkAccount,
@@ -27,6 +27,8 @@ export default function ManagePage() {
       setError={setError}
       savingId={savingId}
       newName={newName}
+      newDiscordId={newDiscordId}
+      setNewDiscordId={setNewDiscordId}
       setNewName={setNewName}
       newPoints={newPoints}
       setNewPoints={setNewPoints}

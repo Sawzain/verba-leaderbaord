@@ -205,6 +205,8 @@ export default function ManageView({
   savingId,
   newName,
   setNewName,
+  newDiscordId,
+  setNewDiscordId,
   newPoints,
   setNewPoints,
   addMember,
@@ -312,6 +314,15 @@ export default function ManageView({
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addMember()}
             placeholder="Name"
+            style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
+          />
+
+          <input
+            value={newDiscordId}
+            onChange={(e) => setNewDiscordId(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addMember()}
+            placeholder="Discord ID (optional)"
+            title="The member's Discord user ID. Lets them be linked automatically when they log in."
             style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
           />
 

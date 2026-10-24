@@ -23,6 +23,9 @@ export default function useMembers(token, enabled = true) {
   const [search, setSearch] = useState("");
 
   const [newName, setNewName] = useState("");
+  // Optional Discord user ID (the long number). When set, that person is
+  // linked automatically on their first login.
+  const [newDiscordId, setNewDiscordId] = useState("");
   // Starting score for a brand-new member — mainly useful when migrating
   // someone who already has books read elsewhere (e.g. a legacy sheet)
   // rather than everyone starting at 0. Kept as a string in state so the
@@ -105,6 +108,7 @@ export default function useMembers(token, enabled = true) {
         body: JSON.stringify({
           username: newName.trim(),
           score: startingScore,
+          discordId: newDiscordId.trim(),
         }),
       });
 
@@ -147,6 +151,7 @@ export default function useMembers(token, enabled = true) {
         { name: saved.username, points: finalScore, _id: saved._id },
       ]);
       setNewName("");
+      setNewDiscordId("");
       setNewPoints("");
       setError(null);
     });
@@ -358,6 +363,8 @@ export default function useMembers(token, enabled = true) {
     savingId,
     newName,
     setNewName,
+    newDiscordId,
+    setNewDiscordId,
     newPoints,
     setNewPoints,
     editingIndex,
