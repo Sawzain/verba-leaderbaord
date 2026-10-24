@@ -48,8 +48,9 @@ also get a bio, favorite genre tags, and their reviews — each review links
 to that book's page. Members who haven't linked Discord see a stats-only
 view with a prompt to connect.
 
-**Book reviews** — members create an account (email/password or "Continue
-with Discord"), then rate and review books on the shelf. One review per
+**Book reviews** — members log in with Discord (email/password accounts
+exist behind a feature flag that is off by default — see "Email login"
+below), then rate and review books on the shelf. One review per
 member per book. Admins can add books with a cover image, remove books,
 and mark one book as the "current pick" shown on the public landing page.
 Each book has its own page at `/app/reviews/:bookId`, linked from the
@@ -94,8 +95,12 @@ admin-only routes (useful for scripts or before you've granted anyone the
   in production.
 - **Passwords** — hashed with bcrypt (`bcryptjs`) before being stored;
   plaintext passwords are never persisted.
-- **Login tokens (JWT)** — signed with `JWT_SECRET` on login/register and
-  expire after 7 days. `requireAuth` (any logged-in member) and
+- **Login tokens (JWT)** — signed with `JWT_SECRET` on login and expire
+  after 7 days. The token lives in an httpOnly session cookie that is
+  re-issued on every `/api/auth/me` call, so active members stay logged
+  in. In production the cookies are `SameSite=None; Secure; Partitioned`,
+  because the frontend (Vercel) and the API (Render) are on different
+  sites. `requireAuth` (any logged-in member) and
   `requireAdminAccount` (must have `isAdmin: true`) are separate middleware
   in `middleware/auth.js`, composed per-route depending on what a route
   needs.
@@ -103,8 +108,18 @@ admin-only routes (useful for scripts or before you've granted anyone the
   15 minutes per IP (`middleware/rateLimiters.js`), to slow down
   brute-force attempts without needing a captcha. `app.set("trust proxy", 1)`
   is set so this keys off the real client IP on Render, not the proxy's.
-- **Compression** — gzip compression is applied to all responses via the
-  `compression` middleware.
+- **CSRF protection** — double-submit token (`middleware/csrf.js`). On
+  login the server sets a non-httpOnly `verba_csrf` cookie and also
+  returns the same token in the JSON of `/api/auth/me`, `/login` and
+  `/register`. Because the frontend and API are on different sites, the
+  frontend can't read the API's cookie, so it keeps the token from the
+  JSON in memory (`src/utils/apiFetch.js`) and sends it as `X-CSRF-Token`
+  on every non-GET request. Requests with a session cookie but no
+  matching header get a 403. The Discord exchange and complete routes are
+  exempt (they're protected by a single-use code and a shared secret).
+- **Compression** — responses are compressed (gzip or Brotli, depending on
+  what the browser supports) via the `compression` middleware, which keeps
+  JSON payloads small.
 
 ## Layout
 
@@ -166,46 +181,108 @@ verba-bot repo, not here.
 
 ## Email verification (optional)
 
-New accounts get a verification email via Resend. Leaving `RESEND_API_KEY`
+When email login is enabled, new accounts get a verification email via
+Resend. Leaving `RESEND_API_KEY`
 unset just logs the verification link to the server console instead of
 emailing it — fine for local dev. Enforcement is off by default
 (`REQUIRE_EMAIL_VERIFICATION=false`); members can review without verifying
 until you turn it on.
 
-## Discord login (optional)
+## Discord login
 
-Members can log in with Discord instead of an email/password account. To
-enable it:
+Discord is the primary way to log in. In production the OAuth flow runs
+through two Vercel serverless functions instead of the Express API,
+because Discord rate-limited (IP-banned) the token exchange when it came
+from Render's shared outbound IP.
+
+How it works:
+
+1. **"Continue with Discord"** goes to `api/discord-login.mjs` on Vercel.
+   It creates a random `state` value, stores it in a short-lived
+   `verba_oauth_state` cookie on the Vercel domain, and redirects to
+   Discord.
+2. **Discord** sends the member back to `api/discord-callback.mjs` with a
+   `code` and the same `state`. The function rejects the request unless
+   the state matches the cookie (login CSRF protection), then exchanges
+   the code for a token and fetches the Discord profile.
+3. The function POSTs the profile to Render at
+   `/api/auth/discord/complete`, authenticated with the
+   `x-bridge-secret` header. Render creates or links the user (an
+   existing account is linked by email only when Discord reports that
+   email as verified), links their Score, and returns a single-use
+   exchange code.
+4. The member is redirected to `/?discordExchange=<code>`. The frontend
+   POSTs the code to `/api/auth/discord/exchange`, which sets the session
+   cookies from a fetch made by the frontend (the right cookie partition
+   for browsers with strict storage partitioning), then calls `/me`.
+
+Setup:
 
 1. Create an app at the [Discord Developer Portal](https://discord.com/developers/applications).
-2. Under OAuth2, add a redirect URL matching `DISCORD_REDIRECT_URI` in your
-   `.env` (e.g. `http://localhost:5000/api/auth/discord/callback` locally,
-   or `https://your-api.onrender.com/api/auth/discord/callback` in prod).
-3. Copy the Client ID and Client Secret into `DISCORD_CLIENT_ID` and
-   `DISCORD_CLIENT_SECRET`.
+2. Under OAuth2 -> Redirects, add
+   `https://verba-leaderboard.vercel.app/api/discord-callback`. This must
+   be exactly the value of `DISCORD_REDIRECT_URI` on both Vercel and
+   Render.
+3. Set these environment variables:
+   - **Vercel:** `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`,
+     `DISCORD_REDIRECT_URI`, `DISCORD_BRIDGE_SECRET`, `BACKEND_URL`.
+   - **Render:** `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`,
+     `DISCORD_REDIRECT_URI`, `DISCORD_BRIDGE_SECRET` (must equal
+     Vercel's), `FRONTEND_ORIGIN` (the Vercel URL, no trailing slash),
+     `NODE_ENV=production`.
 
-Leaving these unset just disables the "Continue with Discord" button —
-email/password login keeps working either way.
+Notes:
+
+- Vercel env var changes only apply to new deployments, so redeploy after
+  changing them.
+- Pending exchange codes live in an in-memory `Map` on the API, so this
+  only works with a single Render instance. Move them to Mongo or Redis
+  before scaling out.
+- Locally, Vite doesn't run Vercel functions. In dev the login button
+  uses the Express routes (`/api/auth/discord` and
+  `/api/auth/discord/callback`, with `DISCORD_REDIRECT_URI` set to
+  `http://localhost:5000/api/auth/discord/callback`), which don't check
+  `state`.
+- A failed login redirects to `/?authError=discord`, or
+  `/?authError=discord_rate_limited` if Discord returns a 429.
+
+## Email login (off by default)
+
+Email/password accounts are switched off. The server returns 403 on
+`/api/auth/register`, `/login`, `/forgot-password` and `/reset-password`,
+and the login panel shows only the Discord button. Existing email
+accounts can't log in while it's off, but Discord login links to an
+existing account when the verified Discord email matches.
+
+To turn it back on, set both flags:
+
+- `EMAIL_AUTH_ENABLED=true` on the server (Render, or `.env` locally).
+- `VITE_EMAIL_AUTH_ENABLED=true` for the frontend (Vercel, or `.env`
+  locally). This is read at build time, so redeploy Vercel after
+  changing it.
 
 ## Project structure
 
-src/ React frontend (Vite)
-hooks/ data-fetching hooks (useAuth, useMembers, useBooks, useQuotes)
-components/ presentational components, incl. TwoColumnLayout (shared
-wide-page shell) and its four sidebar cards — RecentActivityPreview,
-CurrentPickPreview, VerbaWallPreview, ReaderIndexPreview — see "Layout"
-above
-pages/ route-level components (..., QuotesPage — "Verba Wall" tab)
+```
+api/              Vercel serverless functions (discord-login, discord-callback)
+src/              React frontend (Vite)
+  hooks/          data-fetching hooks (useAuth, useMembers, useBooks, useQuotes)
+  components/     presentational components, incl. TwoColumnLayout (shared
+                  wide-page shell) and its four sidebar cards —
+                  RecentActivityPreview, CurrentPickPreview, VerbaWallPreview,
+                  ReaderIndexPreview — see "Layout" above
+  pages/          route-level components (..., QuotesPage — "Verba Wall" tab)
 
 server/
-app.js Express app: middleware + route mounting (no listen())
-server.js startup: env checks, DB connect, listen()
-routes/ one file per resource (members, auth, admin, books, reviews, quotes)
-middleware/ auth, admin-key, rate limiting
-config/ env constants (incl. Supabase), Cloudinary, Resend
-utils/ tokens, review-points logic
-models/ Mongoose schemas (Verba Wall content lives in Supabase, not here)
-tests/ Jest + Supertest, run against an in-memory MongoDB
+  app.js          Express app: middleware + route mounting (no listen())
+  server.js       startup: env checks, DB connect, listen()
+  routes/         one file per resource (members, auth, admin, books, reviews, quotes)
+  middleware/     auth, admin-key, rate limiting
+  config/         env constants (incl. Supabase), Cloudinary, Resend
+  utils/          tokens, review-points logic
+  models/         Mongoose schemas (Verba Wall content lives in Supabase, not here)
+  tests/          Jest + Supertest, run against an in-memory MongoDB
+```
 
 ## Tests
 
@@ -219,6 +296,11 @@ plus a frontend build on every push and PR. The `quotes` route's Supabase
 client is constructed lazily (only on first request, not at import time),
 so tests run fine even without `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`
 set.
+
+The test setup file (`server/test-utils/setupEnv.js`) turns
+`EMAIL_AUTH_ENABLED` on so the email login tests can run, and
+`emailAuthDisabled.test.js` checks that those routes return 403 when the
+flag is off.
 
 ## Building for production
 
