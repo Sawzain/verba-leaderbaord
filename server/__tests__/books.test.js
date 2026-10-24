@@ -5,7 +5,7 @@ const db = require("../test-utils/testDb");
 const Book = require("../models/Book");
 const Review = require("../models/Review");
 const User = require("../models/User");
-const Score = require("../Score");
+const Score = require("../models/Score");
 
 function getCsrfToken(res) {
   const cookies = res.headers["set-cookie"] || [];

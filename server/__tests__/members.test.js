@@ -2,7 +2,7 @@ const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../app");
 const db = require("../test-utils/testDb");
-const Score = require("../Score");
+const Score = require("../models/Score");
 
 beforeAll(() => db.connect());
 afterEach(() => db.clear());

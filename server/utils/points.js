@@ -1,4 +1,4 @@
-const Score = require("../Score");
+const Score = require("../models/Score");
 const { REVIEW_POINTS, AUTO_AWARD_REVIEW_POINTS } = require("../config/env");
 
 // ===================== Leaderboard points for reviews =====================

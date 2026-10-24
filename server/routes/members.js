@@ -1,5 +1,5 @@
 const express = require("express");
-const Score = require("../Score");
+const Score = require("../models/Score");
 const requireApiKey = require("../middleware/apiKey");
 const requireAuth = require("../middleware/requireAuth");
 const ActivityLog = require("../models/ActivityLog");
