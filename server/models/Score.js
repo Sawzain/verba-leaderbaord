@@ -9,6 +9,10 @@ const scoreSchema = new mongoose.Schema({
     sparse: true,
     unique: true,
   },
+  // Discord user ID, set by an admin when adding the member. Login links
+  // an account to this entry only when the IDs match. select:false keeps
+  // it out of the public leaderboard responses.
+  discordId: { type: String, trim: true, sparse: true, unique: true, select: false },
   date: { type: Date, default: Date.now },
 });
 

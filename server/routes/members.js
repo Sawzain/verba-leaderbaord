@@ -144,7 +144,7 @@ router.get("/", async (req, res) => {
 
 // POST: Add a new member
 router.post("/", requireApiKey, validate(addMemberSchema), async (req, res) => {
-  const { username, score } = req.body;
+  const { username, score, discordId } = req.body;
 
   try {
     // Case-insensitive duplicate check — leaderboard names are added
@@ -160,10 +160,19 @@ router.post("/", requireApiKey, validate(addMemberSchema), async (req, res) => {
         .json({ error: `"${username}" is already on the leaderboard` });
     }
 
-    const newEntry = new Score({ username, score });
+    const newEntry = new Score({
+      username,
+      score,
+      ...(discordId ? { discordId } : {}),
+    });
     await newEntry.save();
     res.json(newEntry);
   } catch (err) {
+    if (err.code === 11000 && err.keyPattern?.discordId) {
+      return res
+        .status(409)
+        .json({ error: "That Discord ID is already on the leaderboard" });
+    }
     logger.error("POST /api/members failed", err);
     res.status(500).json({ error: "Failed to add entry" });
   }

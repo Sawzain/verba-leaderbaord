@@ -2,9 +2,21 @@ const { z } = require("zod");
 
 // .catch(0) mirrors the original `Number(req.body.score) || 0` — any
 // missing or non-numeric value falls back to 0 instead of rejecting.
+// Optional. Blank is treated as "not provided"; otherwise it must be the
+// long numeric Discord user ID.
+const discordIdField = z.preprocess(
+  (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+  z
+    .string()
+    .trim()
+    .regex(/^\d{15,25}$/, "Discord ID should be the long number (15-25 digits)")
+    .optional(),
+);
+
 const addMemberSchema = z.object({
   username: z.string().trim().min(1, "Name is required"),
   score: z.coerce.number().catch(0),
+  discordId: discordIdField,
 });
 
 // Both fields optional (PUT can update either independently, or neither
