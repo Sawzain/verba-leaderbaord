@@ -66,7 +66,9 @@ export default function useAuth() {
       setAuthError(
         discordError === "discord_rate_limited"
           ? "Discord is busy right now. Please try again in a few minutes."
-          : "Discord login didn't work. Please try again.",
+          : discordError === "not_in_server"
+            ? "You need to join our Discord server before you can log in: YOUR_INVITE_LINK"
+            : "Discord login didn't work. Please try again.",
       );
       stripParams(["authError"]);
       return;
