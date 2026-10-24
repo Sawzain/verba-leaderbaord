@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { API_ROOT } from "./useMembers";
-import apiFetch from "../utils/apiFetch";
+import apiFetch, { setCsrfToken } from "../utils/apiFetch";
 
 // Real member accounts (name + email + password, or Discord). Admin
 // access is just an isAdmin flag on one of these accounts. The session
@@ -32,7 +32,10 @@ export default function useAuth() {
   const checkSession = useCallback(() => {
     return apiFetch(`${API_ROOT}/auth/me`)
       .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then(applyUser)
+      .then((me) => {
+        if (me.csrfToken) setCsrfToken(me.csrfToken);
+        applyUser(me);
+      })
       .catch(() => setUser(null))
       .finally(() => setAuthReady(true));
   }, []);
@@ -106,6 +109,7 @@ export default function useAuth() {
       });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.error || "Something went wrong");
+      if (body.csrfToken) setCsrfToken(body.csrfToken);
       applyUser(body.user);
       return true;
     } catch (err) {
@@ -130,6 +134,7 @@ export default function useAuth() {
       // Non-fatal — clear local state regardless of whether the request
       // reached the server.
     }
+    setCsrfToken(null);
     setUser(null);
   };
 

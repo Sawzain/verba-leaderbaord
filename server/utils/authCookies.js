@@ -33,10 +33,12 @@ function setAuthCookies(res, token) {
   res.cookie(COOKIE_NAME, token, { ...baseCookieOptions, httpOnly: true });
   // Deliberately NOT httpOnly — the frontend needs to read this value to
   // echo it back as the X-CSRF-Token header (see csrf.js).
-  res.cookie(CSRF_COOKIE_NAME, crypto.randomBytes(24).toString("hex"), {
+  const csrfToken = crypto.randomBytes(24).toString("hex");
+  res.cookie(CSRF_COOKIE_NAME, csrfToken, {
     ...baseCookieOptions,
     httpOnly: false,
   });
+  return csrfToken;
 }
 
 function clearAuthCookies(res) {

@@ -79,8 +79,9 @@ router.post("/register", authLimiter, validate(registerSchema), async (req, res)
 
     sendVerificationEmail(user, verificationToken).catch(() => {});
 
-    setAuthCookies(res, signToken(user));
+    const csrfToken = setAuthCookies(res, signToken(user));
     res.json({
+      csrfToken,
       user: {
         id: user._id,
         name: user.name,
@@ -109,8 +110,9 @@ router.post("/login", authLimiter, async (req, res) => {
     if (!match)
       return res.status(401).json({ error: "Invalid email or password" });
 
-    setAuthCookies(res, signToken(user));
+    const csrfToken = setAuthCookies(res, signToken(user));
     res.json({
+      csrfToken,
       user: {
         id: user._id,
         name: user.name,
@@ -134,8 +136,9 @@ router.get("/me", requireAuth, async (req, res) => {
     // mid-use, while an abandoned/stolen session still dies within a
     // week of its last real use rather than lasting a full 7 days from
     // login regardless of activity.
-    setAuthCookies(res, signToken(user));
+    const csrfToken = setAuthCookies(res, signToken(user));
     res.json({
+      csrfToken,
       id: req.userId,
       name: req.userName,
       email: user?.email || "",
