@@ -1,7 +1,34 @@
 // Runs on Vercel so the Discord token exchange leaves from Vercel's IP,
 // not Render's (Render's shared IP is currently banned by Discord).
+import crypto from "node:crypto";
+
+// Constant-time comparison of the state cookie against the state Discord
+// echoed back in the query string.
+function statesMatch(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  if (!a || a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
 export default async function handler(req, res) {
   const code = req.query?.code;
+
+  // Login CSRF protection: the state must match the cookie set by
+  // /api/discord-login in this same browser. Checked before any call to
+  // Discord, and the cookie is cleared either way (single use).
+  const cookieState = (req.headers.cookie || "")
+    .split("; ")
+    .find((c) => c.startsWith("verba_oauth_state="))
+    ?.slice("verba_oauth_state=".length);
+  res.setHeader(
+    "Set-Cookie",
+    "verba_oauth_state=; Max-Age=0; Path=/api; HttpOnly; Secure; SameSite=Lax",
+  );
+  if (!statesMatch(cookieState, req.query?.state)) {
+    console.warn("Discord callback rejected: state missing or mismatched");
+    res.writeHead(302, { Location: "/?authError=discord" });
+    return res.end();
+  }
   if (!code) {
     res.writeHead(302, { Location: "/?authError=discord" });
     return res.end();

@@ -63,7 +63,11 @@ export default function useAuth() {
     };
 
     if (discordError) {
-      setAuthError("Discord login didn't work. Please try again.");
+      setAuthError(
+        discordError === "discord_rate_limited"
+          ? "Discord is busy right now. Please try again in a few minutes."
+          : "Discord login didn't work. Please try again.",
+      );
       stripParams(["authError"]);
       return;
     }
@@ -189,8 +193,11 @@ export default function useAuth() {
   // API_ROOT is "/api" in dev (proxied) or an absolute backend URL in prod.
   // Discord needs a real, absolute redirect target, so resolve "/api" against
   // the current page origin.
+  // In production, login starts on a Vercel function so the OAuth state
+  // cookie lives on the same domain as the callback. In dev there is no
+  // Vercel function, so the Express route (no state check) is used.
   const discordLoginUrl = new URL(
-    `${API_ROOT}/auth/discord`,
+    import.meta.env.PROD ? "/api/discord-login" : `${API_ROOT}/auth/discord`,
     window.location.href,
   ).toString();
 
