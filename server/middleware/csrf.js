@@ -26,8 +26,7 @@ function csrfProtection(req, res, next) {
   const urlPath = req.originalUrl.split("?")[0];
   if (
     urlPath === "/api/auth/discord/exchange" ||
-    urlPath === "/api/auth/discord/complete" ||
-    urlPath === "/api/auth/logout"
+    urlPath === "/api/auth/discord/complete"
   ) {
     return next();
   }
