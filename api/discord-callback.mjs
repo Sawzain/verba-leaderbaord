@@ -60,6 +60,21 @@ export default async function handler(req, res) {
     if (!profileRes.ok) throw new Error(`Profile fetch failed: ${profileRes.status}`);
     const profile = await profileRes.json();
 
+    // Membership gate: only people who are in the Discord server can
+    // log in. 404 means "not a member"; any other failure is treated as
+    // an error rather than letting the person through.
+    const memberRes = await fetch(
+      `https://discord.com/api/v10/guilds/${process.env.DISCORD_GUILD_ID}/members/${profile.id}`,
+      { headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` } },
+    );
+    if (memberRes.status === 404) {
+      res.writeHead(302, { Location: "/?authError=not_in_server" });
+      return res.end();
+    }
+    if (!memberRes.ok) {
+      throw new Error(`Guild member check failed: ${memberRes.status}`);
+    }
+
     const backendRes = await fetch(
       `${process.env.BACKEND_URL}/api/auth/discord/complete`,
       {
