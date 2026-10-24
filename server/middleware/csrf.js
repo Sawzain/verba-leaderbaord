@@ -21,6 +21,11 @@ const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 // nothing to protect.
 function csrfProtection(req, res, next) {
   if (SAFE_METHODS.has(req.method)) return next();
+  // The Discord exchange is protected by its own single-use, 60-second
+  // code, and runs before any CSRF cookie can exist on this origin.
+  if (req.originalUrl.split("?")[0] === "/api/auth/discord/exchange") {
+    return next();
+  }
   if (!req.cookies?.[COOKIE_NAME]) return next();
 
   const headerToken = req.headers["x-csrf-token"];
