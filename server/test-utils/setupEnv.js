@@ -4,3 +4,5 @@ process.env.JWT_SECRET = "test-jwt-secret";
 process.env.CLOUDINARY_URL = "cloudinary://key:secret@test-cloud";
 process.env.FRONTEND_ORIGIN = "http://localhost:5173";
 process.env.BACKEND_ORIGIN = "http://localhost:5000";
+
+process.env.EMAIL_AUTH_ENABLED = "true";
