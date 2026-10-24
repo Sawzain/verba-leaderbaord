@@ -388,7 +388,7 @@ router.get("/discord/callback", async (req, res) => {
       await Score.updateOne(
         {
           username: new RegExp(`^${escaped}$`, "i"),
-          userId: { $in: [null, undefined] },
+          userId: null,
         },
         { userId: user._id },
       );
@@ -406,7 +406,8 @@ router.get("/discord/callback", async (req, res) => {
     // /discord/exchange within the next 60 seconds.
     res.redirect(`${FRONTEND_REDIRECT}?discordExchange=${exchangeCode}`);
   } catch (err) {
-    logger.error("Discord auth failed", err);
+    logger.error(`Discord auth failed: ${err.message}`);
+    console.error("Discord auth failed:", err);
     res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
   }
 });
