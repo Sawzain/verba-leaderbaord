@@ -40,8 +40,9 @@ function setAuthCookies(res, token) {
 }
 
 function clearAuthCookies(res) {
-  res.clearCookie(COOKIE_NAME, { path: "/" });
-  res.clearCookie(CSRF_COOKIE_NAME, { path: "/" });
+  const { maxAge, ...clearOpts } = baseCookieOptions;
+  res.clearCookie(COOKIE_NAME, { ...clearOpts, httpOnly: true });
+  res.clearCookie(CSRF_COOKIE_NAME, { ...clearOpts, httpOnly: false });
 }
 
 module.exports = { setAuthCookies, clearAuthCookies };

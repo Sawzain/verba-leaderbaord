@@ -23,7 +23,12 @@ function csrfProtection(req, res, next) {
   if (SAFE_METHODS.has(req.method)) return next();
   // The Discord exchange is protected by its own single-use, 60-second
   // code, and runs before any CSRF cookie can exist on this origin.
-  if (req.originalUrl.split("?")[0] === "/api/auth/discord/exchange") {
+  const urlPath = req.originalUrl.split("?")[0];
+  if (
+    urlPath === "/api/auth/discord/exchange" ||
+    urlPath === "/api/auth/discord/complete" ||
+    urlPath === "/api/auth/logout"
+  ) {
     return next();
   }
   if (!req.cookies?.[COOKIE_NAME]) return next();
