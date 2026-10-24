@@ -25,6 +25,17 @@ const logger = require("../utils/logger");
 
 const router = express.Router();
 
+// Email/password accounts are switched off unless EMAIL_AUTH_ENABLED=true
+// is set on the server. Discord login, /me and logout are unaffected.
+const EMAIL_AUTH_ENABLED = process.env.EMAIL_AUTH_ENABLED === "true";
+
+function requireEmailAuth(req, res, next) {
+  if (EMAIL_AUTH_ENABLED) return next();
+  return res.status(403).json({
+    error: "Email login is turned off right now. Please continue with Discord.",
+  });
+}
+
 // In-memory store for short-lived, single-use Discord OAuth exchange
 // codes. Needed because of a real browser behavior, not a hypothetical:
 // Firefox's Total Cookie Protection (and similar per-site storage
@@ -57,7 +68,7 @@ function pruneExpiredExchanges() {
 // Separate from the admin x-api-key: this is a real login so a review is
 // always tied to one specific person, not just whatever name they typed.
 
-router.post("/register", authLimiter, validate(registerSchema), async (req, res) => {
+router.post("/register", requireEmailAuth, authLimiter, validate(registerSchema), async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -97,7 +108,7 @@ router.post("/register", authLimiter, validate(registerSchema), async (req, res)
   }
 });
 
-router.post("/login", authLimiter, async (req, res) => {
+router.post("/login", requireEmailAuth, authLimiter, async (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
   const password = req.body.password || "";
 
@@ -226,7 +237,7 @@ router.post(
 //   even the response time in a way that's easy to notice) would let an
 //   attacker enumerate registered emails one guess at a time.
 
-router.post("/forgot-password", authLimiter, async (req, res) => {
+router.post("/forgot-password", requireEmailAuth, authLimiter, async (req, res) => {
   const email = (req.body.email || "").trim().toLowerCase();
 
   const genericResponse = {
@@ -263,7 +274,7 @@ router.post("/forgot-password", authLimiter, async (req, res) => {
   res.json(genericResponse);
 });
 
-router.post("/reset-password", authLimiter, validate(resetPasswordSchema), async (req, res) => {
+router.post("/reset-password", requireEmailAuth, authLimiter, validate(resetPasswordSchema), async (req, res) => {
   const { token, password } = req.body;
 
   try {

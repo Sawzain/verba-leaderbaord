@@ -22,6 +22,10 @@ const inputStyle = {
   width: "100%",
 };
 
+// Email login is hidden unless VITE_EMAIL_AUTH_ENABLED=true is set at build
+// time. The server enforces the same switch (EMAIL_AUTH_ENABLED).
+const EMAIL_AUTH_ENABLED = import.meta.env.VITE_EMAIL_AUTH_ENABLED === "true";
+
 export default function AuthPanel({
   authError,
   setAuthError,
@@ -70,7 +74,7 @@ export default function AuthPanel({
     }
   };
 
-  if (mode === "forgot") {
+  if (EMAIL_AUTH_ENABLED && mode === "forgot") {
     return (
       <div
         style={{
@@ -167,6 +171,11 @@ export default function AuthPanel({
       >
         Continue with Discord
       </a>
+      {!EMAIL_AUTH_ENABLED && authError && (
+        <div style={{ fontSize: 13, color: DANGER }}>{authError}</div>
+      )}
+      {EMAIL_AUTH_ENABLED && (
+      <>
       <div
         style={{
           display: "flex",
@@ -317,6 +326,8 @@ export default function AuthPanel({
               : "Log in"}
         </button>
       </div>
+      </>
+      )}
     </div>
   );
 }
