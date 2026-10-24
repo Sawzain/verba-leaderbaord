@@ -69,11 +69,15 @@ const server = app.listen(PORT, () =>
 // serving current requests, then closes Mongo cleanly before exiting.
 function shutdown(signal) {
   console.log(`${signal} received, shutting down gracefully`);
-  server.close(() => {
-    mongoose.connection.close(false, () => {
+  server.close(async () => {
+    try {
+      await mongoose.connection.close();
       console.log("Closed out remaining connections");
       process.exit(0);
-    });
+    } catch (err) {
+      console.error("Error closing MongoDB connection", err);
+      process.exit(1);
+    }
   });
 
   // Force-exit if graceful shutdown takes too long (stuck connections, etc).

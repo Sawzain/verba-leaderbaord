@@ -340,6 +340,9 @@ router.get("/discord/callback", async (req, res) => {
     });
     const tokenBody = await tokenRes.json();
     if (!tokenRes.ok) {
+      if (tokenRes.status === 429) {
+        return res.redirect(`${FRONTEND_REDIRECT}?authError=discord_rate_limited`);
+      }
       throw new Error(
         `Discord token exchange failed: ${tokenRes.status} ${JSON.stringify(tokenBody)}`,
       );
