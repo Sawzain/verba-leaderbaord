@@ -417,6 +417,71 @@ router.get("/discord/callback", async (req, res) => {
   }
 });
 
+// POST: called server-to-server by the Vercel function (api/discord-callback.mjs)
+// after it has exchanged the Discord code and fetched the profile, so the
+// Discord API calls leave from Vercel's IP instead of Render's.
+router.post("/discord/complete", async (req, res) => {
+  const secret = process.env.DISCORD_BRIDGE_SECRET || "";
+  const sent = String(req.headers["x-bridge-secret"] || "");
+  const a = Buffer.from(sent);
+  const b = Buffer.from(secret);
+  if (!secret || a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const profile = req.body?.profile;
+    if (!profile || !profile.id) {
+      return res.status(400).json({ error: "Missing profile" });
+    }
+
+    const discordId = String(profile.id);
+    const name = profile.global_name || profile.username || "Discord member";
+    const email = profile.email ? String(profile.email).trim().toLowerCase() : "";
+    const avatarUrl = profile.avatar
+      ? `https://cdn.discordapp.com/avatars/${discordId}/${profile.avatar}.${
+          String(profile.avatar).startsWith("a_") ? "gif" : "png"
+        }`
+      : "";
+
+    let user = await User.findOne({ discordId });
+    if (!user && email && profile.verified === true) {
+      user = await User.findOne({ email });
+    }
+    if (!user) {
+      user = new User({ name, discordId, emailVerified: true, avatarUrl });
+      if (email) user.email = email;
+    } else {
+      user.discordId = discordId;
+      user.name = name;
+      user.emailVerified = true;
+      if (avatarUrl) user.avatarUrl = avatarUrl;
+    }
+    await user.save();
+
+    if (!(await Score.findOne({ userId: user._id }))) {
+      const escaped = user.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      await Score.updateOne(
+        { username: new RegExp(`^${escaped}$`, "i"), userId: null },
+        { userId: user._id },
+      );
+    }
+
+    const exchangeCode = crypto.randomBytes(24).toString("hex");
+    pruneExpiredExchanges();
+    pendingDiscordExchanges.set(exchangeCode, {
+      token: signToken(user),
+      expiresAt: Date.now() + EXCHANGE_CODE_TTL_MS,
+    });
+    console.log("Discord complete OK for user", String(user._id));
+    res.json({ code: exchangeCode });
+  } catch (err) {
+    logger.error(`Discord complete failed: ${err.message}`);
+    console.error("Discord complete failed:", err);
+    res.status(500).json({ error: "Couldn't complete Discord login" });
+  }
+});
+
 // POST: completes Discord login. See the comment on
 // pendingDiscordExchanges above for why this extra round-trip exists —
 // this is the fetch that actually sets a cookie the frontend can read.
