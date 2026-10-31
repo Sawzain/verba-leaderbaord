@@ -329,107 +329,6 @@ router.get("/discord", (req, res) => {
   res.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
 });
 
-router.get("/discord/callback", async (req, res) => {
-  if (!DISCORD_CONFIGURED) {
-    return res.redirect(
-      `${FRONTEND_REDIRECT}?authError=discord_not_configured`,
-    );
-  }
-  const code = req.query.code;
-  if (!code) {
-    return res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
-  }
-
-  try {
-    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        client_id: DISCORD_CLIENT_ID,
-        client_secret: DISCORD_CLIENT_SECRET,
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: DISCORD_REDIRECT_URI,
-      }),
-    });
-    const tokenBody = await tokenRes.json();
-    if (!tokenRes.ok) {
-      if (tokenRes.status === 429) {
-        console.warn("Discord token exchange rate limited (429)", JSON.stringify(tokenBody));
-        return res.redirect(`${FRONTEND_REDIRECT}?authError=discord_rate_limited`);
-      }
-      throw new Error(
-        `Discord token exchange failed: ${tokenRes.status} ${JSON.stringify(tokenBody)}`,
-      );
-    }
-
-    const profileRes = await fetch("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${tokenBody.access_token}` },
-    });
-    if (!profileRes.ok) throw new Error("Discord profile fetch failed");
-    const profile = await profileRes.json();
-
-    const discordId = profile.id;
-    const name = profile.global_name || profile.username || "Discord member";
-    const email = profile.email ? profile.email.trim().toLowerCase() : "";
-    // Discord's CDN needs the hash extension to differ for animated
-    // avatars (a_-prefixed hash = gif), otherwise a static png request
-    // for an animated avatar just 404s.
-    const avatarUrl = profile.avatar
-      ? `https://cdn.discordapp.com/avatars/${discordId}/${profile.avatar}.${
-          profile.avatar.startsWith("a_") ? "gif" : "png"
-        }`
-      : "";
-
-    let user = await User.findOne({ discordId });
-    if (!user && email) {
-      user = await User.findOne({ email });
-    }
-    if (!user) {
-      user = new User({ name, discordId, emailVerified: true, avatarUrl });
-      if (email) user.email = email;
-    } else {
-      user.discordId = discordId;
-      user.name = name;
-      user.emailVerified = true;
-      if (avatarUrl) user.avatarUrl = avatarUrl;
-    }
-    await user.save();
-
-    // Auto-link: if there's a leaderboard entry with this exact name (case-
-    // insensitive) that isn't linked to anyone yet, connect it to this
-    // account automatically — saves an admin from doing it by hand for the
-    // common case of an exact name match. Anything that doesn't match
-    // exactly still needs the manual "Link Discord account" flow in Manage.
-    if (!(await Score.findOne({ userId: user._id }))) {
-      const escaped = user.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      await Score.updateOne(
-        {
-          username: new RegExp(`^${escaped}$`, "i"),
-          userId: null,
-        },
-        { userId: user._id },
-      );
-    }
-
-    const jwtToken = signToken(user);
-    const exchangeCode = crypto.randomBytes(24).toString("hex");
-    pruneExpiredExchanges();
-    pendingDiscordExchanges.set(exchangeCode, {
-      token: jwtToken,
-      expiresAt: Date.now() + EXCHANGE_CODE_TTL_MS,
-    });
-    // No ?token= in the URL — this code is short-lived and single-use,
-    // and on its own grants nothing without being redeemed at
-    // /discord/exchange within the next 60 seconds.
-    console.log("Discord callback OK for user", String(user._id));
-    res.redirect(`${FRONTEND_REDIRECT}?discordExchange=${exchangeCode}`);
-  } catch (err) {
-    logger.error(`Discord auth failed: ${err.message}`);
-    console.error("Discord auth failed:", err);
-    res.redirect(`${FRONTEND_REDIRECT}?authError=discord`);
-  }
-});
 
 // POST: called server-to-server by the Vercel function (api/discord-callback.mjs)
 // after it has exchanged the Discord code and fetched the profile, so the
@@ -474,9 +373,8 @@ router.post("/discord/complete", async (req, res) => {
     await user.save();
 
     if (!(await Score.findOne({ userId: user._id }))) {
-      const escaped = user.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       await Score.updateOne(
-        { username: new RegExp(`^${escaped}$`, "i"), userId: null },
+        { discordId: String(user.discordId), userId: null },
         { userId: user._id },
       );
     }
