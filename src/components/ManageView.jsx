@@ -13,6 +13,7 @@ import {
   SAGE_TINT,
 } from "../theme";
 import MemberRow from "./MemberRow";
+import DiscordIdInput from "./DiscordIdInput";
 import { SkeletonManageRow } from "./Skeleton";
 import AdminPasswordReset from "./AdminPasswordReset";
 import AuthPanel from "./AuthPanel";
@@ -317,13 +318,12 @@ export default function ManageView({
             style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
           />
 
-          <input
+          <DiscordIdInput
             value={newDiscordId}
-            onChange={(e) => setNewDiscordId(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addMember()}
-            placeholder="Discord ID (optional)"
-            title="The member's Discord user ID. Lets them be linked automatically when they log in."
-            style={{ ...inputStyle, flex: "1 1 150px", minWidth: 0 }}
+            onChange={setNewDiscordId}
+            onEnter={() => addMember()}
+            nameHint={newName}
+            style={{ ...inputStyle, width: "100%", minWidth: 0 }}
           />
 
           <BookDropdown
