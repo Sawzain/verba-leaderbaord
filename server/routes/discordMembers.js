@@ -32,6 +32,13 @@ router.post("/sync", requireBotSecret, async (req, res) => {
           $set: {
             username: String(m.username || "").slice(0, 100),
             displayName: String(m.displayName || "").slice(0, 100),
+            roles: Array.isArray(m.roles)
+              ? m.roles.slice(0, 40).map((r) => ({
+                  id: String(r?.id || "").slice(0, 30),
+                  name: String(r?.name || "").slice(0, 60),
+                  color: /^#[0-9a-f]{6}$/i.test(r?.color) ? r.color : "",
+                }))
+              : [],
           },
         },
         upsert: true,

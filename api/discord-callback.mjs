@@ -75,6 +75,11 @@ export default async function handler(req, res) {
     if (!memberRes.ok) {
       throw new Error(`Guild member check failed: ${memberRes.status}`);
     }
+    const guildMember = await memberRes.json().catch(() => ({}));
+    const adminRoleId = process.env.DISCORD_ADMIN_ROLE_ID;
+    const isAdminRole = Boolean(
+      adminRoleId && guildMember.roles?.includes(adminRoleId),
+    );
 
     const backendRes = await fetch(
       `${process.env.BACKEND_URL}/api/auth/discord/complete`,
@@ -84,7 +89,7 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
           "x-bridge-secret": process.env.DISCORD_BRIDGE_SECRET,
         },
-        body: JSON.stringify({ profile }),
+        body: JSON.stringify({ profile, isAdminRole }),
       },
     );
     const backendBody = await backendRes.json().catch(() => ({}));
