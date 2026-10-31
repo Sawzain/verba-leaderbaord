@@ -24,14 +24,11 @@ export default function MemberRow({
   onAdjustPoints,
   onRemove,
   onMarkRead,
-  onLinkAccount,
   onSetDiscordId,
   books = [],
   currentPickId,
-  unlinkedUsers = [],
 }) {
   const [showBookPicker, setShowBookPicker] = useState(false);
-  const [showLinkPicker, setShowLinkPicker] = useState(false);
   const [showIdPicker, setShowIdPicker] = useState(false);
   const [draftId, setDraftId] = useState("");
   const [idSaved, setIdSaved] = useState(false);
@@ -255,57 +252,6 @@ export default function MemberRow({
           </div>
         )}
       </div>
-
-      {onLinkAccount && (
-        <div style={{ paddingLeft: 2, minHeight: 18 }}>
-          {!member.userId &&
-            (showLinkPicker ? (
-              <select
-                autoFocus
-                defaultValue=""
-                onChange={(e) => {
-                  if (e.target.value) onLinkAccount(member._id, e.target.value);
-                  setShowLinkPicker(false);
-                }}
-                onBlur={() => setShowLinkPicker(false)}
-                style={{
-                  fontSize: 11,
-                  borderRadius: 6,
-                  padding: "3px 6px",
-                  border: `1px solid ${SAGE_DARK}`,
-                  fontFamily: FONT_SERIF,
-                  color: INK,
-                  background: PAPER,
-                }}
-              >
-                <option value="" disabled style={{ color: PLACEHOLDER }}>
-                  Link to Discord account…
-                </option>
-                {unlinkedUsers.map((u) => (
-                  <option key={u._id} value={u._id} style={{ color: INK }}>
-                    {u.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <button
-                onClick={() => setShowLinkPicker(true)}
-                style={{
-                  fontSize: 11,
-                  color: SAGE_DEEP,
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  padding: 0,
-                  fontFamily: FONT_SERIF,
-                }}
-              >
-                Link Discord account
-              </button>
-            ))}
-        </div>
-      )}
 
       {onSetDiscordId && !member.userId && (
         <div style={{ paddingLeft: 2 }}>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import apiFetch from "../utils/apiFetch";
 import { API_ROOT } from "../hooks/useMembers";
+import { SAGE, SAGE_DEEP, PAPER, INK, FONT_SERIF } from "../theme";
 
 const ID_RE = /^\d{15,25}$/;
 
@@ -111,7 +112,14 @@ export default function DiscordIdInput({
         style={style}
       />
       {value && (
-        <div style={{ fontSize: 12, marginTop: 4, opacity: 0.75 }}>
+        <div
+          style={{
+            fontSize: 12,
+            marginTop: 4,
+            color: SAGE_DEEP,
+            fontFamily: FONT_SERIF,
+          }}
+        >
           {pickedLabel ? `Linked to ${pickedLabel}` : "Discord ID set"}
         </div>
       )}
@@ -124,12 +132,13 @@ export default function DiscordIdInput({
             right: 0,
             zIndex: 20,
             marginTop: 4,
-            background: "#fff",
-            color: "#222",
-            border: "1px solid rgba(0,0,0,0.2)",
+            background: PAPER,
+            color: INK,
+            border: `1px solid ${SAGE}`,
             borderRadius: 10,
-            boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
+            boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
             overflow: "hidden",
+            fontFamily: FONT_SERIF,
           }}
         >
           {suggestions.map((m) => (
@@ -139,6 +148,8 @@ export default function DiscordIdInput({
                 e.preventDefault();
                 pick(m);
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = `${SAGE}66`)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               style={{ padding: "8px 12px", cursor: "pointer", fontSize: 14 }}
             >
               {m.displayName || m.username}
