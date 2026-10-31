@@ -58,9 +58,18 @@ router.get("/", async (req, res) => {
         ]),
       );
 
+      // Which entries have a Discord ID stored (the ID itself stays
+      // private; Manage only needs to know whether one is set).
+      const withDiscordId = new Set(
+        (await Score.find({ discordId: { $type: "string" } }, "_id").lean()).map(
+          (s) => String(s._id),
+        ),
+      );
+
       const enriched = scores.map((s) => {
         const obj = s.toObject();
         obj.latestActivity = activityByScoreId.get(String(s._id)) || null;
+        obj.hasDiscordId = withDiscordId.has(String(s._id));
         return obj;
       });
 

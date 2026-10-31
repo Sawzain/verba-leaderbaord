@@ -50,6 +50,7 @@ export default function useMembers(token, enabled = true) {
             points: m.score,
             _id: m._id,
             userId: m.userId || null,
+            hasDiscordId: Boolean(m.hasDiscordId),
             latestActivity: m.latestActivity || null,
           })),
         );
@@ -322,13 +323,17 @@ export default function useMembers(token, enabled = true) {
         }
 
         const updated = await response.json();
-        if (updated.userId) {
-          setMembers((prev) =>
-            prev.map((m) =>
-              m._id === id ? { ...m, userId: updated.userId } : m,
-            ),
-          );
-        }
+        setMembers((prev) =>
+          prev.map((m) =>
+            m._id === id
+              ? {
+                  ...m,
+                  hasDiscordId: true,
+                  userId: updated.userId || m.userId,
+                }
+              : m,
+          ),
+        );
         setError(null);
         ok = true;
       } finally {

@@ -332,7 +332,9 @@ export default function MemberRow({
                 fontFamily: FONT_SERIF,
               }}
             >
-              {idSaved ? "Discord ID saved ✓ (change)" : "Set Discord ID"}
+              {idSaved || member.hasDiscordId
+                ? "Discord ID set ✓ (change)"
+                : "Set Discord ID"}
             </button>
           )}
         </div>
