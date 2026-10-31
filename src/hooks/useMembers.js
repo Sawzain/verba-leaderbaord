@@ -298,6 +298,46 @@ export default function useMembers(token, enabled = true) {
       }
     });
 
+  // Saves a Discord ID on an existing leaderboard entry. If that person has
+  // already logged in, the server links them right away and returns userId.
+  const setDiscordId = async (id, discordId) => {
+    let ok = false;
+    await withAuthError(async () => {
+      setSavingId(id);
+      try {
+        const response = await apiFetch(`${API_BASE}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ discordId }),
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(
+            "Your admin session was rejected. Please log in again.",
+          );
+        }
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          throw new Error(body.error || "Couldn't save that Discord ID.");
+        }
+
+        const updated = await response.json();
+        if (updated.userId) {
+          setMembers((prev) =>
+            prev.map((m) =>
+              m._id === id ? { ...m, userId: updated.userId } : m,
+            ),
+          );
+        }
+        setError(null);
+        ok = true;
+      } finally {
+        setSavingId(null);
+      }
+    });
+    return ok;
+  };
+
   const startEdit = (member) => {
     setEditingIndex(member._id);
     setEditPoints(member.points);
@@ -378,6 +418,7 @@ export default function useMembers(token, enabled = true) {
     saveEdit,
     markRead,
     linkAccount,
+    setDiscordId,
     reload: loadMembers,
   };
 }

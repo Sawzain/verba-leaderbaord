@@ -221,6 +221,7 @@ export default function ManageView({
   removeMember,
   markRead,
   linkAccount,
+  setDiscordId,
   books,
   currentPickId,
   unlinkedUsers,
@@ -451,6 +452,7 @@ export default function ManageView({
           onRemove={() => handleRemove(member._id, member.name)}
           onMarkRead={markRead}
           onLinkAccount={linkAccount}
+          onSetDiscordId={setDiscordId}
           books={books}
           currentPickId={currentPickId}
           unlinkedUsers={unlinkedUsers}

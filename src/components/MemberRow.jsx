@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DiscordIdInput from "./DiscordIdInput";
 import {
   SAGE,
   SAGE_DARK,
@@ -24,12 +25,26 @@ export default function MemberRow({
   onRemove,
   onMarkRead,
   onLinkAccount,
+  onSetDiscordId,
   books = [],
   currentPickId,
   unlinkedUsers = [],
 }) {
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showLinkPicker, setShowLinkPicker] = useState(false);
+  const [showIdPicker, setShowIdPicker] = useState(false);
+  const [draftId, setDraftId] = useState("");
+  const [idSaved, setIdSaved] = useState(false);
+
+  const saveId = async () => {
+    if (!draftId) return;
+    const ok = await onSetDiscordId(member._id, draftId);
+    if (ok !== false) {
+      setIdSaved(true);
+      setShowIdPicker(false);
+      setDraftId("");
+    }
+  };
 
   return (
     <div
@@ -289,6 +304,91 @@ export default function MemberRow({
                 Link Discord account
               </button>
             ))}
+        </div>
+      )}
+
+      {onSetDiscordId && !member.userId && (
+        <div style={{ paddingLeft: 2 }}>
+          {showIdPicker ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 6,
+                flexWrap: "wrap",
+              }}
+            >
+              <DiscordIdInput
+                value={draftId}
+                onChange={setDraftId}
+                onEnter={saveId}
+                nameHint={member.name}
+                style={{
+                  width: "100%",
+                  padding: "4px 8px",
+                  borderRadius: 6,
+                  border: `1px solid ${SAGE_DARK}`,
+                  fontFamily: FONT_SERIF,
+                  fontSize: 12,
+                  color: INK,
+                  background: PAPER,
+                }}
+              />
+              <button
+                onClick={saveId}
+                disabled={!draftId || isSaving}
+                style={{
+                  fontSize: 12,
+                  background: SAGE_DARK,
+                  color: PAPER,
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "4px 10px",
+                  cursor: draftId ? "pointer" : "default",
+                  opacity: draftId ? 1 : 0.5,
+                  fontFamily: FONT_SERIF,
+                }}
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setShowIdPicker(false);
+                  setDraftId("");
+                }}
+                aria-label="Cancel"
+                style={{
+                  fontSize: 12,
+                  background: "none",
+                  border: "none",
+                  color: SAGE_DEEP,
+                  cursor: "pointer",
+                  fontFamily: FONT_SERIF,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setShowIdPicker(true);
+                setIdSaved(false);
+              }}
+              style={{
+                fontSize: 11,
+                color: SAGE_DEEP,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                textDecoration: "underline",
+                padding: 0,
+                fontFamily: FONT_SERIF,
+              }}
+            >
+              {idSaved ? "Discord ID saved ✓ (change)" : "Set Discord ID"}
+            </button>
+          )}
         </div>
       )}
     </div>

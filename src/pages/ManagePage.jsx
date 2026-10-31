@@ -8,7 +8,7 @@ export default function ManagePage() {
     savingId, newName, setNewName, newDiscordId, setNewDiscordId, newPoints, setNewPoints,
     editingIndex, setEditingIndex, editPoints, setEditPoints,
     addMember, removeMember, adjustPoints, startEdit, saveEdit,
-    markRead, linkAccount,
+    markRead, linkAccount, setDiscordId,
   } = membersState;
 
   const { books } = booksState;
@@ -43,6 +43,7 @@ export default function ManagePage() {
       removeMember={removeMember}
       markRead={markRead}
       linkAccount={linkAccount}
+      setDiscordId={setDiscordId}
       books={books}
       currentPickId={currentPickId}
       unlinkedUsers={unlinkedUsers}

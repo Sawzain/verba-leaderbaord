@@ -267,6 +267,18 @@ router.put(
       if (req.body.score !== undefined) update.score = req.body.score;
       if (req.body.username !== undefined) update.username = req.body.username;
 
+      // Admin sets the member's Discord ID. If that person has already
+      // logged in and this entry isn't linked yet, link them right away.
+      if (req.body.discordId) {
+        update.discordId = String(req.body.discordId).trim();
+        if (!current.userId) {
+          const user = await User.findOne({ discordId: update.discordId }, "_id");
+          if (user && !(await Score.findOne({ userId: user._id }))) {
+            update.userId = user._id;
+          }
+        }
+      }
+
       // If this update is lowering the score (the "−" button), also remove
       // the most recent book_read activity entry, so the "already read"
       // block on the + button clears in sync with the point being undone.

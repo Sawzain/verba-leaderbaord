@@ -27,6 +27,7 @@ const addMemberSchema = z.object({
 const updateMemberSchema = z.object({
   score: z.coerce.number().min(0, "Score can't be negative").optional(),
   username: z.string().trim().min(1, "Name can't be empty").optional(),
+  discordId: discordIdField,
 });
 
 module.exports = { addMemberSchema, updateMemberSchema };
