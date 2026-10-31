@@ -1,5 +1,6 @@
 const express = require("express");
 const Score = require("../models/Score");
+const DiscordMember = require("../models/DiscordMember");
 const requireApiKey = require("../middleware/apiKey");
 const requireAuth = require("../middleware/auth");
 const ActivityLog = require("../models/ActivityLog");
@@ -359,8 +360,11 @@ router.get("/:id/profile", async (req, res) => {
 
     const user = await User.findById(
       score.userId,
-      "bio favoriteGenres avatarUrl",
+      "bio favoriteGenres avatarUrl discordId",
     );
+    const discordMember = user?.discordId
+      ? await DiscordMember.findOne({ discordId: user.discordId }, "roles").lean()
+      : null;
 
     const reviewsPage = Math.max(1, parseInt(req.query.reviewsPage) || 1);
     const reviewsLimit = Math.min(
@@ -400,7 +404,10 @@ router.get("/:id/profile", async (req, res) => {
       reviewsTotalPages: Math.max(1, Math.ceil(reviewsTotal / reviewsLimit)),
       // Discord role tiers aren't wired up yet — placeholder until the
       // Twig-side Supabase sync exists.
-      discordRoles: null,
+      discordRoles: (discordMember?.roles || []).map((r) => ({
+        name: r.name,
+        color: r.color && r.color !== "#000000" ? r.color : null,
+      })),
     });
   } catch (err) {
     res.status(400).json({ error: "Invalid member id" });

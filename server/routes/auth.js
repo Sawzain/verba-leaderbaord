@@ -370,6 +370,14 @@ router.post("/discord/complete", async (req, res) => {
       user.emailVerified = true;
       if (avatarUrl) user.avatarUrl = avatarUrl;
     }
+    // Admin comes from the Discord "Site Admin" role (reported by the
+    // Vercel function, which the bridge secret authenticates) or from the
+    // owner list, which also protects against locking yourself out.
+    const owners = (process.env.OWNER_DISCORD_IDS || "")
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+    user.isAdmin = req.body?.isAdminRole === true || owners.includes(discordId);
     await user.save();
 
     if (!(await Score.findOne({ userId: user._id }))) {

@@ -7,6 +7,10 @@ const discordMemberSchema = new mongoose.Schema(
     discordId: { type: String, required: true, unique: true },
     username: { type: String, default: "" },
     displayName: { type: String, default: "" },
+    roles: {
+      type: [{ _id: false, id: String, name: String, color: String }],
+      default: [],
+    },
   },
   { timestamps: true },
 );
