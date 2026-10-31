@@ -48,7 +48,9 @@ app.use(
 app.get("/", (req, res) => res.status(200).send("OK"));
 
 app.use("/api/quotes", quotesRouter);
+const discordMembersRouter = require("./routes/discordMembers");
 app.use("/api/members", membersRouter);
+app.use("/api/discord-members", discordMembersRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/books", booksRouter);
